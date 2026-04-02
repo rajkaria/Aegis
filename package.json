@@ -1,0 +1,19 @@
+{
+  "name": "aegis",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "dashboard",
+    "demo"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "test": "turbo test",
+    "lint": "turbo lint"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0",
+    "typescript": "^5.7.0"
+  }
+}

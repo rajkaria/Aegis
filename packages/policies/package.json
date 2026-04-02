@@ -1,0 +1,21 @@
+{
+  "name": "@aegis-ows/policies",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "aegis-budget": "dist/budget/index.js",
+    "aegis-guard": "dist/guard/index.js",
+    "aegis-approve": "dist/approve/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@aegis-ows/shared": "file:../shared"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  }
+}

@@ -115,6 +115,18 @@ export async function fetchWithMpp(
   const amount = challenge.amount || "0.01";
   const network = challenge.network || "base";
 
+  // Step 4.5: Check session cost limit before making payment
+  const requestAmount = parseFloat(amount);
+  const currentSpent = parseFloat(session.spent);
+  const maxCost = parseFloat(session.maxCost);
+  if (currentSpent + requestAmount > maxCost) {
+    return {
+      success: false,
+      error: `Session cost limit exceeded (spent: ${session.spent}, limit: ${session.maxCost}, requested: ${amount})`,
+      sessionId: session.sessionId,
+    };
+  }
+
   // Step 5: Retry with Authorization header
   let retryResponse: Response;
   try {

@@ -73,19 +73,14 @@ app.get("/api/market-data", (req, res) => {
 
 // ─── GET /api/sentiment ───────────────────────────────────────────────────────
 app.get("/api/sentiment", (req, res) => {
-  const sig = req.headers["x-payment-signature"];
-  if (!sig) {
-    res.status(402).setHeader(
-      "x-payment",
-      JSON.stringify({
-        network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-        token: "USDC",
-        amount: "0.02",
-        recipient: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        resource: "/api/sentiment",
-      })
-    );
-    res.json({ error: "Payment required", price: "0.02 USDC" });
+  const auth = req.headers["authorization"];
+  if (!auth || !auth.startsWith("MPP ")) {
+    res.status(402).json({
+      challengeId: "sentiment-challenge",
+      token: "USDC",
+      amount: "0.02",
+      network: "base",
+    });
     return;
   }
 

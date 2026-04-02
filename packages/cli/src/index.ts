@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+import { Command } from "commander";
+import { initCommand } from "./commands/init.js";
+import { approveCommand } from "./commands/approve.js";
+import { budgetCommand } from "./commands/budget.js";
+import { guardCommand } from "./commands/guard.js";
+import { installCommand } from "./commands/install.js";
+import { reportCommand } from "./commands/report.js";
+
+const program = new Command();
+
+program
+  .name("aegis")
+  .description("Aegis — Policy, Commerce & Visibility for OWS")
+  .version("0.1.0");
+
+program.addCommand(initCommand);
+program.addCommand(approveCommand);
+program.addCommand(budgetCommand);
+program.addCommand(guardCommand);
+program.addCommand(installCommand);
+program.addCommand(reportCommand);
+
+program.parse(process.argv);

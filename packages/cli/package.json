@@ -1,0 +1,20 @@
+{
+  "name": "@aegis-ows/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "aegis": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@aegis-ows/shared": "file:../shared",
+    "commander": "^13.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  }
+}

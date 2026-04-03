@@ -5,6 +5,7 @@ import { AgentPnlTable } from "@/components/agent-pnl-table";
 import { ActivityFeed } from "@/components/activity-feed";
 import { BudgetBar } from "@/components/budget-bar";
 import { DiscoveryFeed } from "@/components/discovery-feed";
+import { DashboardControls } from "@/components/dashboard-controls";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,9 @@ export default function EconomyPage() {
           Agent Economy Dashboard — Real-time commerce, governance, and
           transparency
         </p>
+        <div className="mt-3">
+          <DashboardControls />
+        </div>
       </div>
 
       {/* Stats */}

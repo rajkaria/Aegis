@@ -5,7 +5,7 @@ import type {
   GuardConfig,
   DeadswitchConfig,
   PolicyLogEntry,
-} from "@aegis-ows/shared";
+} from "@/lib/types";
 
 interface PolicyCardProps {
   name: string;

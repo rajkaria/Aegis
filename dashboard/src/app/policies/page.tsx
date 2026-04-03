@@ -14,7 +14,7 @@ import type {
   GuardConfig,
   DeadswitchConfig,
   PolicyLogEntry,
-} from "@aegis-ows/shared";
+} from "@/lib/types";
 
 interface PolicyData {
   log: { entries: PolicyLogEntry[] };

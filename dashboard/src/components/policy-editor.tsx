@@ -9,7 +9,7 @@ import type {
   BudgetLimit,
   GuardConfig,
   DeadswitchConfig,
-} from "@aegis-ows/shared";
+} from "@/lib/types";
 
 // ─── Budget Editor ───────────────────────────────────────────────
 

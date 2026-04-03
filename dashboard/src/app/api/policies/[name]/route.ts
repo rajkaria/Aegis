@@ -3,7 +3,7 @@ import {
   writeBudgetConfig,
   writeGuardConfig,
   writeDeadswitchConfig,
-} from "@aegis-ows/shared";
+} from "@/lib/config-writer";
 
 export async function POST(
   req: Request,

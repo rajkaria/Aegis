@@ -9,7 +9,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-import type { LedgerEntry } from "@aegis-ows/shared";
+import type { LedgerEntry } from "@/lib/types";
 
 interface SpendingChartProps {
   entries: LedgerEntry[];

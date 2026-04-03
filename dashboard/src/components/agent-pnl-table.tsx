@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { AgentProfile } from "@aegis-ows/shared";
+import type { AgentProfile } from "@/lib/types";
 
 export function AgentPnlTable({ profiles }: { profiles: AgentProfile[] }) {
   if (profiles.length === 0) {

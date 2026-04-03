@@ -1,0 +1,169 @@
+/**
+ * Local copy of types from @aegis-ows/shared.
+ * The dashboard bundles these directly so it can deploy standalone on Vercel
+ * without the monorepo workspace link.
+ */
+
+// === Budget Types ===
+export interface BudgetLimit {
+  chainId: string;
+  token: string;
+  daily?: string;
+  weekly?: string;
+  monthly?: string;
+}
+
+export interface BudgetConfig {
+  limits: BudgetLimit[];
+}
+
+export interface LedgerEntry {
+  timestamp: string;
+  apiKeyId: string;
+  chainId: string;
+  token: string;
+  amount: string;
+  txHash?: string;
+  tool?: string;
+  description?: string;
+}
+
+export interface BudgetLedger {
+  entries: LedgerEntry[];
+}
+
+// === Guard Types ===
+export interface GuardConfig {
+  mode: "allowlist" | "blocklist";
+  addresses: Record<string, string[]>;
+  blockAddresses?: string[];
+}
+
+// === Policy Log Types ===
+export interface PolicyLogEntry {
+  timestamp: string;
+  policyName: string;
+  apiKeyId: string;
+  chainId: string;
+  allowed: boolean;
+  reason?: string;
+  transactionPreview?: string;
+}
+
+export interface PolicyLog {
+  entries: PolicyLogEntry[];
+}
+
+// === Deadswitch Types ===
+export interface DeadswitchConfig {
+  maxInactiveMinutes: number;
+  onTrigger: "revoke_key";
+  recoveryWallet?: string;
+  sweepFunds: boolean;
+  lastHeartbeat?: string;
+  enabled: boolean;
+}
+
+// === Earnings Types ===
+export interface EarningsEntry {
+  timestamp: string;
+  agentId: string;
+  endpoint: string;
+  fromAgent: string;
+  token: string;
+  amount: string;
+  txHash?: string;
+}
+
+export interface EarningsLedger {
+  entries: EarningsEntry[];
+}
+
+// === Agent Profile ===
+export interface AgentProfile {
+  agentId: string;
+  totalRevenue: number;
+  totalSpending: number;
+  profitLoss: number;
+  endpoints: { endpoint: string; revenue: number; calls: number }[];
+  vendors: { vendor: string; spending: number; calls: number }[];
+}
+
+// === Sankey Data ===
+export interface SankeyData {
+  nodes: { name: string }[];
+  links: { source: number; target: number; value: number }[];
+}
+
+// === Message Bus Types ===
+export interface ServiceAnnouncement {
+  type: "service_announcement";
+  agentId: string;
+  timestamp: string;
+  services: {
+    endpoint: string;
+    price: string;
+    token: string;
+    description: string;
+    baseUrl: string;
+  }[];
+}
+
+export interface ServiceQuery {
+  type: "service_query";
+  agentId: string;
+  timestamp: string;
+  query: string;
+}
+
+export interface ServiceResponse {
+  type: "service_response";
+  agentId: string;
+  timestamp: string;
+  inResponseTo: string;
+  matches: {
+    endpoint: string;
+    price: string;
+    description: string;
+    fullUrl: string;
+  }[];
+}
+
+export type AgentMessage = ServiceAnnouncement | ServiceQuery | ServiceResponse;
+
+export interface MessageBus {
+  messages: AgentMessage[];
+}
+
+// === Utility: getSpentInPeriod ===
+export function getSpentInPeriod(
+  ledger: BudgetLedger,
+  apiKeyId: string,
+  chainId: string,
+  token: string,
+  period: "daily" | "weekly" | "monthly"
+): number {
+  const now = new Date();
+  let cutoff: Date;
+
+  if (period === "daily") {
+    cutoff = new Date(now);
+    cutoff.setHours(0, 0, 0, 0);
+  } else if (period === "weekly") {
+    cutoff = new Date(now);
+    cutoff.setDate(now.getDate() - now.getDay());
+    cutoff.setHours(0, 0, 0, 0);
+  } else {
+    cutoff = new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+
+  return ledger.entries
+    .filter(
+      (e) =>
+        e.apiKeyId === apiKeyId &&
+        e.chainId === chainId &&
+        e.token === token &&
+        new Date(e.timestamp) >= cutoff
+    )
+    .reduce((sum, e) => sum + parseFloat(e.amount), 0);
+}

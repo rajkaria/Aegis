@@ -10,7 +10,7 @@ import {
 } from "@/lib/data-provider";
 import {
   getSpentInPeriod,
-} from "@aegis-ows/shared";
+} from "@/lib/types";
 import type {
   AgentProfile,
   SankeyData,
@@ -19,7 +19,7 @@ import type {
   LedgerEntry,
   BudgetLedger,
   EarningsLedger,
-} from "@aegis-ows/shared";
+} from "@/lib/types";
 
 // === Local compute functions (use provider data instead of filesystem) ===
 

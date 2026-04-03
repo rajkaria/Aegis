@@ -13,7 +13,7 @@ import type {
   GuardConfig,
   DeadswitchConfig,
   MessageBus,
-} from "@aegis-ows/shared";
+} from "@/lib/types";
 
 // Bundled seed data (imported as JSON modules)
 import bundledBudgetLedger from "@/data/budget-ledger.json";

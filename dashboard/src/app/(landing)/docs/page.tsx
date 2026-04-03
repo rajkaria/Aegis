@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 function SectionAnchor({ id, children }: { id: string; children: React.ReactNode }) {
   return (
@@ -465,34 +466,67 @@ npx tsx run-economy.ts # Start all 3 agents + run transactions`}</CodeBlock>
         {/* Integrations */}
         <SectionAnchor id="integrations">
           <h2 className="text-2xl font-bold tracking-tight mb-4">Integrations</h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            Aegis integrates with 7 partner tools to provide real on-chain data, cross-chain balances, transaction verification, and agent funding.
+          </p>
           <div className="grid gap-3">
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <h4 className="font-semibold">Zerion</h4>
+                <h4 className="font-semibold">Solana Web3.js</h4>
+                <Badge variant="outline" className="text-[9px] ml-auto">No API key</Badge>
               </div>
-              <p className="text-sm text-muted-foreground">Real-time wallet balance tracking across all chains. See each agent&apos;s token holdings directly in their profile page.</p>
+              <p className="text-sm text-muted-foreground">Direct Solana RPC queries for SOL and SPL token balances (including USDC). Uses free public mainnet endpoints &mdash; no API key or signup required. Balances appear on each agent&apos;s profile page.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h4 className="font-semibold">Ripple XRPL</h4>
+                <Badge variant="outline" className="text-[9px] ml-auto">No API key</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">Real XRP Ledger balance queries via WebSocket RPC. Fetches XRP balances and trust line tokens directly from the validated ledger. No API key needed.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h4 className="font-semibold">Zerion API</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">Rich multi-chain portfolio data for EVM wallets &mdash; token balances, DeFi positions, and USD valuations across Ethereum, Base, Polygon, and Arbitrum. Powers the wallet balance cards on agent profile pages.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h4 className="font-semibold">Uniblock</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">Unified API aggregating 55+ blockchain data providers through a single endpoint. Used as a fallback and multi-chain RPC layer for fetching token balances across EVM chains when Zerion data is unavailable.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h4 className="font-semibold">Allium Explorer</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">On-chain transaction verification via Allium&apos;s decoded blockchain data. When a payment flows through the economy, Aegis can verify it landed on-chain with block number, timestamp, and confirmation status.</p>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 <h4 className="font-semibold">MoonPay</h4>
               </div>
-              <p className="text-sm text-muted-foreground">Fund agent wallets with fiat currency. When an agent&apos;s balance runs low, top it up via MoonPay&apos;s on-ramp directly from the dashboard.</p>
+              <p className="text-sm text-muted-foreground">Fiat on-ramp for agent wallets. When an agent&apos;s balance runs low, fund it via MoonPay CLI (<code className="text-[11px] bg-white/[0.06] px-1 rounded">mp buy</code>) or the web on-ramp. Supports USDC, ETH, and SOL on Ethereum, Base, Solana, and Polygon.</p>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 <h4 className="font-semibold">XMTP</h4>
               </div>
-              <p className="text-sm text-muted-foreground">Wallet-to-wallet messaging for agent service discovery. Agents find each other before paying, creating a true marketplace.</p>
+              <p className="text-sm text-muted-foreground">Wallet-to-wallet messaging for agent service discovery. Agents announce their services and discover each other before paying via x402 &mdash; creating a decentralized service marketplace.</p>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 <h4 className="font-semibold">Open Wallet Standard</h4>
               </div>
-              <p className="text-sm text-muted-foreground">All payments sign through OWS&apos;s secure enclave. Keys never leave the vault. Policies run natively in the OWS policy engine. Aegis is an OWS-first protocol.</p>
+              <p className="text-sm text-muted-foreground">The foundation. All payments sign through OWS&apos;s secure enclave. Keys never leave the vault. Policies run natively in the OWS policy engine. Aegis is an OWS-first protocol.</p>
             </div>
           </div>
         </SectionAnchor>

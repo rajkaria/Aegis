@@ -68,53 +68,6 @@ export interface GuardConfig {
   blockAddresses?: string[];
 }
 
-// === Aegis Approve Types ===
-export interface ApproveConfig {
-  thresholds: {
-    auto_approve_below: string;
-    require_approval_above: string;
-    hard_block_above: string;
-  };
-  approval_ttl_minutes: number;
-  queue_path?: string;
-}
-
-export interface PendingApproval {
-  id: string;
-  apiKeyId: string;
-  chainId: string;
-  transaction: SerializedTransaction;
-  estimatedValue: string;
-  token: string;
-  reason?: string;
-  createdAt: string;
-  expiresAt: string;
-  status: "pending" | "approved" | "rejected" | "expired";
-  resolvedAt?: string;
-}
-
-export interface ApprovalQueue {
-  pending: PendingApproval[];
-}
-
-// === Service Registry Types ===
-export interface ServiceEntry {
-  id: string;
-  name: string;
-  description: string;
-  endpoint: string;
-  price: string;
-  token: string;
-  protocol: "x402" | "mpp";
-  chains: string[];
-  registeredBy: string;
-  registeredAt: string;
-}
-
-export interface ServiceRegistry {
-  services: ServiceEntry[];
-}
-
 // === Policy Log Types ===
 export interface PolicyLogEntry {
   timestamp: string;
@@ -128,4 +81,45 @@ export interface PolicyLogEntry {
 
 export interface PolicyLog {
   entries: PolicyLogEntry[];
+}
+
+// === Aegis Deadswitch Types ===
+export interface DeadswitchConfig {
+  maxInactiveMinutes: number;
+  onTrigger: "revoke_key";
+  recoveryWallet?: string;
+  sweepFunds: boolean;
+  lastHeartbeat?: string;
+  enabled: boolean;
+}
+
+// === Earnings Ledger Types ===
+export interface EarningsEntry {
+  timestamp: string;
+  agentId: string;
+  endpoint: string;
+  fromAgent: string;
+  token: string;
+  amount: string;
+  txHash?: string;
+}
+
+export interface EarningsLedger {
+  entries: EarningsEntry[];
+}
+
+// === Agent Profile (P&L) ===
+export interface AgentProfile {
+  agentId: string;
+  totalRevenue: number;
+  totalSpending: number;
+  profitLoss: number;
+  endpoints: { endpoint: string; revenue: number; calls: number }[];
+  vendors: { vendor: string; spending: number; calls: number }[];
+}
+
+// === Sankey Data ===
+export interface SankeyData {
+  nodes: { name: string }[];
+  links: { source: number; target: number; value: number }[];
 }

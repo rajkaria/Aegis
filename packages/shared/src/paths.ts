@@ -11,11 +11,9 @@ export const PATHS = {
   budgetLedger: join(AEGIS_DIR, "budget-ledger.json"),
   budgetConfig: join(AEGIS_DIR, "budget-config.json"),
   guardConfig: join(AEGIS_DIR, "guard-config.json"),
-  approveConfig: join(AEGIS_DIR, "approve-config.json"),
-  pendingApprovals: join(AEGIS_DIR, "pending-approvals.json"),
-  serviceRegistry: join(AEGIS_DIR, "service-registry.json"),
   policyLog: join(AEGIS_DIR, "policy-log.json"),
-  mppSessions: join(AEGIS_DIR, "mpp-sessions.json"),
+  deadswitchConfig: join(AEGIS_DIR, "deadswitch-config.json"),
+  earningsLedger: join(AEGIS_DIR, "earnings-ledger.json"),
 } as const;
 
 export function ensureAegisDir(): void {

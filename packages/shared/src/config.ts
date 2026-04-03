@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { existsSync } from "node:fs";
-import type { BudgetConfig, GuardConfig, ApproveConfig } from "./types.js";
+import type { BudgetConfig, GuardConfig, DeadswitchConfig } from "./types.js";
 import { PATHS, ensureAegisDir } from "./paths.js";
 
 // === Budget Config ===
@@ -41,21 +41,34 @@ export function writeGuardConfig(config: GuardConfig): void {
   writeFileSync(PATHS.guardConfig, JSON.stringify(config, null, 2), "utf-8");
 }
 
-// === Approve Config ===
+// === Deadswitch Config ===
 
-export function readApproveConfig(): ApproveConfig | null {
-  if (!existsSync(PATHS.approveConfig)) {
-    return null;
-  }
+function readJson<T>(path: string, fallback: T): T {
+  if (!existsSync(path)) return fallback;
   try {
-    const raw = readFileSync(PATHS.approveConfig, "utf-8");
-    return JSON.parse(raw) as ApproveConfig;
+    return JSON.parse(readFileSync(path, "utf-8")) as T;
   } catch {
-    return null;
+    return fallback;
   }
 }
 
-export function writeApproveConfig(config: ApproveConfig): void {
+function writeJson(path: string, data: unknown): void {
   ensureAegisDir();
-  writeFileSync(PATHS.approveConfig, JSON.stringify(config, null, 2), "utf-8");
+  writeFileSync(path, JSON.stringify(data, null, 2), "utf-8");
+}
+
+export function readDeadswitchConfig(): DeadswitchConfig | null {
+  return readJson<DeadswitchConfig | null>(PATHS.deadswitchConfig, null);
+}
+
+export function writeDeadswitchConfig(config: DeadswitchConfig): void {
+  writeJson(PATHS.deadswitchConfig, config);
+}
+
+export function updateHeartbeat(): void {
+  const config = readDeadswitchConfig();
+  if (config) {
+    config.lastHeartbeat = new Date().toISOString();
+    writeDeadswitchConfig(config);
+  }
 }

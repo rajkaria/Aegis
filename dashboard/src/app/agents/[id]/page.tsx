@@ -1,7 +1,9 @@
 import { getAgentDetail } from "@/lib/aegis-data";
 import { StatCard } from "@/components/stat-card";
 import { BudgetBar } from "@/components/budget-bar";
+import { WalletBalance } from "@/components/wallet-balance";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -60,6 +62,24 @@ export default async function AgentDetailPage({
           value={`${isProfit ? "+" : ""}$${profile.profitLoss.toFixed(2)}`}
           description="Net position"
         />
+      </div>
+
+      {/* Wallet Balance */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <WalletBalance agentId={id} />
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center h-full py-8">
+            <p className="text-sm text-muted-foreground mb-3">
+              Need to add funds to this agent&apos;s wallet?
+            </p>
+            <Button variant="outline" disabled>
+              Fund via MoonPay
+            </Button>
+            <p className="text-[10px] text-muted-foreground mt-2">
+              On-ramp powered by MoonPay
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Revenue + Spending breakdown */}

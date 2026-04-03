@@ -97,6 +97,22 @@ export function Nav() {
           );
         })}
       </nav>
+      {/* Partner Integrations */}
+      <div className="p-4 border-t border-border space-y-2">
+        <p className="px-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+          Partners
+        </p>
+        <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          Zerion
+          <span className="ml-auto text-[10px] opacity-60">Balance data</span>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          MoonPay
+          <span className="ml-auto text-[10px] opacity-60">On-ramp</span>
+        </div>
+      </div>
       <div className="p-4 border-t border-border">
         <a
           href="/api/export"

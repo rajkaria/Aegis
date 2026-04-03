@@ -73,8 +73,11 @@ export default function EconomyPage() {
       {/* Budget Consumption */}
       {data.budgets.length > 0 && (
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Budget Consumption</CardTitle>
+            <span className="text-[10px] text-muted-foreground">
+              Balance data powered by Zerion
+            </span>
           </CardHeader>
           <CardContent className="space-y-4">
             {data.budgets.map((b, i) => (

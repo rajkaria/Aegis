@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aegis Sentinel Dashboard",
-  description: "Agent Spending Intelligence - Real-time visibility into agent spending, policy enforcement, and approvals.",
+  title: "Aegis Nexus",
+  description: "Agent Economy Visualizer - Real-time commerce, governance, and transparency for autonomous agent economies.",
 };
 
 export default function RootLayout({

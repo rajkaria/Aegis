@@ -4,7 +4,7 @@ import { PolicyCard } from "@/components/policy-card";
 export const dynamic = "force-dynamic";
 
 export default function PoliciesPage() {
-  const { log, budgetConfig, guardConfig, approveConfig } = getPolicyData();
+  const { log, budgetConfig, guardConfig, deadswitchConfig } = getPolicyData();
 
   const policies = [
     {
@@ -18,9 +18,9 @@ export default function PoliciesPage() {
       config: guardConfig,
     },
     {
-      name: "aegis-approve",
-      displayName: "Aegis Approve",
-      config: approveConfig,
+      name: "aegis-deadswitch",
+      displayName: "Aegis Deadswitch",
+      config: deadswitchConfig,
     },
   ] as const;
 

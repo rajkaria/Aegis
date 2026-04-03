@@ -5,40 +5,62 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/", label: "Overview", icon: LayoutIcon },
+  { href: "/", label: "Economy", icon: FlowIcon },
+  { href: "/agents", label: "Agents", icon: UsersIcon },
   { href: "/policies", label: "Policies", icon: ShieldIcon },
-  { href: "/approvals", label: "Approvals", icon: CheckCircleIcon },
-  { href: "/services", label: "Services", icon: ServerIcon },
 ];
 
-function LayoutIcon({ className }: { className?: string }) {
+function FlowIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="5" cy="6" r="3" />
+      <circle cx="19" cy="6" r="3" />
+      <circle cx="12" cy="18" r="3" />
+      <path d="M7.5 8l3 7.5" />
+      <path d="M16.5 8l-3 7.5" />
+    </svg>
+  );
+}
+
+function UsersIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </svg>
   );
 }
 
 function ShieldIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
-  );
-}
-
-function CheckCircleIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
-  );
-}
-
-function ServerIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="2" width="20" height="8" rx="2" ry="2" /><rect x="2" y="14" width="20" height="8" rx="2" ry="2" /><line x1="6" y1="6" x2="6.01" y2="6" /><line x1="6" y1="18" x2="6.01" y2="18" />
     </svg>
   );
 }
@@ -49,14 +71,15 @@ export function Nav() {
   return (
     <aside className="w-64 border-r border-border bg-card flex flex-col min-h-screen">
       <div className="p-6 border-b border-border">
-        <h1 className="text-xl font-bold tracking-tight">AEGIS</h1>
+        <h1 className="text-xl font-bold tracking-tight">AEGIS NEXUS</h1>
         <p className="text-xs text-muted-foreground mt-1">
-          Agent Spending Intelligence
+          Agent Economy Visualizer
         </p>
       </div>
       <nav className="flex-1 p-4 space-y-1">
         {links.map(({ href, label, icon: Icon }) => {
-          const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
+          const isActive =
+            href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
             <Link
               key={href}

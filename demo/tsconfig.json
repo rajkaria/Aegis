@@ -1,5 +1,5 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": { "outDir": "dist", "rootDir": "." },
-  "include": ["*.ts", "scenarios/*.ts"]
+  "include": ["*.ts", "agents/*.ts"]
 }

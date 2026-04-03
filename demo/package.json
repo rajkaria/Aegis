@@ -4,11 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "setup": "tsx setup.ts",
-    "mock-server": "tsx mock-x402-server.ts"
+    "seed": "tsx seed.ts",
+    "data-miner": "tsx agents/data-miner.ts",
+    "analyst": "tsx agents/analyst.ts",
+    "buyer": "tsx agents/research-buyer.ts",
+    "demo": "tsx run-economy.ts"
   },
   "dependencies": {
     "@aegis-ows/shared": "file:../packages/shared",
+    "@aegis-ows/gate": "file:../packages/gate",
     "express": "^5.0.0"
   },
   "devDependencies": {

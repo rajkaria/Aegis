@@ -1,0 +1,15 @@
+{
+  "walletName": "analyst",
+  "network": "eip155:8453",
+  "endpoints": {
+    "/analyze": {
+      "price": "0.05",
+      "token": "USDC",
+      "description": "AI-powered market analysis — buys raw data from data-miner"
+    },
+    "/health": {
+      "price": "0",
+      "description": "Health check"
+    }
+  }
+}

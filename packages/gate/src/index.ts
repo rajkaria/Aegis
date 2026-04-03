@@ -1,4 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
+import { Router } from "express";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { appendEarningsEntry, ensureAegisDir } from "@aegis-ows/shared";
 import { appendLedgerEntry } from "@aegis-ows/shared";
 
@@ -8,6 +11,7 @@ export interface AegisGateOptions {
   agentId: string;
   walletAddress?: string;
   network?: string;      // default "eip155:1"
+  description?: string;
 }
 
 export function aegisGate(options: AegisGateOptions) {
@@ -18,15 +22,18 @@ export function aegisGate(options: AegisGateOptions) {
     const paymentHeader = req.headers["x-payment"] as string | undefined;
 
     if (!paymentHeader) {
+      const walletAddress = options.walletAddress ?? `wallet:${options.agentId}`;
       res.status(402).json({
-        type: "x402",
-        version: 1,
-        network,
+        // x402 spec fields
+        x402Version: 1,
+        payTo: walletAddress,
+        price: options.price,
         token,
-        amount: options.price,
-        recipient: options.walletAddress ?? `wallet:${options.agentId}`,
+        // extended fields for backward compat
+        network,
         resource: req.path,
         agentId: options.agentId,
+        description: options.description,
       });
       return;
     }
@@ -66,10 +73,19 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
   const details = await probeRes.json() as {
     network?: string;
     token?: string;
-    amount: string;
+    // new spec fields
+    price?: string;
+    payTo?: string;
+    // legacy fields (backward compat)
+    amount?: string;
+    recipient?: string;
     agentId?: string;
     resource?: string;
   };
+
+  // Support both new spec field names and legacy field names
+  const amount = details.price ?? details.amount ?? "0";
+  const recipient = details.payTo ?? details.recipient ?? details.agentId;
 
   // Step 2: Log spending
   ensureAegisDir();
@@ -78,9 +94,9 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
     apiKeyId: callerAgentId,
     chainId: details.network ?? "eip155:1",
     token: details.token ?? "USDC",
-    amount: details.amount,
+    amount,
     tool: url,
-    description: `x402 payment to ${details.agentId} for ${details.resource}`,
+    description: `x402 payment to ${recipient} for ${details.resource ?? url}`,
   });
 
   // Step 3: Retry with payment
@@ -89,11 +105,44 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
       "X-PAYMENT": JSON.stringify({
         fromAgent: callerAgentId,
         token: details.token,
-        amount: details.amount,
+        amount,
         txHash: `mock-tx-${Date.now()}`,
       }),
     },
   });
 
   return paidRes.json();
+}
+
+export interface AegisConfig {
+  walletName: string;
+  network?: string;
+  endpoints: Record<string, {
+    price: string;
+    token?: string;
+    description?: string;
+  }>;
+}
+
+export function loadConfig(configPath?: string): AegisConfig {
+  const path = configPath ?? join(process.cwd(), "aegis.config.json");
+  return JSON.parse(readFileSync(path, "utf-8")) as AegisConfig;
+}
+
+export function aegisGateFromConfig(configPath?: string): Router {
+  const config = loadConfig(configPath);
+  const router = Router();
+
+  for (const [path, endpoint] of Object.entries(config.endpoints)) {
+    if (endpoint.price === "0") continue; // Free endpoints don't need gate
+    router.use(path, aegisGate({
+      price: endpoint.price,
+      token: endpoint.token ?? "USDC",
+      agentId: config.walletName,
+      network: config.network ?? "eip155:1",
+      description: endpoint.description,
+    }));
+  }
+
+  return router;
 }

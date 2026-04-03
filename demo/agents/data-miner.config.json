@@ -1,0 +1,15 @@
+{
+  "walletName": "data-miner",
+  "network": "eip155:8453",
+  "endpoints": {
+    "/scrape": {
+      "price": "0.01",
+      "token": "USDC",
+      "description": "Web scraping service — scrape and parse any URL"
+    },
+    "/health": {
+      "price": "0",
+      "description": "Health check"
+    }
+  }
+}

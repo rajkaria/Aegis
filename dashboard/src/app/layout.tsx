@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Nav } from "@/components/nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aegis Nexus",
-  description: "Agent Economy Visualizer - Real-time commerce, governance, and transparency for autonomous agent economies.",
+  title: "Aegis — Agent Commerce Protocol",
+  description:
+    "The commerce protocol for agent economies. Agents earn via x402-gated services, spend within policy guardrails, and operate transparently.",
 };
 
 export default function RootLayout({
@@ -28,11 +28,8 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
     >
-      <body className="min-h-full flex">
-        <Nav />
-        <main className="flex-1 overflow-auto">
-          <div className="p-6 max-w-7xl mx-auto">{children}</div>
-        </main>
+      <body className="min-h-full bg-background text-foreground">
+        {children}
       </body>
     </html>
   );

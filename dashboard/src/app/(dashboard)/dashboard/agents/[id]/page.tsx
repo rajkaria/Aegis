@@ -32,7 +32,7 @@ export default async function AgentDetailPage({
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link
-          href="/agents"
+          href="/dashboard/agents"
           className="text-sm text-muted-foreground hover:text-foreground"
         >
           &larr; Agents

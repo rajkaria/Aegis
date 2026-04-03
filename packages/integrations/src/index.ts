@@ -11,6 +11,7 @@ import { getSolanaBalances } from "./solana.js";
 import { getXrpBalances } from "./ripple.js";
 import { getZerionPortfolio } from "./zerion.js";
 import { getEvmBalances } from "./uniblock.js";
+import { getAlliumBalances } from "./allium.js";
 import type { ChainBalance } from "./types.js";
 
 export async function getAllBalances(addresses: {
@@ -25,9 +26,10 @@ export async function getAllBalances(addresses: {
   if (addresses.solana) queries.push(getSolanaBalances(addresses.solana));
   if (addresses.xrp) queries.push(getXrpBalances(addresses.xrp));
   if (addresses.evm) {
-    // Try Zerion first (richer data), fall back to Uniblock
+    // Try multiple sources — Zerion, Uniblock, Allium — keep richest data
     queries.push(getZerionPortfolio(addresses.evm));
     queries.push(getEvmBalances(addresses.evm));
+    queries.push(getAlliumBalances(addresses.evm, "eip155:1"));
   }
 
   const allResults = await Promise.allSettled(queries);

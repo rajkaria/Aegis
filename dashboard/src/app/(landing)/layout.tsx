@@ -32,6 +32,12 @@ function LandingNav() {
             Features
           </a>
           <Link
+            href="/docs"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Docs
+          </Link>
+          <Link
             href="/dashboard"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >

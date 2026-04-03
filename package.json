@@ -9,12 +9,13 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "test": "turbo test",
+    "test": "vitest run",
     "lint": "turbo lint"
   },
   "devDependencies": {
     "turbo": "^2.4.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.9"
   },
   "dependencies": {
     "@open-wallet-standard/core": "^1.2.0"

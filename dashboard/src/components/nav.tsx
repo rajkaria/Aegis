@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/", label: "Economy", icon: FlowIcon },
-  { href: "/agents", label: "Agents", icon: UsersIcon },
-  { href: "/policies", label: "Policies", icon: ShieldIcon },
+  { href: "/dashboard", label: "Economy", icon: FlowIcon },
+  { href: "/dashboard/agents", label: "Agents", icon: UsersIcon },
+  { href: "/dashboard/policies", label: "Policies", icon: ShieldIcon },
 ];
 
 function FlowIcon({ className }: { className?: string }) {
@@ -65,59 +65,127 @@ function ShieldIcon({ className }: { className?: string }) {
   );
 }
 
+function DownloadIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  );
+}
+
 export function Nav() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 border-r border-border bg-card flex flex-col min-h-screen">
-      <div className="p-6 border-b border-border">
-        <h1 className="text-xl font-bold tracking-tight">AEGIS NEXUS</h1>
-        <p className="text-xs text-muted-foreground mt-1">
-          Agent Economy Visualizer
-        </p>
+    <aside className="w-64 border-r border-white/[0.06] bg-white/[0.01] flex flex-col min-h-screen">
+      {/* Logo area */}
+      <div className="p-6 border-b border-white/[0.06]">
+        <div className="flex items-center gap-2.5">
+          {/* Animated shield/pulse icon */}
+          <div className="relative flex items-center justify-center w-7 h-7">
+            <div
+              className="absolute inset-0 rounded-md bg-emerald-500/20 animate-pulse"
+              style={{ animationDuration: "2.5s" }}
+            />
+            <svg
+              className="relative w-4 h-4 text-emerald-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-sm font-bold tracking-widest text-foreground">
+              AEGIS NEXUS
+            </h1>
+            <p className="text-[10px] text-muted-foreground/70 tracking-wider uppercase">
+              Agent Economy
+            </p>
+          </div>
+        </div>
       </div>
-      <nav className="flex-1 p-4 space-y-1">
+
+      {/* Navigation */}
+      <nav className="flex-1 p-4 space-y-0.5">
         {links.map(({ href, label, icon: Icon }) => {
           const isActive =
-            href === "/" ? pathname === "/" : pathname.startsWith(href);
+            href === "/dashboard"
+              ? pathname === "/dashboard"
+              : pathname.startsWith(href);
           return (
             <Link
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
               )}
             >
-              <Icon className="h-4 w-4" />
-              {label}
+              {isActive && (
+                <>
+                  {/* Active background glow */}
+                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-emerald-500/10 via-sky-500/5 to-transparent border border-white/[0.08]" />
+                  {/* Left accent line */}
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full bg-emerald-400/80" />
+                </>
+              )}
+              <Icon
+                className={cn(
+                  "h-4 w-4 relative z-10",
+                  isActive ? "text-emerald-400" : ""
+                )}
+              />
+              <span className="relative z-10">{label}</span>
             </Link>
           );
         })}
       </nav>
+
       {/* Partner Integrations */}
-      <div className="p-4 border-t border-border space-y-2">
-        <p className="px-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="px-4 pb-2 pt-3 border-t border-white/[0.05]">
+        <p className="px-3 text-[9px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-1.5">
           Partners
         </p>
-        <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          Zerion
-          <span className="ml-auto text-[10px] opacity-60">Balance data</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground/70 rounded-md hover:bg-white/[0.02] transition-colors">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.6)] flex-shrink-0" />
+          <span>Zerion</span>
+          <span className="ml-auto text-[9px] text-muted-foreground/40 tracking-wide">
+            Balance data
+          </span>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          MoonPay
-          <span className="ml-auto text-[10px] opacity-60">On-ramp</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground/70 rounded-md hover:bg-white/[0.02] transition-colors">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.6)] flex-shrink-0" />
+          <span>MoonPay</span>
+          <span className="ml-auto text-[9px] text-muted-foreground/40 tracking-wide">
+            On-ramp
+          </span>
         </div>
       </div>
-      <div className="p-4 border-t border-border">
+
+      {/* Export link */}
+      <div className="px-4 py-3 border-t border-white/[0.05]">
         <a
           href="/api/export"
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.04] transition-all duration-200 group"
         >
+          <DownloadIcon className="h-3.5 w-3.5 group-hover:text-emerald-400 transition-colors" />
           Export CSV
         </a>
       </div>

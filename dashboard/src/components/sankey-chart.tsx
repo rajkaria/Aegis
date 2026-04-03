@@ -13,23 +13,27 @@ interface FlowLink {
   value: number;
 }
 
-function AgentNode({ node }: { node: FlowNode }) {
+function AgentNode({ node, index }: { node: FlowNode; index: number }) {
   const isProfit = node.profitLoss >= 0;
   return (
-    <div className="relative flex flex-col items-center gap-1.5 animate-fade-up">
+    <div
+      className="relative flex flex-col items-center gap-2 animate-fade-up"
+      style={{ animationDelay: `${index * 120}ms` }}
+    >
       <div
         className={`
-          relative px-4 py-3 rounded-xl border backdrop-blur-sm
+          relative px-5 py-4 rounded-xl border backdrop-blur-sm min-w-[120px] text-center
+          transition-all duration-300 hover:scale-[1.03]
           ${isProfit
-            ? "border-emerald-500/30 bg-emerald-500/10 shadow-[0_0_24px_rgba(16,185,129,0.15)]"
-            : "border-red-500/30 bg-red-500/10 shadow-[0_0_24px_rgba(239,68,68,0.15)]"
+            ? "border-emerald-500/40 bg-emerald-500/10 shadow-[0_0_32px_rgba(16,185,129,0.2)]"
+            : "border-red-500/40 bg-red-500/10 shadow-[0_0_32px_rgba(239,68,68,0.2)]"
           }
         `}
       >
         <div className="text-sm font-semibold text-foreground tracking-tight">
           {node.name}
         </div>
-        <div className={`text-xs font-mono mt-1 ${isProfit ? "text-emerald-400" : "text-red-400"}`}>
+        <div className={`text-xs font-mono mt-1.5 ${isProfit ? "text-emerald-400" : "text-red-400"}`}>
           {isProfit ? "+" : ""}${node.profitLoss.toFixed(2)}
         </div>
         {/* Glow ring */}
@@ -37,8 +41,12 @@ function AgentNode({ node }: { node: FlowNode }) {
           className={`absolute inset-0 rounded-xl ${isProfit ? "bg-emerald-500/5" : "bg-red-500/5"} animate-pulse`}
           style={{ animationDuration: "3s" }}
         />
+        {/* Gradient overlay on top edge */}
+        <div
+          className={`absolute inset-x-0 top-0 h-px rounded-t-xl ${isProfit ? "bg-emerald-400/40" : "bg-red-400/40"}`}
+        />
       </div>
-      <div className="flex gap-3 text-[10px] text-muted-foreground">
+      <div className="flex gap-4 text-[10px] text-muted-foreground">
         <span>
           In: <span className="text-emerald-400">${node.revenue.toFixed(2)}</span>
         </span>
@@ -52,26 +60,31 @@ function AgentNode({ node }: { node: FlowNode }) {
 
 function FlowArrow({ value, index }: { value: number; index: number }) {
   return (
-    <div className="flex flex-col items-center justify-center min-w-[80px] animate-fade-up" style={{ animationDelay: `${index * 100 + 200}ms` }}>
-      {/* Arrow line with animated dots */}
-      <div className="relative w-full h-8 flex items-center">
+    <div
+      className="flex flex-col items-center justify-center min-w-[96px] animate-fade-up"
+      style={{ animationDelay: `${index * 120 + 60}ms` }}
+    >
+      {/* Arrow line with animated dots and gradient glow */}
+      <div className="relative w-full h-10 flex items-center">
+        {/* Glow behind the arrow */}
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[6px] bg-gradient-to-r from-emerald-500/0 via-emerald-500/20 to-emerald-500/0 blur-sm" />
         {/* Base line */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-gradient-to-r from-emerald-500/60 via-sky-400/60 to-emerald-500/60" />
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] bg-gradient-to-r from-emerald-500/40 via-sky-400/70 to-emerald-500/40" />
         {/* Animated flowing dots */}
         <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 overflow-hidden h-[3px]">
           <div
             className="h-full w-full"
             style={{
-              background: "repeating-linear-gradient(90deg, transparent, transparent 8px, #34d399 8px, #34d399 16px)",
-              animation: "flow-slide 1.5s linear infinite",
+              background: "repeating-linear-gradient(90deg, transparent, transparent 6px, #34d399 6px, #34d399 12px)",
+              animation: "flow-slide 1.2s linear infinite",
             }}
           />
         </div>
         {/* Arrow head */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-t-[5px] border-b-[5px] border-l-[8px] border-t-transparent border-b-transparent border-l-emerald-400/80" />
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-b-[6px] border-l-[10px] border-t-transparent border-b-transparent border-l-emerald-400" />
       </div>
       {/* Amount label */}
-      <div className="text-[11px] font-mono text-sky-300 mt-1 animate-flow-pulse">
+      <div className="text-[11px] font-mono text-sky-300 mt-0.5 animate-flow-pulse">
         ${value.toFixed(2)}
       </div>
     </div>
@@ -94,7 +107,6 @@ export function MoneyFlow({
   }
 
   // Build a linear flow ordering using links
-  // Find nodes that are only sources (start) vs only targets (end) vs both (middle)
   const sourceNodes = new Set(links.map((l) => l.from));
   const targetNodes = new Set(links.map((l) => l.to));
 
@@ -111,10 +123,8 @@ export function MoneyFlow({
     (n) => !sourceNodes.has(n.name) && !targetNodes.has(n.name)
   );
 
-  // Build display order
   const orderedNodes = [...startNodes, ...middleNodes, ...endNodes, ...isolatedNodes];
 
-  // For each consecutive pair in ordered nodes, find the connecting link
   const flowPairs: { from: FlowNode; to: FlowNode; value: number }[] = [];
   for (const link of links) {
     const fromNode = nodes.find((n) => n.name === link.from);
@@ -124,49 +134,66 @@ export function MoneyFlow({
     }
   }
 
-  // Group links by source for rendering
   const uniqueDisplayed = new Set<string>();
   const displayElements: React.ReactNode[] = [];
+  let nodeIdx = 0;
 
   if (flowPairs.length > 0) {
-    // Render as a flow chain
-    let idx = 0;
+    let arrowIdx = 0;
     for (const pair of flowPairs) {
       if (!uniqueDisplayed.has(pair.from.name)) {
         uniqueDisplayed.add(pair.from.name);
-        displayElements.push(<AgentNode key={`node-${pair.from.name}`} node={pair.from} />);
+        displayElements.push(
+          <AgentNode key={`node-${pair.from.name}`} node={pair.from} index={nodeIdx} />
+        );
+        nodeIdx++;
       }
       displayElements.push(
-        <FlowArrow key={`arrow-${idx}`} value={pair.value} index={idx} />
+        <FlowArrow key={`arrow-${arrowIdx}`} value={pair.value} index={arrowIdx} />
       );
-      idx++;
+      arrowIdx++;
       if (!uniqueDisplayed.has(pair.to.name)) {
         uniqueDisplayed.add(pair.to.name);
-        displayElements.push(<AgentNode key={`node-${pair.to.name}`} node={pair.to} />);
+        displayElements.push(
+          <AgentNode key={`node-${pair.to.name}`} node={pair.to} index={nodeIdx} />
+        );
+        nodeIdx++;
       }
     }
   }
 
-  // Add any isolated nodes (agents with no links)
   for (const node of isolatedNodes) {
     if (!uniqueDisplayed.has(node.name)) {
-      displayElements.push(<AgentNode key={`node-${node.name}`} node={node} />);
+      displayElements.push(
+        <AgentNode key={`node-${node.name}`} node={node} index={nodeIdx} />
+      );
+      nodeIdx++;
     }
   }
 
   return (
     <div className="relative">
-      {/* Background grid effect */}
+      {/* Background radial gradient */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage:
+            "radial-gradient(ellipse at 50% 50%, #34d399 0%, transparent 70%)",
+        }}
+      />
+      {/* Background dot grid */}
+      <div
+        className="absolute inset-0 opacity-[0.025]"
         style={{
           backgroundImage:
             "radial-gradient(circle, currentColor 1px, transparent 1px)",
           backgroundSize: "24px 24px",
         }}
       />
+      {/* Pipeline background line connecting all nodes */}
+      <div className="absolute top-1/2 left-8 right-8 -translate-y-1/2 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
       {/* Flow container */}
-      <div className="relative flex items-center justify-center gap-2 py-6 overflow-x-auto">
+      <div className="relative flex items-center justify-center gap-2 py-8 overflow-x-auto">
         {displayElements}
       </div>
       {/* Bottom glow line */}

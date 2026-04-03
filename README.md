@@ -1,46 +1,49 @@
-# Aegis
+# Aegis — The Agent Commerce Protocol for OWS
 
-**Policy, Commerce & Visibility for the Open Wallet Standard**
+> Agents earn via x402-gated services, spend within policy guardrails, and operate transparently.
 
-> OWS is the vault. Aegis is the shield.
+Built for the [OWS Hackathon](https://hackathon.openwallet.sh/) — the first complete commerce protocol for the Open Wallet Standard.
 
-Built for the [OWS Hackathon](https://hackathon.openwallet.sh/) — the first ecosystem extension for the Open Wallet Standard.
+**Tracks:** Track 2 (Spend Governance) + Track 3 (API Monetization) + Track 4 (Multi-Agent)
 
 ---
 
 ## What is Aegis?
 
-OWS ships a powerful wallet primitive: signing, key management, and a policy hook. But it ships zero policy implementations, zero agent commerce tooling, and zero visibility into what agents are actually doing with your wallets. Aegis fills all three gaps.
+Aegis turns AI agents into economic actors. Agents earn, spend safely, and operate transparently — one OWS wallet, one dashboard, one protocol.
 
-**Policy Executables** — Three production-ready OWS policy executables (`aegis-budget`, `aegis-guard`, `aegis-approve`) that plug directly into OWS's policy engine to enforce spending limits, address allowlists, and human approval gates on every transaction.
+OWS ships a powerful wallet primitive: signing, key management, and a policy hook. Aegis extends it into a full agent economy with three layers:
 
-**Commerce MCP Server** — Six MCP tools that give AI agents a complete commerce layer: pay with x402 or MPP, check remaining budget, discover services, register services, and generate spending reports — all enforced by the policy layer underneath.
+**Aegis Gate** — Express middleware that wraps any API behind x402 micropayments. One line of code turns any endpoint into a paid service that agents can call and earn from.
 
-**Sentinel Dashboard** — A Next.js real-time dashboard that renders live agent spending, policy enforcement history, pending approvals, and the service registry. Finally, visibility into what your agents are actually doing.
+**Aegis Policies** — Three OWS policy executables (`aegis-budget`, `aegis-guard`, `aegis-deadswitch`) that plug directly into OWS's policy engine and govern every agent transaction before it is signed.
+
+**Aegis Nexus** — Real-time dashboard showing the full money flow between agents: Sankey diagrams of payment routing, per-agent P&L, policy enforcement history, and budget status.
+
+The key insight: agents are simultaneously **buyers and sellers**. An analyst agent pays a data-miner for scraped data, then charges a research-buyer for the analysis. Aegis makes this supply chain visible and safe.
 
 ---
 
 ## Architecture
 
 ```
-AI AGENTS (Claude Code, Cursor, Windsurf, any MCP client)
-    |                              |
-    | MCP Protocol                 | MCP Protocol
-    v                              v
-OWS Built-in MCP              AEGIS COMMERCE MCP
-(wallet/sign ops)              (6 commerce tools)
+AGENT CLIENTS (Claude Code, Cursor, any x402 client)
     |                              |
     v                              v
-              OWS CORE
-    AEGIS POLICY EXECUTABLES
-    (aegis-budget, aegis-guard, aegis-approve)
-    Signing Enclave | Wallet Vault | API Keys
-                    |
-                    v
-         AEGIS SENTINEL DASHBOARD
+DATA MINER (Aegis Gate)      ANALYST (Aegis Gate)
+  /scrape $0.01                /analyze $0.05
+    |                              |
+    v                              v
+             OWS CORE
+  AEGIS POLICIES (budget, guard, deadswitch)
+  Wallet Vault | API Keys | Signing Enclave
+             |
+             v
+      AEGIS NEXUS DASHBOARD
+  Money Flow | P&L | Policy Log | Budget
 ```
 
-Every payment made through the Commerce MCP flows through OWS core, where the Aegis policy executables intercept and evaluate the transaction before it is signed. The Sentinel Dashboard reads the same state files in real time.
+Every payment flows through OWS core, where the Aegis policy executables intercept and evaluate the transaction before it is signed. Nexus reads the same state files in real time.
 
 ---
 
@@ -49,162 +52,144 @@ Every payment made through the Commerce MCP flows through OWS core, where the Ae
 ```bash
 git clone https://github.com/rajkaria/aegis
 cd aegis && npm install
-npm run build
+cd packages/shared && npx tsc && cd ../policies && npx tsc && cd ../gate && npx tsc && cd ../cli && npx tsc && cd ../..
 
-# Initialize Aegis config (creates ~/.ows/aegis/ with defaults)
-aegis init
-
-# Register policies with OWS
-aegis install
-
-# Seed demo data
-cd demo && npx tsx setup.ts
+# Seed the demo economy
+cd demo && npx tsx seed.ts
 
 # Start the dashboard
 cd ../dashboard && npm run dev
 # Open http://localhost:3000
+
+# (Optional) Run the live 3-agent economy
+cd ../demo && npx tsx run-economy.ts
 ```
 
 ---
 
-## Policy Executables
+## Aegis Gate
 
-Aegis ships three OWS-compatible policy executables. Each binary reads a `PolicyContext` from stdin and writes a `PolicyResult` to stdout — the exact interface OWS expects.
+One line of code turns any Express endpoint into a paid API service.
+
+**Server side — publish a paid endpoint:**
+
+```typescript
+import { aegisGate } from "@aegis-ows/gate";
+
+app.get(
+  "/api/data",
+  aegisGate({ price: "0.01", token: "USDC", agentId: "my-agent" }),
+  handler
+);
+```
+
+**Client side — pay and fetch in one call:**
+
+```typescript
+import { payAndFetch } from "@aegis-ows/gate";
+
+const result = await payAndFetch("http://service/api/data", "buyer-agent");
+```
+
+`aegisGate` handles the full x402 payment challenge/response handshake. The middleware rejects unpaid requests with HTTP 402, accepts payment proofs, and credits the agent's earnings ledger. `payAndFetch` on the client side handles the payment automatically, routing through the OWS signing enclave and all active policies before money moves.
+
+---
+
+## Aegis Policies
+
+Three OWS-compatible policy executables. Each reads a `PolicyContext` from stdin and writes a `PolicyResult` to stdout — the exact interface OWS expects.
 
 ### aegis-budget
 
-Enforces spending limits per chain, token, and time period. Tracks cumulative spend in a local ledger and blocks transactions that would exceed the configured limit.
+Per-chain, per-token spending caps with daily, weekly, and monthly limits. Tracks cumulative spend in a local ledger and blocks transactions that would exceed the configured cap.
 
 ```json
-// ~/.ows/aegis/budget.json
 {
   "limits": [
-    {
-      "chainId": "eip155:1",
-      "token": "ETH",
-      "daily": "0.5",
-      "weekly": "2.0",
-      "monthly": "5.0"
-    },
-    {
-      "chainId": "solana:mainnet",
-      "token": "SOL",
-      "daily": "10"
-    }
+    { "chainId": "eip155:1", "token": "USDC", "daily": "10.00", "weekly": "50.00" }
   ]
 }
 ```
 
 ### aegis-guard
 
-Enforces an address allowlist or blocklist per chain. Supports wildcard chain prefixes (`solana:*` matches all Solana networks). Blocks any transaction targeting an address not on the allowlist, or any address explicitly on the blocklist.
+Contract and address allowlist plus blocklist. Any transaction targeting an address not on the allowlist — or explicitly on the blocklist — is rejected before signing. Supports wildcard chain prefixes (`eip155:*`).
 
 ```json
-// ~/.ows/aegis/guard.json
 {
   "mode": "allowlist",
   "addresses": {
-    "eip155:1": [
-      "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      "0xdAC17F958D2ee523a2206206994597C13D831ec7"
-    ],
-    "solana:*": [
-      "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
-    ]
-  },
-  "blockAddresses": []
-}
-```
-
-### aegis-approve
-
-A human-in-the-loop approval gate. Transactions above a configurable threshold are queued for human review; transactions above a hard ceiling are blocked outright. Approvals have a TTL and are resolved via the CLI or dashboard.
-
-```json
-// ~/.ows/aegis/approve.json
-{
-  "thresholds": {
-    "auto_approve_below": "1",
-    "require_approval_above": "1",
-    "hard_block_above": "100"
-  },
-  "approval_ttl_minutes": 30
-}
-```
-
----
-
-## Commerce MCP Server
-
-The Aegis MCP server exposes six tools that give any MCP-compatible AI agent a complete agent commerce layer, enforced by the policy executables on every payment.
-
-| Tool | Description |
-|------|-------------|
-| `aegis_pay_x402` | Pay for a resource protected by the [HTTP 402 / x402 protocol](https://x402.org). Handles the payment challenge/response handshake automatically. |
-| `aegis_pay_mpp` | Pay using the Metered Payment Protocol (MPP). Supports session reuse to amortize session setup costs across multiple requests. |
-| `aegis_check_budget` | Check remaining budget for a given chain and token against configured limits. |
-| `aegis_discover_services` | Search the local service registry for MCP-payable services by name or tag. |
-| `aegis_register_service` | Register a new payable service into the registry so other agents can discover it. |
-| `aegis_spending_report` | Generate a spending report for a given period (daily, weekly, or monthly), broken down by chain and token. |
-
-### Add to Claude Code or Cursor
-
-```json
-{
-  "mcpServers": {
-    "aegis": {
-      "command": "aegis-mcp"
-    }
+    "eip155:1": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"]
   }
 }
 ```
 
-For Claude Code, add this to `~/.claude/settings.json` under `"mcpServers"`. For Cursor, add it to `.cursor/mcp.json` in your project.
+### aegis-deadswitch
+
+Dead man's switch. Revokes the agent's signing key after a configurable period of inactivity. Prevents runaway agents from continuing to spend after a session has gone silent.
+
+```json
+{
+  "inactivity_threshold_minutes": 60,
+  "action": "revoke_key"
+}
+```
 
 ---
 
-## Sentinel Dashboard
+## Aegis Nexus Dashboard
 
-The dashboard reads live data from `~/.ows/aegis/` with no database required. Start it with `npm run dev` from the `dashboard/` directory.
+Four pages, zero database required. Nexus reads live from `~/.ows/aegis/`.
 
-**Overview** — Real-time stat cards (today's spend, active agents, chains, blocked transactions), spending chart over the last 7 days, per-chain budget progress bars, and a live activity feed of recent policy decisions.
+**Economy Overview** — Sankey diagram showing money flowing between agents in real time. Side-by-side agent P&L: every agent's total earned, total spent, and net position. This is the screenshot that makes the economy legible at a glance.
 
-**Approvals** — Live list of pending approvals queued by `aegis-approve`. Each card shows the agent, chain, estimated value, token, and expiry time. Approve or reject directly from the browser — the policy picks up the decision immediately.
+**Agent Detail** — Drill into any agent. Full transaction history, earning vs. spending breakdown, and which services it called or provided.
 
-**Policies** — Configuration viewer for all three installed policies. Shows current config alongside recent allow/deny decisions from the policy log, per policy.
+**Policy Control Center** — Live view of all three policy executables: current config, recent allow/deny decisions, budget consumption bars, and pending actions.
 
-**Services** — Searchable table of all services registered in the Aegis service registry, showing endpoint, payment protocol, price, and tags.
+**Services Registry** — Searchable table of all Gate-registered services: endpoint, price, token, and the agent earning from it.
 
 ---
 
 ## CLI
 
 ```bash
-# Initialize config directory and defaults
+# Initialize config directory with defaults
 aegis init
 
 # Register policies with OWS
 aegis install
 
-# Show budget status (defaults to daily period)
+# Check budget status
 aegis budget
 aegis budget --chain eip155:1 --period weekly
 
-# List pending approvals
-aegis approve --list
-
-# Approve or reject a specific transaction
-aegis approve <id>
-aegis approve <id> --reject
+# Check wallet and policy status
+aegis status
 
 # Manage guard address lists
 aegis guard --add 0xA0b8... --chain eip155:1
 aegis guard --add 0xBad0... --block
-aegis guard --remove 0xA0b8...
-
-# Generate a spending report
-aegis report --period monthly
 ```
+
+---
+
+## Demo Economy
+
+The demo seeds a 3-agent supply chain that runs a full economic cycle:
+
+```
+research-buyer  →  analyst  →  data-miner
+   pays $0.05      pays $0.01    earns $0.01
+   gets report     earns $0.05   scrapes data
+```
+
+1. `research-buyer` calls the analyst's Gate-protected `/analyze` endpoint ($0.05)
+2. The analyst, needing raw data, calls the data-miner's `/scrape` endpoint ($0.01)
+3. Money flows through both agents' OWS wallets, governed by their respective policies
+4. Nexus renders the full flow as a Sankey diagram with live P&L for all three agents
+
+Run it: `cd demo && npx tsx run-economy.ts`
 
 ---
 
@@ -212,11 +197,11 @@ aegis report --period monthly
 
 | Component | Technology |
 |-----------|------------|
-| Policy Executables | TypeScript / Node.js, OWS policy interface |
-| Commerce MCP | TypeScript + `@modelcontextprotocol/sdk` |
-| Dashboard | Next.js 15 + Tailwind CSS + shadcn/ui + Recharts |
+| Gate | Express middleware, x402 payment protocol |
+| Policies | Node.js executables, OWS policy interface |
+| Nexus Dashboard | Next.js 15 + shadcn/ui + Recharts |
 | CLI | Commander.js |
-| Data | File-based JSON (`~/.ows/aegis/`) |
+| Data | JSON files in `~/.ows/aegis/` |
 | OWS Integration | `@open-wallet-standard/core` |
 
 ---
@@ -227,11 +212,11 @@ aegis report --period monthly
 aegis/
 ├── packages/
 │   ├── shared/          # Types, file I/O helpers, shared config readers
-│   ├── policies/        # aegis-budget, aegis-guard, aegis-approve executables
-│   ├── mcp-server/      # MCP server with 6 commerce tools
-│   └── cli/             # aegis CLI (init, install, budget, guard, approve, report)
-├── dashboard/           # Next.js Sentinel Dashboard
-├── demo/                # Demo data seed scripts
+│   ├── policies/        # aegis-budget, aegis-guard, aegis-deadswitch executables
+│   ├── gate/            # Aegis Gate Express middleware + payAndFetch client
+│   └── cli/             # aegis CLI (init, install, budget, guard, status)
+├── dashboard/           # Aegis Nexus — Next.js dashboard
+├── demo/                # 3-agent economy seed scripts
 └── turbo.json           # Turborepo monorepo config
 ```
 
@@ -239,11 +224,21 @@ All packages are TypeScript-first. Shared types (including `PolicyContext` and `
 
 ---
 
+## Why Aegis
+
+**Spans three tracks.** Most submissions pick one. Aegis covers API monetization (Gate), spend governance (Policies), and multi-agent coordination (Nexus) as a unified protocol — not bolted-together features.
+
+**A running economy, not a demo button.** The 3-agent supply chain produces real transactions, real earnings, and real policy decisions. The Sankey diagram in Nexus is live data.
+
+**Extends OWS natively.** The policy executables use the exact stdin/stdout interface OWS defines as its extension point. Gate uses OWS's signing enclave for every payment. Nothing bypasses the standard.
+
+**The Sankey is the pitch.** Watching money flow from research-buyer through analyst to data-miner — all governed by policies, all visible in one dashboard — makes the agent economy legible in a way no amount of text can.
+
+---
+
 ## Built For
 
 **[OWS Hackathon](https://hackathon.openwallet.sh/)** — Build with the Open Wallet Standard.
-
-Aegis is the first complete ecosystem extension for OWS: policies that enforce, tools that transact, and a dashboard that shows everything. Everything agents need to operate autonomously with real money — safely.
 
 ---
 

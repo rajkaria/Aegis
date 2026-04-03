@@ -121,6 +121,32 @@ export default function EconomyPage() {
           </CardContent>
         </Card>
       </div>
+      {/* Data Sources */}
+      <div className="rounded-xl border border-border/50 bg-muted/30 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-2 h-2 rounded-full bg-emerald-500" />
+          <h3 className="text-sm font-medium">Partner Data Sources</h3>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { name: "Solana RPC", desc: "Native SOL + SPL balances", active: true },
+            { name: "Ripple XRPL", desc: "XRP Ledger balances", active: true },
+            { name: "Zerion", desc: "EVM portfolio data", active: !!process.env.ZERION_API_KEY },
+            { name: "Uniblock", desc: "Multi-chain token balances", active: !!process.env.UNIBLOCK_API_KEY },
+            { name: "Allium", desc: "On-chain tx verification", active: !!process.env.ALLIUM_API_KEY },
+            { name: "MoonPay", desc: "Fiat on-ramp funding", active: true },
+          ].map((src) => (
+            <div
+              key={src.name}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/50 bg-background/50 text-xs"
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${src.active ? "bg-emerald-500" : "bg-zinc-500"}`} />
+              <span className="font-medium">{src.name}</span>
+              <span className="text-muted-foreground hidden sm:inline">— {src.desc}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

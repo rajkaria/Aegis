@@ -480,21 +480,36 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
                 name: "Zerion",
-                desc: "Real-time wallet balance data for agent profiles and budget tracking.",
+                desc: "Real-time EVM wallet portfolio data for agent balance tracking.",
                 color: "emerald",
               },
               {
-                name: "MoonPay",
-                desc: "Fiat-to-crypto on-ramp for funding agent wallets instantly.",
+                name: "Uniblock",
+                desc: "Multi-chain token balance queries across Ethereum, Base, Polygon, and Arbitrum.",
                 color: "sky",
               },
               {
-                name: "XMTP",
-                desc: "Wallet-to-wallet messaging for decentralized agent service discovery.",
+                name: "Allium",
+                desc: "On-chain transaction verification via SQL queries across EVM and Solana.",
+                color: "violet",
+              },
+              {
+                name: "MoonPay",
+                desc: "Fiat-to-crypto on-ramp for funding agent wallets via CLI or web.",
+                color: "sky",
+              },
+              {
+                name: "Solana",
+                desc: "Native SOL and SPL token balance queries via Solana RPC.",
+                color: "emerald",
+              },
+              {
+                name: "Ripple XRPL",
+                desc: "XRP Ledger balance and trust line queries for cross-border agent payments.",
                 color: "violet",
               },
             ].map((partner) => (
@@ -540,6 +555,11 @@ export default function LandingPage() {
               "shadcn/ui",
               "XMTP",
               "Zerion API",
+              "Uniblock",
+              "Allium",
+              "MoonPay",
+              "Solana",
+              "Ripple XRPL",
             ].map((tech) => (
               <span
                 key={tech}

@@ -68,15 +68,36 @@ export default async function AgentDetailPage({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <WalletBalance agentId={id} />
         <Card>
-          <CardContent className="flex flex-col items-center justify-center h-full py-8">
-            <p className="text-sm text-muted-foreground mb-3">
-              Need to add funds to this agent&apos;s wallet?
-            </p>
-            <Button variant="outline" disabled>
-              Fund via MoonPay
-            </Button>
-            <p className="text-[10px] text-muted-foreground mt-2">
-              On-ramp powered by MoonPay
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Fund Agent Wallet</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-lg bg-muted/50 border border-border/50 p-3">
+              <p className="text-xs text-muted-foreground mb-1.5">MoonPay CLI</p>
+              <code className="text-xs font-mono text-foreground break-all">
+                mp buy --currency usdc --wallet {id}
+              </code>
+            </div>
+            <div className="flex flex-col gap-2">
+              <a
+                href={`https://www.moonpay.com/buy/usdc?walletAddress=${id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button variant="outline" className="w-full">
+                  Open MoonPay On-Ramp
+                </Button>
+              </a>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {["USDC", "ETH", "SOL"].map((token) => (
+                <Badge key={token} variant="outline" className="text-[10px]">
+                  {token}
+                </Badge>
+              ))}
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              Fiat-to-crypto on-ramp powered by MoonPay. Supports Ethereum, Base, Solana, and Polygon.
             </p>
           </CardContent>
         </Card>

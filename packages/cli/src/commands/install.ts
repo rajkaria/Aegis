@@ -10,7 +10,7 @@ const __dirname = join(__filename, "..");
 const POLICIES = [
   { name: "aegis-budget", description: "Enforces spending limits per chain/token/period" },
   { name: "aegis-guard", description: "Allow/blocklist address enforcement" },
-  { name: "aegis-approve", description: "Human-in-the-loop approval gating" },
+  { name: "aegis-deadswitch", description: "Dead man's switch — revokes key after inactivity" },
 ];
 
 export const installCommand = new Command("install")

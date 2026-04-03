@@ -1,11 +1,11 @@
 import { Command } from "commander";
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync } from "node:fs";
 import {
   PATHS,
   ensureAegisDir,
   writeBudgetConfig,
   writeGuardConfig,
-  writeApproveConfig,
+  writeDeadswitchConfig,
 } from "@aegis-ows/shared";
 
 export const initCommand = new Command("init")
@@ -40,17 +40,16 @@ export const initCommand = new Command("init")
       created.push(PATHS.guardConfig);
     }
 
-    // Default approve config: auto < $1, hard block > $100
-    if (!existsSync(PATHS.approveConfig)) {
-      writeApproveConfig({
-        thresholds: {
-          auto_approve_below: "1",
-          require_approval_above: "1",
-          hard_block_above: "100",
-        },
-        approval_ttl_minutes: 30,
+    // Default deadswitch config: 30 min inactivity trigger
+    if (!existsSync(PATHS.deadswitchConfig)) {
+      writeDeadswitchConfig({
+        maxInactiveMinutes: 30,
+        onTrigger: "revoke_key",
+        sweepFunds: false,
+        enabled: true,
       });
-      created.push(PATHS.approveConfig);
+      console.log("Created deadswitch config (30 min inactivity trigger)");
+      created.push(PATHS.deadswitchConfig);
     }
 
     if (created.length === 0) {

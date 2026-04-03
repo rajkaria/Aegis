@@ -5,7 +5,7 @@
   "bin": {
     "aegis-budget": "dist/budget/index.js",
     "aegis-guard": "dist/guard/index.js",
-    "aegis-approve": "dist/approve/index.js"
+    "aegis-deadswitch": "dist/deadswitch/index.js"
   },
   "scripts": {
     "build": "tsc",

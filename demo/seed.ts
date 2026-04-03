@@ -184,4 +184,37 @@ postMessage({
 
 console.log("Seeded 5 XMTP message bus entries (announcements + discovery)");
 
+// 7. Seed OWS wallet address info for dashboard display
+postMessage({
+  type: "wallet_info",
+  agentId: "data-miner",
+  timestamp: new Date(baseTime - 7200000).toISOString(),
+  walletAddresses: {
+    "eip155:1": "0x6344D6E94BbeBB612bA5eC55f3125Bf7a0B8666F",
+    "solana:mainnet": "2G55SdspdgSLcrXm3ZcfSHuDhvuhXtQLWqf1zVbAYCcq",
+  },
+});
+
+postMessage({
+  type: "wallet_info",
+  agentId: "analyst",
+  timestamp: new Date(baseTime - 7200000).toISOString(),
+  walletAddresses: {
+    "eip155:1": "0x4ef5aaef757B4180512a52A17023E3471BA3e361",
+    "solana:mainnet": "CePyeKXCtB6RzAatosDnnun3yryUzETKXA5rNEjPeSkL",
+  },
+});
+
+postMessage({
+  type: "wallet_info",
+  agentId: "research-buyer",
+  timestamp: new Date(baseTime - 7200000).toISOString(),
+  walletAddresses: {
+    "eip155:1": "0x2219FF712dbcf3fEE0a712bAD2E111D0008a2f1d",
+    "solana:mainnet": "9LK89Mk3xQP3qf3bJjxW8Qe9HoiPer4EisY5tUoPY22A",
+  },
+});
+
+console.log("Seeded 3 OWS wallet address entries");
+
 console.log("\nSeed complete! Run 'npm run dev' in dashboard/ to see the economy.");

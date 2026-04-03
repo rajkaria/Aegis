@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { appendEarningsEntry, ensureAegisDir } from "@aegis-ows/shared";
 import { appendLedgerEntry } from "@aegis-ows/shared";
+import { signMessage, getWallet } from "@open-wallet-standard/core";
 
 export { announceServices } from "./announce.js";
 export { findServices, type DiscoveredService } from "./discover.js";
@@ -21,11 +22,23 @@ export function aegisGate(options: AegisGateOptions) {
   const token = options.token ?? "USDC";
   const network = options.network ?? "eip155:1";
 
+  // Try to get real wallet address from OWS at initialization
+  let resolvedAddress = options.walletAddress ?? `wallet:${options.agentId}`;
+  try {
+    const w = getWallet(options.agentId);
+    const evmAccount = w?.accounts?.find((a) => a.chainId.startsWith("eip155:"));
+    if (evmAccount) {
+      resolvedAddress = evmAccount.address;
+    }
+  } catch {
+    // OWS not available, use fallback
+  }
+
   return (req: Request, res: Response, next: NextFunction): void => {
     const paymentHeader = req.headers["x-payment"] as string | undefined;
 
     if (!paymentHeader) {
-      const walletAddress = options.walletAddress ?? `wallet:${options.agentId}`;
+      const walletAddress = resolvedAddress;
       res.status(402).json({
         // x402 spec fields
         x402Version: 1,
@@ -102,14 +115,31 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
     description: `x402 payment to ${recipient} for ${details.resource ?? url}`,
   });
 
-  // Step 3: Retry with payment
+  // Step 3: Sign a payment proof using the caller's OWS wallet
+  let txProof: string;
+  try {
+    const message = JSON.stringify({
+      action: "x402_payment",
+      to: recipient,
+      amount,
+      token: details.token ?? "USDC",
+      timestamp: new Date().toISOString(),
+    });
+    const result = signMessage(callerAgentId, "evm", message);
+    txProof = result.signature;
+  } catch {
+    // Fallback to mock if OWS wallet not available (e.g., on Vercel)
+    txProof = `mock-tx-${Date.now()}`;
+  }
+
+  // Step 4: Retry with payment
   const paidRes = await fetch(url, {
     headers: {
       "X-PAYMENT": JSON.stringify({
         fromAgent: callerAgentId,
         token: details.token,
         amount,
-        txHash: `mock-tx-${Date.now()}`,
+        txHash: txProof,
       }),
     },
   });

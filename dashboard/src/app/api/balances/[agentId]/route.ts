@@ -6,18 +6,22 @@ export const dynamic = "force-dynamic";
 
 // Map agent IDs to their wallet addresses on different chains
 // In production these come from OWS wallet data
+// Real OWS wallet addresses (from ows wallet list)
 const AGENT_WALLETS: Record<
   string,
   { solana?: string; xrp?: string; evm?: string }
 > = {
   "data-miner": {
-    evm: "0x0000000000000000000000000000000000000000", // placeholder
+    evm: "0x6344D6E94BbeBB612bA5eC55f3125Bf7a0B8666F",
+    solana: "2G55SdspdgSLcrXm3ZcfSHuDhvuhXtQLWqf1zVbAYCcq",
   },
   analyst: {
-    evm: "0x0000000000000000000000000000000000000000",
+    evm: "0x4ef5aaef757B4180512a52A17023E3471BA3e361",
+    solana: "CePyeKXCtB6RzAatosDnnun3yryUzETKXA5rNEjPeSkL",
   },
   "research-buyer": {
-    evm: "0x0000000000000000000000000000000000000000",
+    evm: "0x2219FF712dbcf3fEE0a712bAD2E111D0008a2f1d",
+    solana: "9LK89Mk3xQP3qf3bJjxW8Qe9HoiPer4EisY5tUoPY22A",
   },
 };
 

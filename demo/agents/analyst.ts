@@ -1,5 +1,6 @@
 import express from "express";
-import { aegisGate, payAndFetch } from "@aegis-ows/gate";
+import { aegisGate, payAndFetch, announceServices } from "@aegis-ows/gate";
+import { readFileSync } from "node:fs";
 
 const app = express();
 
@@ -29,4 +30,9 @@ app.listen(4002, () => {
   console.log("Analyst agent running on http://localhost:4002");
   console.log("  GET /analyze — $0.05 USDC (x402), buys from data-miner");
   console.log("  GET /health — free");
+
+  // Announce services via message bus (XMTP local transport)
+  const config = JSON.parse(readFileSync("./agents/analyst.config.json", "utf-8"));
+  announceServices(config, "http://localhost:4002");
+  console.log("  Announced services via message bus");
 });

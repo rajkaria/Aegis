@@ -5,3 +5,4 @@ export * from "./earnings.js";
 export * from "./agent-profile.js";
 export * from "./config.js";
 export * from "./policy-log.js";
+export * from "./messages.js";

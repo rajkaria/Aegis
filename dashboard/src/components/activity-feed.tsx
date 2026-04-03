@@ -14,6 +14,7 @@ const badgeConfig: Record<
   block: { label: "BLOCK", variant: "destructive" },
   pass: { label: "PASS", variant: "outline" },
   deadswitch: { label: "DEAD", variant: "destructive" },
+  discovery: { label: "XMTP", variant: "secondary" },
 };
 
 export function ActivityFeed({ entries }: ActivityFeedProps) {

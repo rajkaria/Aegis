@@ -5,6 +5,9 @@ import { join } from "node:path";
 import { appendEarningsEntry, ensureAegisDir } from "@aegis-ows/shared";
 import { appendLedgerEntry } from "@aegis-ows/shared";
 
+export { announceServices } from "./announce.js";
+export { findServices, type DiscoveredService } from "./discover.js";
+
 export interface AegisGateOptions {
   price: string;
   token?: string;        // default "USDC"

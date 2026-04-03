@@ -1,4 +1,4 @@
-import { payAndFetch } from "@aegis-ows/gate";
+import { payAndFetch, findServices } from "@aegis-ows/gate";
 
 const BUDGET = 0.50;
 const PRICE_PER_CALL = 0.05;
@@ -16,6 +16,20 @@ async function main() {
   console.log(`Budget: $${BUDGET} | Price per analysis: $${PRICE_PER_CALL}`);
   console.log("─".repeat(60));
 
+  // Discover available analysis services via XMTP message bus
+  console.log("\n  Discovering analysis services via XMTP...");
+  const services = findServices("analysis", AGENT_ID);
+  if (services.length > 0) {
+    console.log(`  Found ${services.length} service(s):`);
+    for (const svc of services) {
+      console.log(`    ${svc.description} at ${svc.fullUrl} — $${svc.price}`);
+    }
+  } else {
+    console.log("  No services discovered yet, using default endpoint");
+  }
+
+  const analyzeUrl = services.length > 0 ? services[0].fullUrl : "http://localhost:4002/analyze";
+
   let spent = 0;
 
   for (const topic of TOPICS) {
@@ -28,7 +42,7 @@ async function main() {
 
     try {
       const result = await payAndFetch(
-        `http://localhost:4002/analyze?topic=${encodeURIComponent(topic)}`,
+        `${analyzeUrl}?topic=${encodeURIComponent(topic)}`,
         AGENT_ID
       ) as any;
 

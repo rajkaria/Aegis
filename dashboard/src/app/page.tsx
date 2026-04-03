@@ -4,6 +4,7 @@ import { MoneyFlow } from "@/components/sankey-chart";
 import { AgentPnlTable } from "@/components/agent-pnl-table";
 import { ActivityFeed } from "@/components/activity-feed";
 import { BudgetBar } from "@/components/budget-bar";
+import { DiscoveryFeed } from "@/components/discovery-feed";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
@@ -93,6 +94,11 @@ export default function EconomyPage() {
             ))}
           </CardContent>
         </Card>
+      )}
+
+      {/* XMTP Discovery Feed */}
+      {data.discoveryEvents.length > 0 && (
+        <DiscoveryFeed events={data.discoveryEvents} />
       )}
 
       {/* Two columns: P&L Table + Activity Feed */}

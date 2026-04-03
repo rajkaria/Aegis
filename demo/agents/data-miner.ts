@@ -1,5 +1,6 @@
 import express from "express";
-import { aegisGate } from "@aegis-ows/gate";
+import { aegisGate, announceServices } from "@aegis-ows/gate";
+import { readFileSync } from "node:fs";
 
 const app = express();
 
@@ -23,4 +24,9 @@ app.listen(4001, () => {
   console.log("Data Miner agent running on http://localhost:4001");
   console.log("  GET /scrape — $0.01 USDC (x402)");
   console.log("  GET /health — free");
+
+  // Announce services via message bus (XMTP local transport)
+  const config = JSON.parse(readFileSync("./agents/data-miner.config.json", "utf-8"));
+  announceServices(config, "http://localhost:4001");
+  console.log("  Announced services via message bus");
 });

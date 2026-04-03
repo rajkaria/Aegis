@@ -9,6 +9,7 @@ import {
   computeAllProfiles,
   computeAgentProfile,
   computeSankeyData,
+  readMessages,
 } from "@aegis-ows/shared";
 import type {
   AgentProfile,
@@ -16,16 +17,24 @@ import type {
   PolicyLogEntry,
   EarningsEntry,
   LedgerEntry,
+  AgentMessage,
 } from "@aegis-ows/shared";
 
-// Merged activity item (spending + earning + policy events)
+// Merged activity item (spending + earning + policy + discovery events)
 export interface ActivityItem {
   timestamp: string;
-  type: "spend" | "earn" | "block" | "pass" | "deadswitch";
+  type: "spend" | "earn" | "block" | "pass" | "deadswitch" | "discovery";
   agentId: string;
   amount?: string;
   token?: string;
   description: string;
+}
+
+export interface DiscoveryEvent {
+  type: string;
+  agentId: string;
+  timestamp: string;
+  detail: string;
 }
 
 export interface BudgetStatus {
@@ -125,7 +134,57 @@ export function getEconomyOverview() {
     });
   }
 
+  // Add discovery events from XMTP message bus
+  const messages = readMessages();
+  for (const msg of messages.messages) {
+    if (msg.type === "service_announcement") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} announced ${msg.services.length} service(s) via XMTP`,
+      });
+    } else if (msg.type === "service_query") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} discovered services: "${msg.query}" via XMTP`,
+      });
+    }
+  }
+
   activity.sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+
+  // Build discovery events for the discovery feed
+  const discoveryEvents: DiscoveryEvent[] = [];
+  for (const msg of messages.messages) {
+    if (msg.type === "service_announcement") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `announced ${msg.services.map((s) => s.endpoint).join(", ")}`,
+      });
+    } else if (msg.type === "service_query") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `queried for "${msg.query}"`,
+      });
+    } else if (msg.type === "service_response") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `responded to ${msg.inResponseTo} with ${msg.matches.length} match(es)`,
+      });
+    }
+  }
+  discoveryEvents.sort(
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
@@ -139,6 +198,7 @@ export function getEconomyOverview() {
     activity: activity.slice(0, 30),
     budgetConfig,
     budgets,
+    discoveryEvents,
   };
 }
 

@@ -6,6 +6,7 @@ import {
   appendLedgerEntry,
   appendEarningsEntry,
   appendPolicyLog,
+  postMessage,
   PATHS,
 } from "@aegis-ows/shared";
 import { writeFileSync } from "node:fs";
@@ -17,6 +18,7 @@ ensureAegisDir();
 writeFileSync(PATHS.budgetLedger, JSON.stringify({ entries: [] }));
 writeFileSync(PATHS.earningsLedger, JSON.stringify({ entries: [] }));
 writeFileSync(PATHS.policyLog, JSON.stringify({ entries: [] }));
+writeFileSync(PATHS.messageBus, JSON.stringify({ messages: [] }));
 
 // 1. Budget config
 writeBudgetConfig({
@@ -119,5 +121,67 @@ for (let i = 0; i < policyEvents.length; i++) {
   });
 }
 console.log(`Seeded ${policyEvents.length} policy log entries`);
+
+// 6. Seed XMTP message bus — service discovery flow
+postMessage({
+  type: "service_announcement",
+  agentId: "data-miner",
+  timestamp: new Date(baseTime - 3600000).toISOString(), // 1 hour ago
+  services: [
+    {
+      endpoint: "/scrape",
+      price: "0.01",
+      token: "USDC",
+      description: "Web scraping service — scrape and parse any URL",
+      baseUrl: "http://localhost:4001",
+    },
+  ],
+});
+
+postMessage({
+  type: "service_announcement",
+  agentId: "analyst",
+  timestamp: new Date(baseTime - 3000000).toISOString(), // 50 min ago
+  services: [
+    {
+      endpoint: "/analyze",
+      price: "0.05",
+      token: "USDC",
+      description: "AI-powered market analysis — buys raw data from data-miner",
+      baseUrl: "http://localhost:4002",
+    },
+  ],
+});
+
+postMessage({
+  type: "service_query",
+  agentId: "research-buyer",
+  timestamp: new Date(baseTime - 2400000).toISOString(), // 40 min ago
+  query: "analysis",
+});
+
+postMessage({
+  type: "service_response",
+  agentId: "analyst",
+  timestamp: new Date(baseTime - 2399000).toISOString(),
+  inResponseTo: "research-buyer",
+  matches: [
+    {
+      endpoint: "/analyze",
+      price: "0.05",
+      description: "AI-powered market analysis — buys raw data from data-miner",
+      fullUrl: "http://localhost:4002/analyze",
+    },
+  ],
+});
+
+postMessage({
+  type: "service_query",
+  agentId: "research-buyer",
+  timestamp: new Date(baseTime - 1800000).toISOString(), // 30 min ago
+  query: "scrape",
+});
+
+console.log("Seeded 5 XMTP message bus entries (announcements + discovery)");
 
 console.log("\nSeed complete! Run 'npm run dev' in dashboard/ to see the economy.");

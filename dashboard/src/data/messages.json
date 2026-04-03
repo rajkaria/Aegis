@@ -1,0 +1,58 @@
+{
+  "messages": [
+    {
+      "type": "service_announcement",
+      "agentId": "data-miner",
+      "timestamp": "2026-04-03T05:03:24.273Z",
+      "services": [
+        {
+          "endpoint": "/scrape",
+          "price": "0.01",
+          "token": "USDC",
+          "description": "Web scraping service — scrape and parse any URL",
+          "baseUrl": "http://localhost:4001"
+        }
+      ]
+    },
+    {
+      "type": "service_announcement",
+      "agentId": "analyst",
+      "timestamp": "2026-04-03T05:13:24.273Z",
+      "services": [
+        {
+          "endpoint": "/analyze",
+          "price": "0.05",
+          "token": "USDC",
+          "description": "AI-powered market analysis — buys raw data from data-miner",
+          "baseUrl": "http://localhost:4002"
+        }
+      ]
+    },
+    {
+      "type": "service_query",
+      "agentId": "research-buyer",
+      "timestamp": "2026-04-03T05:23:24.273Z",
+      "query": "analysis"
+    },
+    {
+      "type": "service_response",
+      "agentId": "analyst",
+      "timestamp": "2026-04-03T05:23:25.273Z",
+      "inResponseTo": "research-buyer",
+      "matches": [
+        {
+          "endpoint": "/analyze",
+          "price": "0.05",
+          "description": "AI-powered market analysis — buys raw data from data-miner",
+          "fullUrl": "http://localhost:4002/analyze"
+        }
+      ]
+    },
+    {
+      "type": "service_query",
+      "agentId": "research-buyer",
+      "timestamp": "2026-04-03T05:33:24.273Z",
+      "query": "scrape"
+    }
+  ]
+}

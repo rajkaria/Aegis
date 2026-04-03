@@ -1,0 +1,64 @@
+{
+  "entries": [
+    {
+      "timestamp": "2026-04-03T04:43:24.273Z",
+      "chainId": "eip155:8453",
+      "policyName": "aegis-budget",
+      "apiKeyId": "research-buyer",
+      "allowed": true
+    },
+    {
+      "timestamp": "2026-04-03T04:53:24.273Z",
+      "chainId": "eip155:8453",
+      "policyName": "aegis-guard",
+      "apiKeyId": "analyst",
+      "allowed": true
+    },
+    {
+      "timestamp": "2026-04-03T05:03:24.273Z",
+      "chainId": "eip155:8453",
+      "policyName": "aegis-budget",
+      "apiKeyId": "research-buyer",
+      "allowed": false,
+      "reason": "Daily USDC limit on eip155:8453 exceeded: $0.52/$0.50"
+    },
+    {
+      "timestamp": "2026-04-03T05:13:24.273Z",
+      "chainId": "eip155:8453",
+      "policyName": "aegis-deadswitch",
+      "apiKeyId": "data-miner",
+      "allowed": true,
+      "reason": "Heartbeat OK (2min since last activity)"
+    },
+    {
+      "timestamp": "2026-04-03T05:23:24.273Z",
+      "chainId": "eip155:8453",
+      "policyName": "aegis-guard",
+      "apiKeyId": "research-buyer",
+      "allowed": true
+    },
+    {
+      "timestamp": "2026-04-03T05:33:24.273Z",
+      "chainId": "eip155:8453",
+      "policyName": "aegis-budget",
+      "apiKeyId": "analyst",
+      "allowed": true
+    },
+    {
+      "timestamp": "2026-04-03T05:43:24.273Z",
+      "chainId": "eip155:8453",
+      "policyName": "aegis-guard",
+      "apiKeyId": "analyst",
+      "allowed": false,
+      "reason": "Address 0xUNKNOWN not in allowlist for eip155:8453"
+    },
+    {
+      "timestamp": "2026-04-03T05:53:24.273Z",
+      "chainId": "eip155:8453",
+      "policyName": "aegis-deadswitch",
+      "apiKeyId": "analyst",
+      "allowed": true,
+      "reason": "Heartbeat OK (5min since last activity)"
+    }
+  ]
+}

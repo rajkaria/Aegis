@@ -1,0 +1,184 @@
+{
+  "entries": [
+    {
+      "timestamp": "2026-04-03T05:13:24.273Z",
+      "apiKeyId": "research-buyer",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.05",
+      "tool": "http://localhost:4002/analyze",
+      "description": "x402 payment to analyst for /analyze"
+    },
+    {
+      "timestamp": "2026-04-03T05:13:24.373Z",
+      "apiKeyId": "analyst",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.01",
+      "tool": "http://localhost:4001/scrape",
+      "description": "x402 payment to data-miner for /scrape"
+    },
+    {
+      "timestamp": "2026-04-03T05:18:24.273Z",
+      "apiKeyId": "research-buyer",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.05",
+      "tool": "http://localhost:4002/analyze",
+      "description": "x402 payment to analyst for /analyze"
+    },
+    {
+      "timestamp": "2026-04-03T05:18:24.373Z",
+      "apiKeyId": "analyst",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.01",
+      "tool": "http://localhost:4001/scrape",
+      "description": "x402 payment to data-miner for /scrape"
+    },
+    {
+      "timestamp": "2026-04-03T05:23:24.273Z",
+      "apiKeyId": "research-buyer",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.05",
+      "tool": "http://localhost:4002/analyze",
+      "description": "x402 payment to analyst for /analyze"
+    },
+    {
+      "timestamp": "2026-04-03T05:23:24.373Z",
+      "apiKeyId": "analyst",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.01",
+      "tool": "http://localhost:4001/scrape",
+      "description": "x402 payment to data-miner for /scrape"
+    },
+    {
+      "timestamp": "2026-04-03T05:28:24.273Z",
+      "apiKeyId": "research-buyer",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.05",
+      "tool": "http://localhost:4002/analyze",
+      "description": "x402 payment to analyst for /analyze"
+    },
+    {
+      "timestamp": "2026-04-03T05:28:24.373Z",
+      "apiKeyId": "analyst",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.01",
+      "tool": "http://localhost:4001/scrape",
+      "description": "x402 payment to data-miner for /scrape"
+    },
+    {
+      "timestamp": "2026-04-03T05:33:24.273Z",
+      "apiKeyId": "research-buyer",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.05",
+      "tool": "http://localhost:4002/analyze",
+      "description": "x402 payment to analyst for /analyze"
+    },
+    {
+      "timestamp": "2026-04-03T05:33:24.373Z",
+      "apiKeyId": "analyst",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.01",
+      "tool": "http://localhost:4001/scrape",
+      "description": "x402 payment to data-miner for /scrape"
+    },
+    {
+      "timestamp": "2026-04-03T05:38:24.273Z",
+      "apiKeyId": "research-buyer",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.05",
+      "tool": "http://localhost:4002/analyze",
+      "description": "x402 payment to analyst for /analyze"
+    },
+    {
+      "timestamp": "2026-04-03T05:38:24.373Z",
+      "apiKeyId": "analyst",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.01",
+      "tool": "http://localhost:4001/scrape",
+      "description": "x402 payment to data-miner for /scrape"
+    },
+    {
+      "timestamp": "2026-04-03T05:43:24.273Z",
+      "apiKeyId": "research-buyer",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.05",
+      "tool": "http://localhost:4002/analyze",
+      "description": "x402 payment to analyst for /analyze"
+    },
+    {
+      "timestamp": "2026-04-03T05:43:24.373Z",
+      "apiKeyId": "analyst",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.01",
+      "tool": "http://localhost:4001/scrape",
+      "description": "x402 payment to data-miner for /scrape"
+    },
+    {
+      "timestamp": "2026-04-03T05:48:24.273Z",
+      "apiKeyId": "research-buyer",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.05",
+      "tool": "http://localhost:4002/analyze",
+      "description": "x402 payment to analyst for /analyze"
+    },
+    {
+      "timestamp": "2026-04-03T05:48:24.373Z",
+      "apiKeyId": "analyst",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.01",
+      "tool": "http://localhost:4001/scrape",
+      "description": "x402 payment to data-miner for /scrape"
+    },
+    {
+      "timestamp": "2026-04-03T05:53:24.273Z",
+      "apiKeyId": "research-buyer",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.05",
+      "tool": "http://localhost:4002/analyze",
+      "description": "x402 payment to analyst for /analyze"
+    },
+    {
+      "timestamp": "2026-04-03T05:53:24.373Z",
+      "apiKeyId": "analyst",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.01",
+      "tool": "http://localhost:4001/scrape",
+      "description": "x402 payment to data-miner for /scrape"
+    },
+    {
+      "timestamp": "2026-04-03T05:58:24.273Z",
+      "apiKeyId": "research-buyer",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.05",
+      "tool": "http://localhost:4002/analyze",
+      "description": "x402 payment to analyst for /analyze"
+    },
+    {
+      "timestamp": "2026-04-03T05:58:24.373Z",
+      "apiKeyId": "analyst",
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "amount": "0.01",
+      "tool": "http://localhost:4001/scrape",
+      "description": "x402 payment to data-miner for /scrape"
+    }
+  ]
+}

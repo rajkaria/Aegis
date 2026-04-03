@@ -1,0 +1,164 @@
+{
+  "entries": [
+    {
+      "timestamp": "2026-04-03T05:13:24.273Z",
+      "agentId": "analyst",
+      "endpoint": "/analyze",
+      "fromAgent": "research-buyer",
+      "token": "USDC",
+      "amount": "0.05"
+    },
+    {
+      "timestamp": "2026-04-03T05:13:24.373Z",
+      "agentId": "data-miner",
+      "endpoint": "/scrape",
+      "fromAgent": "analyst",
+      "token": "USDC",
+      "amount": "0.01"
+    },
+    {
+      "timestamp": "2026-04-03T05:18:24.273Z",
+      "agentId": "analyst",
+      "endpoint": "/analyze",
+      "fromAgent": "research-buyer",
+      "token": "USDC",
+      "amount": "0.05"
+    },
+    {
+      "timestamp": "2026-04-03T05:18:24.373Z",
+      "agentId": "data-miner",
+      "endpoint": "/scrape",
+      "fromAgent": "analyst",
+      "token": "USDC",
+      "amount": "0.01"
+    },
+    {
+      "timestamp": "2026-04-03T05:23:24.273Z",
+      "agentId": "analyst",
+      "endpoint": "/analyze",
+      "fromAgent": "research-buyer",
+      "token": "USDC",
+      "amount": "0.05"
+    },
+    {
+      "timestamp": "2026-04-03T05:23:24.373Z",
+      "agentId": "data-miner",
+      "endpoint": "/scrape",
+      "fromAgent": "analyst",
+      "token": "USDC",
+      "amount": "0.01"
+    },
+    {
+      "timestamp": "2026-04-03T05:28:24.273Z",
+      "agentId": "analyst",
+      "endpoint": "/analyze",
+      "fromAgent": "research-buyer",
+      "token": "USDC",
+      "amount": "0.05"
+    },
+    {
+      "timestamp": "2026-04-03T05:28:24.373Z",
+      "agentId": "data-miner",
+      "endpoint": "/scrape",
+      "fromAgent": "analyst",
+      "token": "USDC",
+      "amount": "0.01"
+    },
+    {
+      "timestamp": "2026-04-03T05:33:24.273Z",
+      "agentId": "analyst",
+      "endpoint": "/analyze",
+      "fromAgent": "research-buyer",
+      "token": "USDC",
+      "amount": "0.05"
+    },
+    {
+      "timestamp": "2026-04-03T05:33:24.373Z",
+      "agentId": "data-miner",
+      "endpoint": "/scrape",
+      "fromAgent": "analyst",
+      "token": "USDC",
+      "amount": "0.01"
+    },
+    {
+      "timestamp": "2026-04-03T05:38:24.273Z",
+      "agentId": "analyst",
+      "endpoint": "/analyze",
+      "fromAgent": "research-buyer",
+      "token": "USDC",
+      "amount": "0.05"
+    },
+    {
+      "timestamp": "2026-04-03T05:38:24.373Z",
+      "agentId": "data-miner",
+      "endpoint": "/scrape",
+      "fromAgent": "analyst",
+      "token": "USDC",
+      "amount": "0.01"
+    },
+    {
+      "timestamp": "2026-04-03T05:43:24.273Z",
+      "agentId": "analyst",
+      "endpoint": "/analyze",
+      "fromAgent": "research-buyer",
+      "token": "USDC",
+      "amount": "0.05"
+    },
+    {
+      "timestamp": "2026-04-03T05:43:24.373Z",
+      "agentId": "data-miner",
+      "endpoint": "/scrape",
+      "fromAgent": "analyst",
+      "token": "USDC",
+      "amount": "0.01"
+    },
+    {
+      "timestamp": "2026-04-03T05:48:24.273Z",
+      "agentId": "analyst",
+      "endpoint": "/analyze",
+      "fromAgent": "research-buyer",
+      "token": "USDC",
+      "amount": "0.05"
+    },
+    {
+      "timestamp": "2026-04-03T05:48:24.373Z",
+      "agentId": "data-miner",
+      "endpoint": "/scrape",
+      "fromAgent": "analyst",
+      "token": "USDC",
+      "amount": "0.01"
+    },
+    {
+      "timestamp": "2026-04-03T05:53:24.273Z",
+      "agentId": "analyst",
+      "endpoint": "/analyze",
+      "fromAgent": "research-buyer",
+      "token": "USDC",
+      "amount": "0.05"
+    },
+    {
+      "timestamp": "2026-04-03T05:53:24.373Z",
+      "agentId": "data-miner",
+      "endpoint": "/scrape",
+      "fromAgent": "analyst",
+      "token": "USDC",
+      "amount": "0.01"
+    },
+    {
+      "timestamp": "2026-04-03T05:58:24.273Z",
+      "agentId": "analyst",
+      "endpoint": "/analyze",
+      "fromAgent": "research-buyer",
+      "token": "USDC",
+      "amount": "0.05"
+    },
+    {
+      "timestamp": "2026-04-03T05:58:24.373Z",
+      "agentId": "data-miner",
+      "endpoint": "/scrape",
+      "fromAgent": "analyst",
+      "token": "USDC",
+      "amount": "0.01"
+    }
+  ]
+}

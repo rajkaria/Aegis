@@ -1,0 +1,15 @@
+{
+  "limits": [
+    {
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "daily": "0.50",
+      "monthly": "10.00"
+    },
+    {
+      "chainId": "*",
+      "token": "*",
+      "daily": "1.00"
+    }
+  ]
+}

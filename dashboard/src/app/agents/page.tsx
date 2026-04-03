@@ -1,4 +1,4 @@
-import { computeAllProfiles } from "@aegis-ows/shared";
+import { getEconomyOverview } from "@/lib/aegis-data";
 import { AgentPnlTable } from "@/components/agent-pnl-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/stat-card";
@@ -6,7 +6,7 @@ import { StatCard } from "@/components/stat-card";
 export const dynamic = "force-dynamic";
 
 export default function AgentsPage() {
-  const profiles = computeAllProfiles();
+  const { profiles } = getEconomyOverview();
 
   const totalRevenue = profiles.reduce((s, p) => s + p.totalRevenue, 0);
   const totalSpending = profiles.reduce((s, p) => s + p.totalSpending, 0);

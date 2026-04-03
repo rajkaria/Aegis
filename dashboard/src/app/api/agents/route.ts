@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { computeAllProfiles } from "@aegis-ows/shared";
+import { getEconomyOverview } from "@/lib/aegis-data";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const profiles = computeAllProfiles();
+    const { profiles } = getEconomyOverview();
     return NextResponse.json(profiles);
   } catch (error) {
     return NextResponse.json(

@@ -1,0 +1,7 @@
+{
+  "maxInactiveMinutes": 30,
+  "onTrigger": "revoke_key",
+  "sweepFunds": false,
+  "enabled": true,
+  "lastHeartbeat": "2026-04-03T06:03:24.270Z"
+}

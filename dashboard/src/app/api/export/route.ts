@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readLedger } from "@aegis-ows/shared";
+import { readLedger } from "@/lib/data-provider";
 
 export const dynamic = "force-dynamic";
 

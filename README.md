@@ -20,6 +20,8 @@ OWS ships a powerful wallet primitive: signing, key management, and a policy hoo
 
 **Aegis Nexus** — Real-time dashboard showing the full money flow between agents: Sankey diagrams of payment routing, per-agent P&L, policy enforcement history, and budget status.
 
+**XMTP Discovery** — Agents announce and discover each other's services via wallet-to-wallet messaging before paying. The research-buyer finds the analyst through XMTP, negotiates, then pays via x402. Nobody else combines messaging + payments.
+
 The key insight: agents are simultaneously **buyers and sellers**. An analyst agent pays a data-miner for scraped data, then charges a research-buyer for the analysis. Aegis makes this supply chain visible and safe.
 
 ---
@@ -141,13 +143,11 @@ Dead man's switch. Revokes the agent's signing key after a configurable period o
 
 Four pages, zero database required. Nexus reads live from `~/.ows/aegis/`.
 
-**Economy Overview** — Sankey diagram showing money flowing between agents in real time. Side-by-side agent P&L: every agent's total earned, total spent, and net position. This is the screenshot that makes the economy legible at a glance.
+**Economy Overview** — Sankey diagram showing money flowing between agents in real time. Side-by-side agent P&L: every agent's total earned, total spent, and net position. XMTP discovery feed showing agents finding each other. This is the screenshot that makes the economy legible at a glance.
 
-**Agent Detail** — Drill into any agent. Full transaction history, earning vs. spending breakdown, and which services it called or provided.
+**Agent Detail** — Drill into any agent. Wallet balances (via Zerion), full transaction history, earning vs. spending breakdown, and which services it called or provided. Fund agents via MoonPay on-ramp.
 
-**Policy Control Center** — Live view of all three policy executables: current config, recent allow/deny decisions, budget consumption bars, and pending actions.
-
-**Services Registry** — Searchable table of all Gate-registered services: endpoint, price, token, and the agent earning from it.
+**Policy Control Center** — Interactive editors for all three policy executables. Edit budget limits, guard addresses, and deadswitch thresholds via form inputs. Live enforcement statistics and JSON config preview.
 
 ---
 
@@ -189,6 +189,8 @@ research-buyer  →  analyst  →  data-miner
 3. Money flows through both agents' OWS wallets, governed by their respective policies
 4. Nexus renders the full flow as a Sankey diagram with live P&L for all three agents
 
+Before purchasing, `research-buyer` discovers the analyst via XMTP wallet-to-wallet messaging — browsing service announcements on the shared message bus. The discovery events appear in the Nexus dashboard alongside payment events.
+
 Run it: `cd demo && npx tsx run-economy.ts`
 
 ---
@@ -199,9 +201,11 @@ Run it: `cd demo && npx tsx run-economy.ts`
 |-----------|------------|
 | Gate | Express middleware, x402 payment protocol |
 | Policies | Node.js executables, OWS policy interface |
+| Discovery | XMTP-based agent-to-agent service messaging |
 | Nexus Dashboard | Next.js 15 + shadcn/ui + Recharts |
 | CLI | Commander.js |
 | Data | JSON files in `~/.ows/aegis/` |
+| Partner Tools | Zerion (balances), MoonPay (on-ramp), XMTP (discovery) |
 | OWS Integration | `@open-wallet-standard/core` |
 
 ---
@@ -231,6 +235,8 @@ All packages are TypeScript-first. Shared types (including `PolicyContext` and `
 **A running economy, not a demo button.** The 3-agent supply chain produces real transactions, real earnings, and real policy decisions. The Sankey diagram in Nexus is live data.
 
 **Extends OWS natively.** The policy executables use the exact stdin/stdout interface OWS defines as its extension point. Gate uses OWS's signing enclave for every payment. Nothing bypasses the standard.
+
+**Uses partner tools.** Zerion for multi-chain wallet balances, MoonPay for agent on-ramp, XMTP for wallet-to-wallet service discovery. Each integration signals "this builder read the brief."
 
 **The Sankey is the pitch.** Watching money flow from research-buyer through analyst to data-miner — all governed by policies, all visible in one dashboard — makes the agent economy legible in a way no amount of text can.
 

@@ -25,48 +25,49 @@ function CodeBlock({ children, title }: { children: string; title?: string }) {
   );
 }
 
-function FeatureCard({ title, description }: { title: string; description: string }) {
+function StepCard({ number, title, description }: { number: string; title: string; description: string }) {
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 hover:bg-white/[0.04] transition-colors">
-      <h4 className="font-semibold text-sm">{title}</h4>
-      <p className="text-sm text-muted-foreground mt-1">{description}</p>
+    <div className="flex gap-4 items-start">
+      <div className="shrink-0 w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-sm font-bold text-emerald-400">
+        {number}
+      </div>
+      <div>
+        <h4 className="font-semibold text-sm">{title}</h4>
+        <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+function FeatureCard({ icon, title, description }: { icon: string; title: string; description: string }) {
+  return (
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 hover:bg-white/[0.04] transition-colors">
+      <div className="text-2xl mb-3">{icon}</div>
+      <h4 className="font-semibold">{title}</h4>
+      <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{description}</p>
     </div>
   );
 }
 
 function TableOfContents() {
   const sections = [
-    { id: "overview", label: "Overview" },
-    { id: "architecture", label: "Architecture" },
-    { id: "gate", label: "Aegis Gate" },
-    { id: "gate-middleware", label: "  Gate Middleware" },
-    { id: "gate-config", label: "  Config File" },
-    { id: "gate-pay-and-fetch", label: "  payAndFetch Client" },
-    { id: "gate-x402", label: "  x402 Protocol Flow" },
-    { id: "policies", label: "Aegis Policies" },
-    { id: "policy-budget", label: "  aegis-budget" },
-    { id: "policy-guard", label: "  aegis-guard" },
-    { id: "policy-deadswitch", label: "  aegis-deadswitch" },
-    { id: "policy-engine", label: "  OWS Policy Engine" },
-    { id: "nexus", label: "Aegis Nexus Dashboard" },
-    { id: "nexus-economy", label: "  Economy Overview" },
-    { id: "nexus-agents", label: "  Agent Detail" },
-    { id: "nexus-policy-editor", label: "  Policy Editor" },
-    { id: "nexus-api", label: "  API Routes" },
-    { id: "xmtp", label: "XMTP Discovery" },
-    { id: "xmtp-announce", label: "  Service Announcements" },
-    { id: "xmtp-discover", label: "  Service Discovery" },
-    { id: "cli", label: "CLI Reference" },
-    { id: "cli-init", label: "  aegis init" },
-    { id: "cli-budget", label: "  aegis budget" },
-    { id: "cli-guard", label: "  aegis guard" },
-    { id: "cli-status", label: "  aegis status" },
-    { id: "cli-install", label: "  aegis install" },
-    { id: "cli-report", label: "  aegis report" },
-    { id: "data", label: "Data Storage" },
-    { id: "demo", label: "Demo Economy" },
-    { id: "partners", label: "Partner Integrations" },
-    { id: "tech-stack", label: "Tech Stack" },
+    { id: "what-is-aegis", label: "What is Aegis?" },
+    { id: "how-it-works", label: "How It Works" },
+    { id: "getting-started", label: "Getting Started" },
+    { id: "monetize", label: "Monetize Your API" },
+    { id: "spending-safety", label: "Spending Safety" },
+    { id: "budget-limits", label: "  Budget Limits" },
+    { id: "address-guard", label: "  Address Guard" },
+    { id: "dead-mans-switch", label: "  Dead Man's Switch" },
+    { id: "dashboard", label: "The Dashboard" },
+    { id: "economy-view", label: "  Economy View" },
+    { id: "agent-profiles", label: "  Agent Profiles" },
+    { id: "policy-management", label: "  Policy Management" },
+    { id: "agent-discovery", label: "Agent Discovery" },
+    { id: "cli-tools", label: "CLI Tools" },
+    { id: "demo", label: "Live Demo" },
+    { id: "integrations", label: "Integrations" },
+    { id: "for-developers", label: "For Developers" },
   ];
 
   return (
@@ -94,526 +95,335 @@ export default function DocsPage() {
         {/* Header */}
         <div className="mb-16">
           <p className="text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-3">Documentation</p>
-          <h1 className="text-4xl font-bold tracking-tight">Aegis Protocol</h1>
+          <h1 className="text-4xl font-bold tracking-tight">Aegis</h1>
           <p className="text-lg text-muted-foreground mt-3 leading-relaxed">
-            Complete reference for the Agent Commerce Protocol — Gate middleware, policy executables, Nexus dashboard, XMTP discovery, and CLI.
+            The commerce protocol for AI agent economies. Learn how agents earn, spend safely, and operate transparently.
           </p>
-          <div className="flex gap-3 mt-6">
-            <Link href="/dashboard" className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
-              View Dashboard &rarr;
+          <div className="flex gap-4 mt-6">
+            <Link href="/dashboard" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-400 hover:bg-emerald-500/20 transition-colors">
+              View Live Dashboard
             </Link>
-            <a href="https://github.com/rajkaria/aegis" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              GitHub &rarr;
+            <a href="https://github.com/rajkaria/aegis" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/[0.08] text-sm text-muted-foreground hover:text-foreground hover:border-white/[0.15] transition-colors">
+              GitHub
             </a>
           </div>
         </div>
 
-        {/* Overview */}
-        <SectionAnchor id="overview">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Overview</h2>
+        {/* What is Aegis */}
+        <SectionAnchor id="what-is-aegis">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">What is Aegis?</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            Aegis is a commerce protocol for AI agent economies, built on the Open Wallet Standard (OWS). It turns AI agents into economic actors that earn, spend safely, and operate transparently.
+            Aegis is a commerce protocol that lets AI agents participate in real economies. Built on the <a href="https://openwallet.sh" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300">Open Wallet Standard (OWS)</a>, it gives agents the ability to:
           </p>
-          <p className="text-muted-foreground leading-relaxed mb-6">
-            The protocol has three layers that work together:
-          </p>
-          <div className="grid gap-3 mb-8">
-            <FeatureCard
-              title="Aegis Gate"
-              description="Express middleware that wraps any API behind x402 micropayments. One line of code turns an endpoint into a paid service."
-            />
-            <FeatureCard
-              title="Aegis Policies"
-              description="Three OWS-native policy executables (budget, guard, deadswitch) that govern every agent transaction before signing."
-            />
-            <FeatureCard
-              title="Aegis Nexus"
-              description="Real-time economy dashboard showing money flow between agents, per-agent P&L, policy enforcement, and budget consumption."
-            />
+          <div className="grid gap-3 sm:grid-cols-3 mb-6">
+            <FeatureCard icon="$" title="Earn Money" description="Any API can become a paid service. Agents sell data, analysis, or compute and get paid per call." />
+            <FeatureCard icon="~" title="Spend Safely" description="Configurable spending limits, address allowlists, and an inactivity kill switch keep agents on a leash." />
+            <FeatureCard icon="@" title="Stay Visible" description="A real-time dashboard shows who's earning, who's spending, and how money flows between agents." />
           </div>
           <p className="text-muted-foreground leading-relaxed">
-            The key insight: agents are simultaneously <strong className="text-foreground">buyers and sellers</strong>. An analyst agent pays a data-miner for scraped data, then sells its analysis to a research-buyer. Aegis makes this supply chain visible, safe, and auditable.
+            The result is an <strong className="text-foreground">agent economy</strong> where multiple autonomous agents trade services with each other, governed by human-defined policies, with full transparency into every transaction.
           </p>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />
 
-        {/* Architecture */}
-        <SectionAnchor id="architecture">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Architecture</h2>
-          <CodeBlock title="System Architecture">{`AGENT CLIENTS (Claude Code, Cursor, any x402 client)
-    |                              |
-    v                              v
-DATA MINER (Aegis Gate)      ANALYST (Aegis Gate)
-  /scrape  $0.01               /analyze  $0.05
-    ^                              |
-    |__ x402 payment _____________|
-    |
-    v
-             OWS CORE
-  AEGIS POLICIES (budget, guard, deadswitch)
-  Wallet Vault | API Keys | Signing Enclave
-             |
-             v
-      AEGIS NEXUS DASHBOARD
-  Money Flow | P&L | Policy Log | Budget`}</CodeBlock>
-          <p className="text-muted-foreground leading-relaxed mt-4">
-            Every payment flows through OWS core, where Aegis policy executables intercept and evaluate the transaction before it is signed. The Nexus dashboard reads the same state files in real-time. XMTP messaging enables agents to discover each other before transacting.
-          </p>
-        </SectionAnchor>
-
-        <hr className="border-white/[0.06] my-12" />
-
-        {/* Aegis Gate */}
-        <SectionAnchor id="gate">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Aegis Gate</h2>
+        {/* How It Works */}
+        <SectionAnchor id="how-it-works">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">How It Works</h2>
           <p className="text-muted-foreground leading-relaxed mb-6">
-            Aegis Gate is an Express middleware that wraps any API endpoint behind x402 micropayments. It handles the full HTTP 402 payment challenge-response handshake automatically.
+            Aegis has three layers that work together to create a complete agent economy:
           </p>
 
-          <SectionAnchor id="gate-middleware">
-            <h3 className="text-lg font-semibold mb-3">Gate Middleware</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              The <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">aegisGate()</code> function returns Express middleware that gates an endpoint behind payment.
-            </p>
-            <CodeBlock title="Server — Protect an endpoint">{`import express from "express";
-import { aegisGate } from "@aegis-ows/gate";
+          <div className="space-y-6 mb-8">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold text-emerald-400 mb-2">Layer 1: Aegis Gate &mdash; How agents earn</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Gate is middleware you add to any Express API. It intercepts requests, charges callers using the x402 payment protocol, and logs the revenue. Your existing API logic doesn&apos;t change &mdash; Gate handles all the payment plumbing.
+              </p>
+            </div>
 
-const app = express();
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold text-sky-400 mb-2">Layer 2: Aegis Policies &mdash; How agents stay safe</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Three safety policies plug directly into OWS&apos;s wallet. Before any payment is signed, these policies check: Is the agent within its budget? Is the recipient address trusted? Has the agent been active recently? If any check fails, the transaction is blocked.
+              </p>
+            </div>
 
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold text-violet-400 mb-2">Layer 3: Aegis Nexus &mdash; How humans see everything</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Nexus is a real-time dashboard that visualizes the entire agent economy. It shows money flowing between agents, each agent&apos;s profit and loss, budget consumption, policy enforcement events, and more &mdash; all updating live.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 text-center">
+            <p className="text-sm text-muted-foreground mb-4">The supply chain in action:</p>
+            <div className="flex items-center justify-center gap-3 text-sm flex-wrap">
+              <div className="px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20">
+                <div className="font-semibold text-red-400">Research Buyer</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">Buys analysis &mdash; spends $0.05</div>
+              </div>
+              <span className="text-emerald-400 font-mono text-lg">&rarr;</span>
+              <div className="px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                <div className="font-semibold text-emerald-400">Analyst</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">Sells analysis, buys data &mdash; +$0.04</div>
+              </div>
+              <span className="text-emerald-400 font-mono text-lg">&rarr;</span>
+              <div className="px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                <div className="font-semibold text-emerald-400">Data Miner</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">Sells raw data &mdash; +$0.01</div>
+              </div>
+            </div>
+          </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Getting Started */}
+        <SectionAnchor id="getting-started">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Getting Started</h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            Get Aegis running in under 2 minutes:
+          </p>
+          <div className="space-y-4 mb-6">
+            <StepCard number="1" title="Clone and install" description="Download the project and install all dependencies." />
+            <StepCard number="2" title="Seed demo data" description="Populate the economy with sample agents, transactions, and policy events." />
+            <StepCard number="3" title="Open the dashboard" description="See the economy visualized in real time." />
+          </div>
+          <CodeBlock title="Quick start">{`git clone https://github.com/rajkaria/aegis
+cd aegis && npm install
+
+# Build all packages
+npm run build
+
+# Seed the demo economy
+cd demo && npx tsx seed.ts
+
+# Start the dashboard
+cd ../dashboard && npm run dev
+# Open http://localhost:3000/dashboard`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Monetize Your API */}
+        <SectionAnchor id="monetize">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Monetize Your API</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Aegis Gate turns any API endpoint into a paid service with a single line of code. When another agent (or any HTTP client) calls your endpoint, Gate charges them automatically using the x402 micropayment protocol.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">Protect an endpoint</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Add Gate as middleware on any Express route. Set the price and token &mdash; Gate handles the rest.
+          </p>
+          <CodeBlock title="One line to monetize">{`import { aegisGate } from "@aegis-ows/gate";
+
+// This endpoint now costs $0.01 per call
 app.get("/api/scrape",
-  aegisGate({
-    price: "0.01",        // Cost per call in USDC
-    token: "USDC",        // Payment token (default: USDC)
-    agentId: "data-miner", // This agent's identity
-    network: "eip155:8453", // Chain (default: eip155:1)
-    description: "Web scraping service",
-  }),
+  aegisGate({ price: "0.01", token: "USDC", agentId: "my-agent" }),
   (req, res) => {
-    res.json({ data: "scraped content" });
+    res.json({ data: "your content here" });
   }
 );`}</CodeBlock>
 
-            <h4 className="text-sm font-semibold mt-6 mb-2">Options</h4>
-            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden text-sm">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/[0.06]">
-                    <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">Option</th>
-                    <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">Type</th>
-                    <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">Default</th>
-                    <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">Description</th>
-                  </tr>
-                </thead>
-                <tbody className="text-muted-foreground">
-                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">price</td><td className="px-4 py-2">string</td><td className="px-4 py-2">required</td><td className="px-4 py-2">Cost per call (e.g. &quot;0.01&quot;)</td></tr>
-                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">agentId</td><td className="px-4 py-2">string</td><td className="px-4 py-2">required</td><td className="px-4 py-2">Agent identity for earnings tracking</td></tr>
-                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">token</td><td className="px-4 py-2">string</td><td className="px-4 py-2">&quot;USDC&quot;</td><td className="px-4 py-2">Payment token</td></tr>
-                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">network</td><td className="px-4 py-2">string</td><td className="px-4 py-2">&quot;eip155:1&quot;</td><td className="px-4 py-2">Chain ID (CAIP-2)</td></tr>
-                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">walletAddress</td><td className="px-4 py-2">string</td><td className="px-4 py-2">auto</td><td className="px-4 py-2">OWS wallet address for payTo field</td></tr>
-                  <tr><td className="px-4 py-2 font-mono text-xs text-foreground">description</td><td className="px-4 py-2">string</td><td className="px-4 py-2">-</td><td className="px-4 py-2">Human-readable service description</td></tr>
-                </tbody>
-              </table>
-            </div>
+          <h3 className="text-lg font-semibold mt-8 mb-3">Pay for a service</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            On the buyer side, <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">payAndFetch</code> handles payment automatically. It detects the price, signs the payment through OWS, and returns the content.
+          </p>
+          <CodeBlock title="One line to pay">{`import { payAndFetch } from "@aegis-ows/gate";
 
-            <p className="text-muted-foreground leading-relaxed mt-4">
-              When a request arrives without payment, Gate returns HTTP 402 with payment details. When payment is provided via the <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">X-PAYMENT</code> header, Gate verifies it, logs the earning to the ledger, and forwards to your handler.
-            </p>
-          </SectionAnchor>
+const result = await payAndFetch("http://service/api/scrape", "buyer-agent");
+// Payment handled automatically — result contains the data`}</CodeBlock>
 
-          <SectionAnchor id="gate-config">
-            <h3 className="text-lg font-semibold mt-8 mb-3">Config File</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Instead of configuring each route individually, you can define all endpoints in an <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">aegis.config.json</code> file and load them with <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">aegisGateFromConfig()</code>.
-            </p>
-            <CodeBlock title="aegis.config.json">{`{
-  "walletName": "data-miner",
+          <h3 className="text-lg font-semibold mt-8 mb-3">How payment works</h3>
+          <div className="space-y-3 text-sm text-muted-foreground mb-4">
+            <StepCard number="1" title="Request" description="The buyer calls your endpoint normally." />
+            <StepCard number="2" title="402 Response" description="Gate returns HTTP 402 with the price, token, and payment address." />
+            <StepCard number="3" title="Payment" description="The buyer signs a payment through their OWS wallet." />
+            <StepCard number="4" title="Retry" description="The buyer resends the request with a payment proof." />
+            <StepCard number="5" title="Access" description="Gate verifies, logs the earning, and forwards to your handler." />
+          </div>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">Config-based setup</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            For agents with multiple endpoints, define everything in a config file:
+          </p>
+          <CodeBlock title="aegis.config.json">{`{
+  "walletName": "my-agent",
   "network": "eip155:8453",
   "endpoints": {
-    "/scrape": {
-      "price": "0.01",
-      "token": "USDC",
-      "description": "Web scraping service"
-    },
-    "/health": {
-      "price": "0",
-      "description": "Free health check"
-    }
+    "/scrape": { "price": "0.01", "description": "Web scraping" },
+    "/analyze": { "price": "0.05", "description": "Data analysis" },
+    "/health": { "price": "0", "description": "Free health check" }
   }
 }`}</CodeBlock>
-            <CodeBlock title="Usage">{`import { aegisGateFromConfig } from "@aegis-ows/gate";
-
-// Load config and create router with all endpoints gated
-app.use(aegisGateFromConfig("./aegis.config.json"));`}</CodeBlock>
-            <p className="text-muted-foreground text-sm mt-3">
-              Endpoints with <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">price: &quot;0&quot;</code> are skipped (free endpoints).
-            </p>
-          </SectionAnchor>
-
-          <SectionAnchor id="gate-pay-and-fetch">
-            <h3 className="text-lg font-semibold mt-8 mb-3">payAndFetch Client</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              The <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">payAndFetch()</code> function is the client-side counterpart. It handles the full x402 flow automatically: probe the endpoint, receive 402, log the payment, retry with credentials.
-            </p>
-            <CodeBlock title="Client — Pay for a service">{`import { payAndFetch } from "@aegis-ows/gate";
-
-const result = await payAndFetch(
-  "http://localhost:4001/scrape",
-  "research-buyer"  // caller's agent ID
-);
-// result contains the paid content`}</CodeBlock>
-            <p className="text-muted-foreground leading-relaxed mt-4">
-              Internally, <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">payAndFetch</code> probes the URL, reads the 402 response to get price/token/network, logs the spending to the budget ledger, then retries with an <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">X-PAYMENT</code> header containing the signed payment proof.
-            </p>
-          </SectionAnchor>
-
-          <SectionAnchor id="gate-x402">
-            <h3 className="text-lg font-semibold mt-8 mb-3">x402 Protocol Flow</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              The x402 payment protocol uses HTTP status 402 (Payment Required) for machine-native micropayments.
-            </p>
-            <div className="space-y-3 text-sm text-muted-foreground">
-              <div className="flex gap-3 items-start">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-white/[0.06] flex items-center justify-center text-xs font-bold">1</span>
-                <span>Client sends a normal HTTP request to a Gate-protected endpoint.</span>
-              </div>
-              <div className="flex gap-3 items-start">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-white/[0.06] flex items-center justify-center text-xs font-bold">2</span>
-                <span>Gate returns <code className="bg-white/[0.06] px-1 py-0.5 rounded">402</code> with JSON body: <code className="bg-white/[0.06] px-1 py-0.5 rounded">{`{ x402Version, payTo, price, token, network }`}</code></span>
-              </div>
-              <div className="flex gap-3 items-start">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-white/[0.06] flex items-center justify-center text-xs font-bold">3</span>
-                <span>Client signs payment via OWS wallet (keys never leave the signing enclave).</span>
-              </div>
-              <div className="flex gap-3 items-start">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-white/[0.06] flex items-center justify-center text-xs font-bold">4</span>
-                <span>Client retries with <code className="bg-white/[0.06] px-1 py-0.5 rounded">X-PAYMENT</code> header containing the signed proof.</span>
-              </div>
-              <div className="flex gap-3 items-start">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-white/[0.06] flex items-center justify-center text-xs font-bold">5</span>
-                <span>Gate verifies payment, logs the earning, and forwards to the handler. Content is returned.</span>
-              </div>
-            </div>
-          </SectionAnchor>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />
 
-        {/* Policies */}
-        <SectionAnchor id="policies">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Aegis Policies</h2>
+        {/* Spending Safety */}
+        <SectionAnchor id="spending-safety">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Spending Safety</h2>
           <p className="text-muted-foreground leading-relaxed mb-6">
-            Three OWS-compatible policy executables. Each reads <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">PolicyContext</code> from stdin and writes <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">PolicyResult</code> to stdout — the exact interface OWS defines for its policy engine extension point.
+            Agents with wallets need guardrails. Aegis provides three safety policies that run automatically before every transaction. If any policy says no, the payment is blocked before it leaves the wallet.
           </p>
 
-          <SectionAnchor id="policy-budget">
-            <h3 className="text-lg font-semibold mb-3">aegis-budget &mdash; Spending Caps</h3>
+          <SectionAnchor id="budget-limits">
+            <h3 className="text-lg font-semibold mb-3">Budget Limits</h3>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              Enforces per-chain, per-token spending limits with daily, weekly, and monthly caps. Tracks cumulative spend in a local ledger at <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">~/.ows/aegis/budget-ledger.json</code>.
+              Set daily, weekly, or monthly spending caps per blockchain and token. An agent with a $0.50/day USDC budget on Base will be automatically blocked after reaching that limit.
             </p>
-            <CodeBlock title="~/.ows/aegis/budget-config.json">{`{
+            <CodeBlock title="Example: $0.50/day on Base, $1/day globally">{`{
   "limits": [
-    {
-      "chainId": "eip155:8453",
-      "token": "USDC",
-      "daily": "0.50",
-      "monthly": "10.00"
-    },
-    {
-      "chainId": "*",
-      "token": "*",
-      "daily": "1.00"
-    }
+    { "chainId": "eip155:8453", "token": "USDC", "daily": "0.50" },
+    { "chainId": "*", "token": "*", "daily": "1.00" }
   ]
 }`}</CodeBlock>
             <p className="text-muted-foreground text-sm mt-3">
-              Wildcard <code className="bg-white/[0.06] px-1 py-0.5 rounded">&quot;*&quot;</code> matches any chain or token. The policy evaluates all matching limits and blocks if any would be exceeded.
+              Use <code className="bg-white/[0.06] px-1 py-0.5 rounded">*</code> as a wildcard to set global limits across all chains and tokens.
             </p>
           </SectionAnchor>
 
-          <SectionAnchor id="policy-guard">
-            <h3 className="text-lg font-semibold mt-8 mb-3">aegis-guard &mdash; Address Allowlist/Blocklist</h3>
+          <SectionAnchor id="address-guard">
+            <h3 className="text-lg font-semibold mt-8 mb-3">Address Guard</h3>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              Controls which contract and wallet addresses agents can transact with. Supports allowlist mode (only permitted addresses) and a global blocklist that is always enforced.
+              Restrict which addresses your agent can interact with. In allowlist mode, only pre-approved contracts and wallets are permitted. Known scam addresses are always blocked.
             </p>
-            <CodeBlock title="~/.ows/aegis/guard-config.json">{`{
+            <CodeBlock title="Example: Only allow known contracts">{`{
   "mode": "allowlist",
   "addresses": {
-    "eip155:8453": [
-      "0xUSDC_BASE_CONTRACT",
-      "0xUNISWAP_BASE_ROUTER"
-    ],
-    "solana:*": [
-      "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
-    ]
+    "eip155:8453": ["0xUSDC_CONTRACT", "0xUNISWAP_ROUTER"]
   },
-  "blockAddresses": [
-    "0xKNOWN_SCAM_ADDRESS"
-  ]
+  "blockAddresses": ["0xKNOWN_SCAM"]
 }`}</CodeBlock>
-            <p className="text-muted-foreground text-sm mt-3">
-              Wildcard chain prefixes like <code className="bg-white/[0.06] px-1 py-0.5 rounded">&quot;solana:*&quot;</code> match all Solana networks. The blocklist is checked before the allowlist — blocked addresses are always rejected.
-            </p>
           </SectionAnchor>
 
-          <SectionAnchor id="policy-deadswitch">
-            <h3 className="text-lg font-semibold mt-8 mb-3">aegis-deadswitch &mdash; Dead Man&apos;s Switch</h3>
+          <SectionAnchor id="dead-mans-switch">
+            <h3 className="text-lg font-semibold mt-8 mb-3">Dead Man&apos;s Switch</h3>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              If an agent hasn&apos;t signed a transaction within a configurable inactivity window, the policy denies all further transactions. Prevents runaway agents from sitting on funds.
+              If an agent goes silent for too long, this policy blocks all further transactions. It prevents runaway agents from sitting on funds when something goes wrong. Every successful transaction resets the timer.
             </p>
-            <CodeBlock title="~/.ows/aegis/deadswitch-config.json">{`{
+            <CodeBlock title="Example: 30-minute inactivity timeout">{`{
   "maxInactiveMinutes": 30,
   "onTrigger": "revoke_key",
-  "recoveryWallet": "0xHUMAN_WALLET",
-  "sweepFunds": false,
   "enabled": true
 }`}</CodeBlock>
             <p className="text-muted-foreground text-sm mt-3">
-              Each time a transaction is allowed, the heartbeat timestamp is updated. If the elapsed time since the last heartbeat exceeds <code className="bg-white/[0.06] px-1 py-0.5 rounded">maxInactiveMinutes</code>, the policy blocks the transaction.
-            </p>
-          </SectionAnchor>
-
-          <SectionAnchor id="policy-engine">
-            <h3 className="text-lg font-semibold mt-8 mb-3">OWS Policy Engine Integration</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              All three policies use OWS&apos;s native policy engine interface. Before any signing operation, OWS spawns the executable with <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">PolicyContext</code> on stdin and reads <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">PolicyResult</code> from stdout.
-            </p>
-            <CodeBlock title="PolicyContext (stdin)">{`{
-  "transaction": { "to": "0x...", "value": "0.05", "data": "0x..." },
-  "chainId": "eip155:8453",
-  "wallet": { "id": "w1", "name": "analyst", "addresses": {} },
-  "simulation": { "success": true, "value": "0.05" },
-  "timestamp": "2026-04-03T12:00:00Z",
-  "apiKeyId": "analyst-key"
-}`}</CodeBlock>
-            <CodeBlock title="PolicyResult (stdout)">{`{ "allow": true }
-// or
-{ "allow": false, "reason": "Daily USDC limit exceeded: $0.52/$0.50" }`}</CodeBlock>
-            <p className="text-muted-foreground text-sm mt-3">
-              Every decision (allow or deny) is logged to <code className="bg-white/[0.06] px-1 py-0.5 rounded">~/.ows/aegis/policy-log.json</code> and appears in the Nexus dashboard activity feed.
+              After 30 minutes of no activity, the agent is locked out until a human intervenes.
             </p>
           </SectionAnchor>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />
 
-        {/* Nexus Dashboard */}
-        <SectionAnchor id="nexus">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Aegis Nexus Dashboard</h2>
+        {/* Dashboard */}
+        <SectionAnchor id="dashboard">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">The Dashboard</h2>
           <p className="text-muted-foreground leading-relaxed mb-6">
-            A real-time economy visualizer built with Next.js 16, shadcn/ui, and Recharts. Reads data from <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">~/.ows/aegis/</code> JSON files. Deployed standalone on Vercel with bundled seed data fallback.
+            Aegis Nexus is a real-time window into your agent economy. It updates live as agents transact, showing everything you need to understand what&apos;s happening.
           </p>
 
-          <SectionAnchor id="nexus-economy">
-            <h3 className="text-lg font-semibold mb-3">Economy Overview</h3>
-            <p className="text-muted-foreground leading-relaxed mb-3">The main dashboard page at <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">/dashboard</code> shows:</p>
-            <ul className="space-y-2 text-sm text-muted-foreground ml-4 list-disc">
-              <li><strong className="text-foreground">Stat cards</strong> &mdash; Economy flow (total volume), active agents, net profit, transactions blocked</li>
-              <li><strong className="text-foreground">Money Flow visualization</strong> &mdash; Animated diagram showing payment flows between agents with P&L indicators on each node</li>
-              <li><strong className="text-foreground">Budget consumption bars</strong> &mdash; Animated progress bars per chain/token/period with color-coded thresholds (green &lt;70%, yellow 70-90%, red &gt;90%)</li>
-              <li><strong className="text-foreground">XMTP Discovery feed</strong> &mdash; Service announcements, queries, and responses from the message bus</li>
-              <li><strong className="text-foreground">Agent P&amp;L table</strong> &mdash; Revenue, spending, and profit/loss per agent with links to detail pages</li>
-              <li><strong className="text-foreground">Live activity feed</strong> &mdash; Merged stream of earnings, spending, policy decisions, and discovery events with relative timestamps</li>
+          <SectionAnchor id="economy-view">
+            <h3 className="text-lg font-semibold mb-3">Economy View</h3>
+            <p className="text-muted-foreground leading-relaxed mb-3">The main screen shows the full picture at a glance:</p>
+            <ul className="space-y-2 text-sm text-muted-foreground ml-4 list-disc mb-4">
+              <li><strong className="text-foreground">Money Flow</strong> &mdash; An animated visualization showing payments flowing between agents in your economy. See who pays whom and how much.</li>
+              <li><strong className="text-foreground">Key Metrics</strong> &mdash; Total economy volume, number of active agents, combined profit/loss, and transactions blocked by policies.</li>
+              <li><strong className="text-foreground">Budget Bars</strong> &mdash; Color-coded progress bars showing how close each agent is to their spending limits. Green is safe, yellow is getting close, red means almost spent.</li>
+              <li><strong className="text-foreground">Activity Feed</strong> &mdash; A live stream of everything happening: payments received, money spent, policies enforced, and services discovered.</li>
             </ul>
-          </SectionAnchor>
-
-          <SectionAnchor id="nexus-agents">
-            <h3 className="text-lg font-semibold mt-8 mb-3">Agent Detail</h3>
-            <p className="text-muted-foreground leading-relaxed mb-3">Each agent has a detail page at <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">/dashboard/agents/[id]</code> showing:</p>
-            <ul className="space-y-2 text-sm text-muted-foreground ml-4 list-disc">
-              <li><strong className="text-foreground">P&amp;L summary</strong> &mdash; Revenue, spending, and net profit/loss</li>
-              <li><strong className="text-foreground">Wallet balance</strong> &mdash; Multi-chain balances (via Zerion API integration)</li>
-              <li><strong className="text-foreground">Fund via MoonPay</strong> &mdash; On-ramp integration for topping up agent wallets</li>
-              <li><strong className="text-foreground">Revenue by endpoint</strong> &mdash; Which services this agent sells and how much each earns</li>
-              <li><strong className="text-foreground">Spending by vendor</strong> &mdash; Which services this agent buys and how much each costs</li>
-              <li><strong className="text-foreground">Budget consumption</strong> &mdash; Per-chain/token budget bars for this agent</li>
-              <li><strong className="text-foreground">Policy enforcement history</strong> &mdash; Filtered log of PASS/BLOCK decisions for this agent</li>
-            </ul>
-          </SectionAnchor>
-
-          <SectionAnchor id="nexus-policy-editor">
-            <h3 className="text-lg font-semibold mt-8 mb-3">Interactive Policy Editor</h3>
-            <p className="text-muted-foreground leading-relaxed mb-3">
-              The policies page at <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">/dashboard/policies</code> provides a visual form editor for each policy:
-            </p>
-            <ul className="space-y-2 text-sm text-muted-foreground ml-4 list-disc">
-              <li><strong className="text-foreground">Budget editor</strong> &mdash; Add/remove spending limits with chain, token, and daily/weekly/monthly caps</li>
-              <li><strong className="text-foreground">Guard editor</strong> &mdash; Toggle allowlist/blocklist mode, add/remove addresses per chain, manage global blocklist</li>
-              <li><strong className="text-foreground">Deadswitch editor</strong> &mdash; Configure inactivity timeout, enable/disable, set sweep funds and recovery wallet</li>
-              <li><strong className="text-foreground">JSON preview</strong> &mdash; Each editor shows a collapsible raw JSON preview of the generated config</li>
-              <li><strong className="text-foreground">Save to disk</strong> &mdash; Changes write directly to <code className="bg-white/[0.06] px-1 py-0.5 rounded">~/.ows/aegis/</code> config files via the API</li>
-            </ul>
-          </SectionAnchor>
-
-          <SectionAnchor id="nexus-api">
-            <h3 className="text-lg font-semibold mt-8 mb-3">API Routes</h3>
-            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden text-sm">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/[0.06]">
-                    <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">Route</th>
-                    <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">Method</th>
-                    <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">Description</th>
-                  </tr>
-                </thead>
-                <tbody className="text-muted-foreground">
-                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">/api/economy</td><td className="px-4 py-2">GET</td><td className="px-4 py-2">Full economy overview: profiles, sankey data, activity, budgets</td></tr>
-                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">/api/agents</td><td className="px-4 py-2">GET</td><td className="px-4 py-2">All agent profiles with P&amp;L</td></tr>
-                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">/api/agents/[id]</td><td className="px-4 py-2">GET</td><td className="px-4 py-2">Single agent detail with policy log and budgets</td></tr>
-                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">/api/policies</td><td className="px-4 py-2">GET</td><td className="px-4 py-2">All policy configs and enforcement log</td></tr>
-                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">/api/policies/[name]</td><td className="px-4 py-2">POST</td><td className="px-4 py-2">Update a policy config (budget, guard, or deadswitch)</td></tr>
-                  <tr><td className="px-4 py-2 font-mono text-xs text-foreground">/api/export</td><td className="px-4 py-2">GET</td><td className="px-4 py-2">CSV export of the full spending ledger</td></tr>
-                </tbody>
-              </table>
+            <div className="rounded-xl border border-emerald-500/10 bg-emerald-500/5 p-4 text-sm text-muted-foreground">
+              <Link href="/dashboard" className="text-emerald-400 hover:text-emerald-300 font-medium">Open the live dashboard &rarr;</Link>
+              {" "}to see the demo economy with three agents already transacting.
             </div>
           </SectionAnchor>
+
+          <SectionAnchor id="agent-profiles">
+            <h3 className="text-lg font-semibold mt-8 mb-3">Agent Profiles</h3>
+            <p className="text-muted-foreground leading-relaxed mb-3">
+              Drill into any agent to see their complete financial picture:
+            </p>
+            <ul className="space-y-2 text-sm text-muted-foreground ml-4 list-disc">
+              <li><strong className="text-foreground">Profit &amp; Loss</strong> &mdash; How much the agent has earned vs. spent, and whether it&apos;s profitable</li>
+              <li><strong className="text-foreground">Wallet Balances</strong> &mdash; Token holdings across all chains (powered by Zerion)</li>
+              <li><strong className="text-foreground">Revenue Sources</strong> &mdash; Which endpoints are earning money and how much each one brings in</li>
+              <li><strong className="text-foreground">Spending Breakdown</strong> &mdash; Which services the agent is buying from and the cost of each</li>
+              <li><strong className="text-foreground">Policy History</strong> &mdash; Every allow and block decision that applied to this agent</li>
+            </ul>
+          </SectionAnchor>
+
+          <SectionAnchor id="policy-management">
+            <h3 className="text-lg font-semibold mt-8 mb-3">Policy Management</h3>
+            <p className="text-muted-foreground leading-relaxed mb-3">
+              Edit all three policies directly from the dashboard &mdash; no config files to edit by hand:
+            </p>
+            <ul className="space-y-2 text-sm text-muted-foreground ml-4 list-disc">
+              <li><strong className="text-foreground">Budget Editor</strong> &mdash; Add or remove spending limits, adjust caps, see current enforcement stats</li>
+              <li><strong className="text-foreground">Guard Editor</strong> &mdash; Switch between allowlist and blocklist mode, add/remove addresses</li>
+              <li><strong className="text-foreground">Deadswitch Editor</strong> &mdash; Set the inactivity timeout, enable/disable, check the heartbeat timer</li>
+            </ul>
+            <p className="text-muted-foreground text-sm mt-3">
+              Changes take effect immediately. Each editor also shows a live JSON preview of the generated config.
+            </p>
+          </SectionAnchor>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />
 
-        {/* XMTP */}
-        <SectionAnchor id="xmtp">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">XMTP Service Discovery</h2>
-          <p className="text-muted-foreground leading-relaxed mb-6">
-            Agents discover each other&apos;s services via wallet-to-wallet messaging before paying via x402. The XMTP integration uses a local file-based message bus at <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">~/.ows/aegis/messages.json</code> with the XMTP SDK wired as an optional network transport.
+        {/* Agent Discovery */}
+        <SectionAnchor id="agent-discovery">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Agent Discovery</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Before an agent can buy a service, it needs to find one. Aegis includes an XMTP-powered discovery system where agents announce their services and search for others.
           </p>
 
-          <SectionAnchor id="xmtp-announce">
-            <h3 className="text-lg font-semibold mb-3">Service Announcements</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              When an agent starts with Aegis Gate, it announces its paid services to the message bus:
-            </p>
-            <CodeBlock title="Auto-announce on startup">{`import { announceServices } from "@aegis-ows/gate";
-import config from "./aegis.config.json";
+          <div className="space-y-4 mb-6">
+            <StepCard number="1" title="Announce" description="When an agent starts up, it broadcasts what services it offers (endpoints, prices, descriptions) to the message bus." />
+            <StepCard number="2" title="Discover" description="An agent looking for a capability (like 'web scraping' or 'data analysis') searches the bus and finds matching services." />
+            <StepCard number="3" title="Pay" description="The agent calls the discovered service URL and pays automatically via x402." />
+          </div>
 
-// After Express server starts:
-announceServices(config, "http://localhost:4001");`}</CodeBlock>
-            <p className="text-muted-foreground text-sm mt-3">
-              The announcement includes all paid endpoints (price &gt; 0) with their prices, tokens, descriptions, and base URLs.
-            </p>
-          </SectionAnchor>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            All discovery activity shows up in the dashboard&apos;s XMTP feed, so you can see which agents are finding each other.
+          </p>
+          <CodeBlock title="Discovery in action">{`import { findServices, payAndFetch } from "@aegis-ows/gate";
 
-          <SectionAnchor id="xmtp-discover">
-            <h3 className="text-lg font-semibold mt-8 mb-3">Service Discovery</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Before making a purchase, agents can search for available services:
-            </p>
-            <CodeBlock title="Discover services">{`import { findServices, payAndFetch } from "@aegis-ows/gate";
-
-// Search for analysis services
+// Find services that match "analysis"
 const services = findServices("analysis", "research-buyer");
-// Returns: [{ endpoint, price, token, description, fullUrl }]
+// → [{ endpoint: "/analyze", price: "0.05", fullUrl: "http://..." }]
 
-// Pay the first match
+// Pay and get the result
 const result = await payAndFetch(services[0].fullUrl, "research-buyer");`}</CodeBlock>
-            <p className="text-muted-foreground text-sm mt-3">
-              Discovery queries and responses are logged to the message bus and appear in the Nexus dashboard&apos;s XMTP Discovery feed.
-            </p>
-          </SectionAnchor>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />
 
         {/* CLI */}
-        <SectionAnchor id="cli">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">CLI Reference</h2>
+        <SectionAnchor id="cli-tools">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">CLI Tools</h2>
           <p className="text-muted-foreground leading-relaxed mb-6">
-            The Aegis CLI provides command-line tools for initializing, configuring, and monitoring the agent economy.
+            Manage your Aegis setup from the command line.
           </p>
-
-          <SectionAnchor id="cli-init">
-            <h3 className="text-lg font-semibold mb-3">aegis init</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">Creates <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">~/.ows/aegis/</code> and writes default config files if they don&apos;t exist.</p>
-            <CodeBlock>{`$ aegis init
-Initialized directory: /Users/you/.ows/aegis
-Created default config files:
-  /Users/you/.ows/aegis/budget-config.json
-  /Users/you/.ows/aegis/guard-config.json
-  /Users/you/.ows/aegis/deadswitch-config.json`}</CodeBlock>
-          </SectionAnchor>
-
-          <SectionAnchor id="cli-budget">
-            <h3 className="text-lg font-semibold mt-8 mb-3">aegis budget</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">Shows budget status for all configured limits.</p>
-            <CodeBlock>{`$ aegis budget --period daily
-Budget Status (daily):
-  USDC on eip155:8453: $0.35 / $0.50 (70%) — $0.15 remaining
-  * on *: $0.60 / $1.00 (60%) — $0.40 remaining`}</CodeBlock>
-            <p className="text-muted-foreground text-sm mt-3">
-              Options: <code className="bg-white/[0.06] px-1 py-0.5 rounded">--chain &lt;chain&gt;</code> to filter, <code className="bg-white/[0.06] px-1 py-0.5 rounded">--period daily|weekly|monthly</code>.
-            </p>
-          </SectionAnchor>
-
-          <SectionAnchor id="cli-guard">
-            <h3 className="text-lg font-semibold mt-8 mb-3">aegis guard</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">Manage address allowlist and blocklist.</p>
-            <CodeBlock>{`$ aegis guard                              # Show current config
-$ aegis guard --add 0xA0b8... --chain eip155:1  # Add to allowlist
-$ aegis guard --add 0xBad0... --block           # Add to blocklist
-$ aegis guard --remove 0xA0b8...                # Remove from all lists`}</CodeBlock>
-          </SectionAnchor>
-
-          <SectionAnchor id="cli-status">
-            <h3 className="text-lg font-semibold mt-8 mb-3">aegis status</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">Shows agent economy status with P&amp;L for all agents, plus deadswitch status.</p>
-            <CodeBlock>{`$ aegis status
-Agent Economy Status:
-
-  Agent              Revenue    Spending   P/L
-  -------------------------------------------------------
-  analyst                $0.50     $0.10   +$0.40
-  data-miner             $0.10     $0.00   +$0.10
-  research-buyer         $0.00     $0.50   -$0.50
-
-Deadswitch: Active (30min timeout)
-  Last heartbeat: 5min ago (triggers at 30min)`}</CodeBlock>
-          </SectionAnchor>
-
-          <SectionAnchor id="cli-install">
-            <h3 className="text-lg font-semibold mt-8 mb-3">aegis install</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">Registers the three Aegis policy executables with OWS.</p>
-            <CodeBlock>{`$ aegis install
-Registering Aegis policies with OWS:
-  aegis-budget     — Enforces spending limits per chain/token/period
-  aegis-guard      — Allow/blocklist address enforcement
-  aegis-deadswitch — Dead man's switch — revokes key after inactivity`}</CodeBlock>
-          </SectionAnchor>
-
-          <SectionAnchor id="cli-report">
-            <h3 className="text-lg font-semibold mt-8 mb-3">aegis report</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">Generate spending reports from the ledger.</p>
-            <CodeBlock>{`$ aegis report --period today --format summary
-$ aegis report --period week --format detailed
-$ aegis report --period month --format csv > report.csv`}</CodeBlock>
-          </SectionAnchor>
-        </SectionAnchor>
-
-        <hr className="border-white/[0.06] my-12" />
-
-        {/* Data Storage */}
-        <SectionAnchor id="data">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Data Storage</h2>
-          <p className="text-muted-foreground leading-relaxed mb-6">
-            All data is stored as JSON files in <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">~/.ows/aegis/</code>, following OWS&apos;s local-first philosophy. No database required.
-          </p>
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden text-sm">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/[0.06]">
-                  <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">File</th>
-                  <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">Purpose</th>
-                </tr>
-              </thead>
-              <tbody className="text-muted-foreground">
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">budget-config.json</td><td className="px-4 py-2">Spending limit configuration</td></tr>
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">budget-ledger.json</td><td className="px-4 py-2">Cumulative spending records (per agent, chain, token)</td></tr>
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">earnings-ledger.json</td><td className="px-4 py-2">Revenue records from Gate-protected endpoints</td></tr>
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">guard-config.json</td><td className="px-4 py-2">Address allowlist/blocklist configuration</td></tr>
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">deadswitch-config.json</td><td className="px-4 py-2">Dead man&apos;s switch configuration + heartbeat</td></tr>
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">policy-log.json</td><td className="px-4 py-2">Immutable log of all policy allow/deny decisions</td></tr>
-                <tr><td className="px-4 py-2 font-mono text-xs text-foreground">messages.json</td><td className="px-4 py-2">XMTP message bus (service announcements, queries, responses)</td></tr>
-              </tbody>
-            </table>
+          <div className="space-y-6">
+            <div>
+              <h3 className="font-semibold text-sm mb-2">Set up Aegis</h3>
+              <CodeBlock>{`aegis init       # Create config directory with defaults
+aegis install    # Register policies with OWS`}</CodeBlock>
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm mb-2">Monitor the economy</h3>
+              <CodeBlock>{`aegis status     # See agent P&L table + deadswitch status
+aegis budget     # Check spending against limits
+aegis report     # Generate spending report (summary, detailed, or CSV)`}</CodeBlock>
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm mb-2">Manage security</h3>
+              <CodeBlock>{`aegis guard                        # View current allowlist/blocklist
+aegis guard --add 0xA0b8... --chain eip155:1  # Allow an address
+aegis guard --add 0xBad0... --block           # Block an address`}</CodeBlock>
+            </div>
           </div>
         </SectionAnchor>
 
@@ -621,89 +431,99 @@ $ aegis report --period month --format csv > report.csv`}</CodeBlock>
 
         {/* Demo */}
         <SectionAnchor id="demo">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Demo Economy</h2>
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Live Demo</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            The demo creates a 3-agent supply chain that runs a full economic cycle:
+            Aegis ships with a ready-to-run demo that creates three agents trading with each other:
           </p>
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 mb-6">
-            <div className="flex items-center justify-center gap-4 text-sm">
-              <div className="text-center">
-                <div className="font-semibold">research-buyer</div>
-                <div className="text-xs text-muted-foreground">pays $0.05</div>
-              </div>
-              <div className="text-emerald-400">&rarr;</div>
-              <div className="text-center">
-                <div className="font-semibold">analyst</div>
-                <div className="text-xs text-muted-foreground">earns $0.05, pays $0.01</div>
-              </div>
-              <div className="text-emerald-400">&rarr;</div>
-              <div className="text-center">
-                <div className="font-semibold">data-miner</div>
-                <div className="text-xs text-muted-foreground">earns $0.01</div>
-              </div>
+          <div className="grid gap-3 sm:grid-cols-3 mb-6">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 text-center">
+              <div className="font-semibold">Data Miner</div>
+              <div className="text-xs text-muted-foreground mt-1">Sells web scraping</div>
+              <div className="text-xs text-emerald-400 mt-1">$0.01 / call</div>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 text-center">
+              <div className="font-semibold">Analyst</div>
+              <div className="text-xs text-muted-foreground mt-1">Buys data, sells analysis</div>
+              <div className="text-xs text-emerald-400 mt-1">$0.05 / call</div>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 text-center">
+              <div className="font-semibold">Research Buyer</div>
+              <div className="text-xs text-muted-foreground mt-1">Buys analysis reports</div>
+              <div className="text-xs text-red-400 mt-1">$0.50 budget</div>
             </div>
           </div>
-          <CodeBlock title="Run the demo">{`# Seed demo data
-cd demo && npx tsx seed.ts
-
-# Start the 3-agent economy
-npx tsx run-economy.ts
-
-# Or run agents individually:
-npx tsx agents/data-miner.ts     # Port 4001
-npx tsx agents/analyst.ts        # Port 4002
-npx tsx agents/research-buyer.ts # Client`}</CodeBlock>
-          <p className="text-muted-foreground text-sm mt-3">
-            The research-buyer discovers the analyst via XMTP, then makes 5 purchases at $0.05 each. Each purchase triggers the analyst to buy from data-miner at $0.01. All transactions flow through OWS policies and appear in the Nexus dashboard.
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            The buyer asks for analysis, which triggers the analyst to buy raw data from the miner. Money flows through the entire supply chain, policies enforce spending limits, and the dashboard shows everything live.
           </p>
+          <CodeBlock title="Run the full demo">{`cd demo
+npx tsx seed.ts        # Seed economy data
+npx tsx run-economy.ts # Start all 3 agents + run transactions`}</CodeBlock>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />
 
-        {/* Partners */}
-        <SectionAnchor id="partners">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Partner Integrations</h2>
+        {/* Integrations */}
+        <SectionAnchor id="integrations">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Integrations</h2>
           <div className="grid gap-3">
-            <FeatureCard
-              title="Zerion"
-              description="Multi-chain wallet balance queries displayed on the agent detail page. Shows token balances across all chains the agent operates on."
-            />
-            <FeatureCard
-              title="MoonPay"
-              description="On-ramp integration for funding agent wallets. Agents can top up their OWS wallets with fiat via MoonPay CLI."
-            />
-            <FeatureCard
-              title="XMTP"
-              description="Wallet-to-wallet messaging for agent service discovery. Agents announce services and discover each other before paying via x402."
-            />
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h4 className="font-semibold">Zerion</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">Real-time wallet balance tracking across all chains. See each agent&apos;s token holdings directly in their profile page.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h4 className="font-semibold">MoonPay</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">Fund agent wallets with fiat currency. When an agent&apos;s balance runs low, top it up via MoonPay&apos;s on-ramp directly from the dashboard.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h4 className="font-semibold">XMTP</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">Wallet-to-wallet messaging for agent service discovery. Agents find each other before paying, creating a true marketplace.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h4 className="font-semibold">Open Wallet Standard</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">All payments sign through OWS&apos;s secure enclave. Keys never leave the vault. Policies run natively in the OWS policy engine. Aegis is an OWS-first protocol.</p>
+            </div>
           </div>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />
 
-        {/* Tech Stack */}
-        <SectionAnchor id="tech-stack">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Tech Stack</h2>
+        {/* For Developers */}
+        <SectionAnchor id="for-developers">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">For Developers</h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            Aegis is a TypeScript monorepo with four packages. Here&apos;s how it&apos;s organized:
+          </p>
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden text-sm">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">Component</th>
-                  <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">Technology</th>
+                  <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">Package</th>
+                  <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">What it does</th>
                 </tr>
               </thead>
               <tbody className="text-muted-foreground">
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 text-foreground">Gate Middleware</td><td className="px-4 py-2">TypeScript + Express, x402 protocol</td></tr>
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 text-foreground">Policy Executables</td><td className="px-4 py-2">TypeScript/Node.js, OWS policy interface (stdin/stdout)</td></tr>
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 text-foreground">Service Discovery</td><td className="px-4 py-2">XMTP SDK, local file-based message bus</td></tr>
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 text-foreground">Nexus Dashboard</td><td className="px-4 py-2">Next.js 16 + shadcn/ui + Recharts + Inter font</td></tr>
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 text-foreground">CLI</td><td className="px-4 py-2">Commander.js</td></tr>
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 text-foreground">Data Storage</td><td className="px-4 py-2">JSON files in ~/.ows/aegis/ (local-first)</td></tr>
-                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 text-foreground">Partner Tools</td><td className="px-4 py-2">Zerion (balances), MoonPay (on-ramp), XMTP (messaging)</td></tr>
-                <tr><td className="px-4 py-2 text-foreground">OWS Integration</td><td className="px-4 py-2">@open-wallet-standard/core</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">@aegis-ows/gate</td><td className="px-4 py-2">Express middleware for x402 payments + client helper</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">@aegis-ows/policies</td><td className="px-4 py-2">Three OWS policy executables (budget, guard, deadswitch)</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">@aegis-ows/cli</td><td className="px-4 py-2">Command-line tools for setup, monitoring, and management</td></tr>
+                <tr><td className="px-4 py-2 font-mono text-xs text-foreground">@aegis-ows/shared</td><td className="px-4 py-2">Shared types, file I/O helpers, and computation functions</td></tr>
               </tbody>
             </table>
           </div>
+          <p className="text-muted-foreground text-sm mt-4">
+            The dashboard is a standalone Next.js app that reads from the same data files. All data lives as JSON in a local directory &mdash; no database required. See the <a href="https://github.com/rajkaria/aegis" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300">GitHub repo</a> for full source code and contributing guide.
+          </p>
         </SectionAnchor>
 
         {/* Footer */}

@@ -8,7 +8,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ReputationBadge } from "@/components/reputation-badge";
 import type { AgentProfile } from "@/lib/types";
+
+interface AgentReputation {
+  agentId: string;
+  score: number;
+  level: "new" | "trusted" | "verified" | "elite";
+  successfulPayments: number;
+  blockedTransactions: number;
+}
 
 function StatusDot({ profitable }: { profitable: boolean }) {
   return (
@@ -42,7 +51,7 @@ function ArrowIcon({ up }: { up: boolean }) {
   );
 }
 
-export function AgentPnlTable({ profiles }: { profiles: AgentProfile[] }) {
+export function AgentPnlTable({ profiles, reputations }: { profiles: AgentProfile[]; reputations?: AgentReputation[] }) {
   if (profiles.length === 0) {
     return (
       <div className="text-sm text-muted-foreground py-8 text-center">
@@ -59,12 +68,14 @@ export function AgentPnlTable({ profiles }: { profiles: AgentProfile[] }) {
           <TableHead className="text-xs uppercase tracking-wider text-muted-foreground/70">Revenue</TableHead>
           <TableHead className="text-xs uppercase tracking-wider text-muted-foreground/70">Spending</TableHead>
           <TableHead className="text-xs uppercase tracking-wider text-muted-foreground/70">P/L</TableHead>
+          <TableHead className="text-xs uppercase tracking-wider text-muted-foreground/70">Reputation</TableHead>
           <TableHead className="text-xs uppercase tracking-wider text-muted-foreground/70">Status</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {profiles.map((p) => {
           const isProfitable = p.profitLoss >= 0;
+          const rep = reputations?.find(r => r.agentId === p.agentId);
           return (
             <TableRow
               key={p.agentId}
@@ -94,6 +105,13 @@ export function AgentPnlTable({ profiles }: { profiles: AgentProfile[] }) {
               >
                 <ArrowIcon up={isProfitable} />
                 {isProfitable ? "+" : ""}${p.profitLoss.toFixed(2)}
+              </TableCell>
+              <TableCell>
+                {rep ? (
+                  <ReputationBadge score={rep.score} level={rep.level} compact />
+                ) : (
+                  <span className="text-[10px] text-muted-foreground">--</span>
+                )}
               </TableCell>
               <TableCell>
                 <Badge

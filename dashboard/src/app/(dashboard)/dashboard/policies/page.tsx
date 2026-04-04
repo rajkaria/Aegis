@@ -9,6 +9,7 @@ import {
   GuardEditor,
   DeadswitchEditor,
 } from "@/components/policy-editor";
+import { Input } from "@/components/ui/input";
 import type {
   BudgetConfig,
   GuardConfig,
@@ -232,6 +233,148 @@ export default function PoliciesPage() {
           );
         })}
       </div>
+
+      {/* Custom Policy Registration */}
+      <CustomPolicySection />
     </div>
+  );
+}
+
+function CustomPolicySection() {
+  const [id, setId] = useState("");
+  const [name, setName] = useState("");
+  const [executable, setExecutable] = useState("");
+  const [action, setAction] = useState<"deny" | "warn">("deny");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  async function handleRegister() {
+    if (!id || !name || !executable) {
+      setResult({ success: false, message: "All fields are required" });
+      return;
+    }
+    setLoading(true);
+    setResult(null);
+    try {
+      const res = await fetch("/api/manage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "register_custom_policy", id, name, executable, policyAction: action }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setResult({ success: true, message: `Policy "${id}" registered successfully` });
+        setId("");
+        setName("");
+        setExecutable("");
+      } else {
+        setResult({ success: false, message: data.error ?? "Registration failed" });
+      }
+    } catch {
+      setResult({ success: false, message: "Could not connect to OWS. This feature requires a local installation." });
+    }
+    setLoading(false);
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-base">Create Custom Policy</CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              Register any script as an OWS policy. It must read PolicyContext from stdin and write PolicyResult to stdout.
+            </p>
+          </div>
+          <Badge variant="outline" className="text-[10px]">OWS Compatible</Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Policy ID</label>
+            <Input
+              placeholder="my-custom-policy"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              className="bg-white/[0.02] border-white/[0.08]"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Display Name</label>
+            <Input
+              placeholder="My Custom Policy"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="bg-white/[0.02] border-white/[0.08]"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="text-xs text-muted-foreground mb-1 block">Executable Path</label>
+            <Input
+              placeholder="/path/to/policy-script.js"
+              value={executable}
+              onChange={(e) => setExecutable(e.target.value)}
+              className="bg-white/[0.02] border-white/[0.08] font-mono text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Action</label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setAction("deny")}
+                className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                  action === "deny"
+                    ? "bg-red-500/10 border-red-500/30 text-red-400"
+                    : "bg-white/[0.02] border-white/[0.06] text-muted-foreground hover:bg-white/[0.04]"
+                }`}
+              >
+                Deny (block tx)
+              </button>
+              <button
+                onClick={() => setAction("warn")}
+                className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                  action === "warn"
+                    ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-400"
+                    : "bg-white/[0.02] border-white/[0.06] text-muted-foreground hover:bg-white/[0.04]"
+                }`}
+              >
+                Warn (log only)
+              </button>
+            </div>
+          </div>
+          <div className="flex items-end">
+            <Button
+              onClick={handleRegister}
+              disabled={loading || !id || !name || !executable}
+              className="w-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30"
+              size="sm"
+            >
+              {loading ? "Registering..." : "Register Policy with OWS"}
+            </Button>
+          </div>
+        </div>
+
+        {result && (
+          <div className={`mt-4 p-3 rounded-lg text-sm ${
+            result.success
+              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
+              : "bg-red-500/10 border border-red-500/20 text-red-400"
+          }`}>
+            {result.message}
+          </div>
+        )}
+
+        <div className="mt-4 p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]">
+          <p className="text-xs text-muted-foreground mb-2 font-medium">How custom policies work:</p>
+          <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+            <li>Your script receives a <code className="bg-white/[0.06] px-1 rounded">PolicyContext</code> JSON on stdin</li>
+            <li>It evaluates your custom rules</li>
+            <li>It writes <code className="bg-white/[0.06] px-1 rounded">{`{"allow": true}`}</code> or <code className="bg-white/[0.06] px-1 rounded">{`{"allow": false, "reason": "..."}`}</code> to stdout</li>
+            <li>OWS runs it before every signing operation</li>
+          </ol>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

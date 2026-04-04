@@ -83,6 +83,7 @@ function TableOfContents() {
     { id: "payment-receipts", label: "Payment Receipts" },
     { id: "economy-analytics", label: "Economy Analytics" },
     { id: "multi-chain", label: "Multi-Chain Support" },
+    { id: "api-features", label: "API Features" },
   ];
 
   return (
@@ -1213,6 +1214,63 @@ aegisGate({
   // network: "solana:devnet"  // Solana
   // network: "eip155:1"      // Ethereum mainnet
 })`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* API Features */}
+        <SectionAnchor id="api-features">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">API Features</h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            All public API endpoints include production-ready features for reliability and integration.
+          </p>
+
+          <div className="grid gap-4">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold mb-2">Gate Operator Stats</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                Every Gate instance tracks operator analytics: total 402 challenges served, successful payments, rejected payments, total revenue earned, and conversion rate. Access via the health endpoint.
+              </p>
+              <CodeBlock title="Health endpoint response">{`GET /health
+{
+  "status": "healthy",
+  "stats": {
+    "total402": 150,
+    "totalPaid": 42,
+    "totalRejected": 3,
+    "totalRevenue": 0.042,
+    "conversionRate": "28.0%"
+  }
+}`}</CodeBlock>
+            </div>
+
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold mb-2">CORS Support</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                All public API endpoints support cross-origin requests. The x402 endpoints, service registry, receipts, and analytics APIs accept requests from any origin with proper CORS headers including <code className="text-xs bg-white/[0.06] px-1 rounded">X-PAYMENT</code> and <code className="text-xs bg-white/[0.06] px-1 rounded">Authorization</code> headers.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold mb-2">Pagination</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                List endpoints support pagination via <code className="text-xs bg-white/[0.06] px-1 rounded">?limit=N&amp;offset=N</code> query parameters. Responses include pagination metadata with total count, current offset, and a <code className="text-xs bg-white/[0.06] px-1 rounded">hasMore</code> flag.
+              </p>
+              <CodeBlock title="Paginated request">{`GET /api/receipts?limit=10&offset=0
+{
+  "receipts": [...],
+  "pagination": {
+    "total": 42,
+    "limit": 10,
+    "offset": 0,
+    "hasMore": true
+  }
+}`}</CodeBlock>
+              <p className="text-sm text-muted-foreground mt-3">
+                Supported on: <code className="text-xs bg-white/[0.06] px-1 rounded">/api/receipts</code>, <code className="text-xs bg-white/[0.06] px-1 rounded">/api/registry</code>, <code className="text-xs bg-white/[0.06] px-1 rounded">/api/economy</code> (activity feed).
+              </p>
+            </div>
+          </div>
         </SectionAnchor>
 
         {/* Footer */}

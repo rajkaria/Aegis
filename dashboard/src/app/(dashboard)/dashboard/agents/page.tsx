@@ -1,13 +1,14 @@
 import { getEconomyOverview } from "@/lib/aegis-data";
 import { AgentPnlTable } from "@/components/agent-pnl-table";
 import { AddAgent } from "@/components/add-agent";
+import { AgentTemplates } from "@/components/agent-templates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/stat-card";
 
 export const dynamic = "force-dynamic";
 
 export default function AgentsPage() {
-  const { profiles } = getEconomyOverview();
+  const { profiles, reputations } = getEconomyOverview();
 
   const totalRevenue = profiles.reduce((s, p) => s + p.totalRevenue, 0);
   const totalSpending = profiles.reduce((s, p) => s + p.totalSpending, 0);
@@ -51,9 +52,11 @@ export default function AgentsPage() {
           <CardTitle className="text-base">All Agents</CardTitle>
         </CardHeader>
         <CardContent>
-          <AgentPnlTable profiles={profiles} />
+          <AgentPnlTable profiles={profiles} reputations={reputations} />
         </CardContent>
       </Card>
+
+      <AgentTemplates />
 
       <AddAgent />
     </div>

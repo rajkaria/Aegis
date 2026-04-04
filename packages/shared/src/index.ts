@@ -10,3 +10,4 @@ export * from "./ows.js";
 export * from "./file-lock.js";
 export * from "./receipts.js";
 export * from "./analytics.js";
+export * from "./reputation.js";

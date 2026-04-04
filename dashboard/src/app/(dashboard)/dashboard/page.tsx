@@ -9,6 +9,7 @@ import { DashboardControls } from "@/components/dashboard-controls";
 import { Onboarding } from "@/components/onboarding";
 import { ReceiptList } from "@/components/receipt-list";
 import { EconomyInsights } from "@/components/economy-insights";
+import { FleetManager } from "@/components/fleet-manager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -124,6 +125,26 @@ export default function EconomyPage() {
       {/* Economy Intelligence */}
       <EconomyInsights insights={data.insights} />
 
+      {/* Fleet Manager */}
+      <FleetManager agents={data.profiles.map(p => {
+        const rep = data.reputations?.find(r => r.agentId === p.agentId);
+        const lastActivity = data.activity.find(a => a.agentId === p.agentId);
+        const minutesAgo = lastActivity ? Math.floor((Date.now() - new Date(lastActivity.timestamp).getTime()) / 60000) : null;
+        const budgetUsage = data.budgets.length > 0 ? Math.min(data.budgets[0].percentage, 100) : 0;
+
+        return {
+          agentId: p.agentId,
+          revenue: p.totalRevenue,
+          spending: p.totalSpending,
+          profitLoss: p.profitLoss,
+          score: rep?.score ?? 0,
+          level: rep?.level ?? "new",
+          lastActivity: lastActivity?.timestamp ?? null,
+          status: (minutesAgo !== null && minutesAgo < 30 ? "active" : minutesAgo !== null ? "idle" : "new") as "active" | "idle" | "blocked" | "new",
+          budgetUsage: Math.round(budgetUsage),
+        };
+      })} />
+
       {/* Budget Consumption */}
       {data.budgets.length > 0 && (
         <Card>
@@ -161,7 +182,7 @@ export default function EconomyPage() {
             <CardTitle className="text-base">Agent P&L</CardTitle>
           </CardHeader>
           <CardContent>
-            <AgentPnlTable profiles={data.profiles} />
+            <AgentPnlTable profiles={data.profiles} reputations={data.reputations} />
           </CardContent>
         </Card>
 

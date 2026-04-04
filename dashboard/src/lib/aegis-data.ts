@@ -21,6 +21,44 @@ import type {
   EarningsLedger,
 } from "@/lib/types";
 
+// === Reputation computation (inlined for standalone Vercel deploy) ===
+
+interface AgentReputation {
+  agentId: string;
+  score: number;
+  level: "new" | "trusted" | "verified" | "elite";
+  successfulPayments: number;
+  blockedTransactions: number;
+}
+
+function computeReputations(): AgentReputation[] {
+  const ledger = readLedger();
+  const earnings = readEarningsLedger();
+  const policyLog = readPolicyLog();
+
+  const agentIds = new Set<string>();
+  for (const e of ledger.entries) agentIds.add(e.apiKeyId);
+  for (const e of earnings.entries) agentIds.add(e.agentId);
+
+  return Array.from(agentIds).map(agentId => {
+    const asBuyer = ledger.entries.filter(e => e.apiKeyId === agentId).length;
+    const asSeller = earnings.entries.filter(e => e.agentId === agentId).length;
+    const successful = asBuyer + asSeller;
+    const blocked = policyLog.entries.filter(e => e.apiKeyId === agentId && !e.allowed).length;
+    const total = successful + blocked;
+
+    let score = 0;
+    if (total > 0) {
+      score = 50 + Math.round((successful / Math.max(total, 1)) * 20) + Math.min(Math.round((successful / 10) * 15), 15) - Math.min(blocked * 10, 30);
+      score = Math.max(0, Math.min(100, score));
+    }
+
+    const level = score >= 85 ? "elite" as const : score >= 65 ? "verified" as const : score >= 40 ? "trusted" as const : "new" as const;
+
+    return { agentId, score, level, successfulPayments: successful, blockedTransactions: blocked };
+  });
+}
+
 // === Local compute functions (use provider data instead of filesystem) ===
 
 function computeAgentProfile(agentId: string): AgentProfile {
@@ -440,6 +478,7 @@ export function getEconomyOverview() {
     budgets,
     discoveryEvents,
     insights,
+    reputations: computeReputations(),
   };
 }
 

@@ -1,7 +1,8 @@
-import { getAgentDetail } from "@/lib/aegis-data";
+import { getAgentDetail, getEconomyOverview } from "@/lib/aegis-data";
 import { StatCard } from "@/components/stat-card";
 import { BudgetBar } from "@/components/budget-bar";
 import { WalletBalance } from "@/components/wallet-balance";
+import { ReputationBadge } from "@/components/reputation-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +25,8 @@ export default async function AgentDetailPage({
 }) {
   const { id } = await params;
   const { profile, policyLog, budgets } = getAgentDetail(id);
+  const { reputations } = getEconomyOverview();
+  const reputation = reputations.find(r => r.agentId === id);
 
   const isProfit = profile.profitLoss >= 0;
 
@@ -44,6 +47,30 @@ export default async function AgentDetailPage({
           {isProfit ? "Profitable" : "Spending"}
         </Badge>
       </div>
+
+      {/* Reputation */}
+      {reputation && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Reputation Score</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <ReputationBadge score={reputation.score} level={reputation.level} />
+              <div className="flex-1 grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <span className="text-muted-foreground">Successful Payments</span>
+                  <div className="font-bold text-emerald-400">{reputation.successfulPayments}</div>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Blocked Transactions</span>
+                  <div className="font-bold text-red-400">{reputation.blockedTransactions}</div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

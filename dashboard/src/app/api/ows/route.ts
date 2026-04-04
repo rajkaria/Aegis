@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-// Real OWS wallet addresses (from ows wallet list)
-const OWS_WALLETS = [
+// Static fallback wallets (for Vercel where OWS isn't installed)
+const FALLBACK_WALLETS = [
   {
     name: "data-miner",
     id: "99f09597-fc06-45c8-99d6-014b9046a47e",
@@ -31,14 +31,50 @@ const OWS_WALLETS = [
 ];
 
 const OWS_POLICIES = [
-  { id: "aegis-budget", name: "Aegis Budget \u2014 Spending Caps", executable: "aegis-budget" },
-  { id: "aegis-guard", name: "Aegis Guard \u2014 Address Allowlist", executable: "aegis-guard" },
-  { id: "aegis-deadswitch", name: "Aegis Deadswitch \u2014 Inactivity Kill Switch", executable: "aegis-deadswitch" },
+  { id: "aegis-budget", name: "Aegis Budget — Spending Caps", executable: "aegis-budget" },
+  { id: "aegis-guard", name: "Aegis Guard — Address Allowlist", executable: "aegis-guard" },
+  { id: "aegis-deadswitch", name: "Aegis Deadswitch — Inactivity Kill Switch", executable: "aegis-deadswitch" },
 ];
 
+function getOWSWallets() {
+  try {
+    const { execSync } = require("node:child_process");
+    const { homedir } = require("node:os");
+    const owsPath = `${homedir()}/.ows/bin`;
+    const output = execSync("ows wallet list", {
+      encoding: "utf-8",
+      timeout: 5000,
+      env: { ...process.env, PATH: `${owsPath}:/opt/homebrew/bin:/usr/local/bin:${process.env.PATH}` },
+    }) as string;
+
+    // Parse wallet entries from ows wallet list output
+    const wallets: Array<{ name: string; id: string; addresses: Record<string, string> }> = [];
+    const blocks = output.split(/\n(?=ID:)/);
+
+    for (const block of blocks) {
+      const idMatch = block.match(/ID:\s+(\S+)/);
+      const nameMatch = block.match(/Name:\s+(\S+)/);
+      if (!idMatch || !nameMatch) continue;
+
+      const addresses: Record<string, string> = {};
+      const addrMatches = block.matchAll(/(\S+:\S+)\s+\(\w+\)\s+→\s+(\S+)/g);
+      for (const m of addrMatches) {
+        addresses[m[1]] = m[2];
+      }
+
+      wallets.push({ name: nameMatch[1], id: idMatch[1], addresses });
+    }
+
+    return wallets.length > 0 ? wallets : FALLBACK_WALLETS;
+  } catch {
+    return FALLBACK_WALLETS;
+  }
+}
+
 export async function GET() {
+  const wallets = getOWSWallets();
   return NextResponse.json({
-    wallets: OWS_WALLETS,
+    wallets,
     policies: OWS_POLICIES,
     status: "connected",
     version: "1.2.0",

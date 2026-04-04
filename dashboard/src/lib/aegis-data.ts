@@ -68,6 +68,24 @@ function computeAllProfiles(): AgentProfile[] {
   for (const e of earnings.entries) agentIds.add(e.agentId);
   for (const e of spending.entries) agentIds.add(e.apiKeyId);
 
+  // Also discover agents from OWS wallets (so newly created wallets appear)
+  try {
+    const { execSync } = require("node:child_process");
+    const owsPath = `${require("node:os").homedir()}/.ows/bin`;
+    const output = execSync("ows wallet list", {
+      encoding: "utf-8",
+      timeout: 5000,
+      env: { ...process.env, PATH: `${owsPath}:/opt/homebrew/bin:/usr/local/bin:${process.env.PATH}` },
+    });
+    // Parse wallet names from "Name:    <name>" lines
+    const nameMatches = output.matchAll(/Name:\s+(\S+)/g);
+    for (const match of nameMatches) {
+      agentIds.add(match[1]);
+    }
+  } catch {
+    // OWS not available (Vercel) — skip wallet discovery
+  }
+
   return Array.from(agentIds).map(id => computeAgentProfile(id));
 }
 

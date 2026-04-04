@@ -5,8 +5,17 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist", "README.md", "LICENSE"],
-  "keywords": ["aegis", "ows", "agents", "commerce"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "aegis",
+    "ows",
+    "agents",
+    "commerce"
+  ],
   "author": "Raj Karia",
   "license": "MIT",
   "repository": {

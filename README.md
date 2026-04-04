@@ -1,7 +1,7 @@
 # Aegis — The Agent Commerce Protocol for OWS
 
 [![CI](https://github.com/rajkaria/aegis/actions/workflows/ci.yml/badge.svg)](https://github.com/rajkaria/aegis/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/@aegis-ows/gate)](https://www.npmjs.com/package/@aegis-ows/gate)
+[![npm](https://img.shields.io/npm/v/aegis-ows-gate)](https://www.npmjs.com/package/aegis-ows-gate)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Deploy](https://img.shields.io/badge/demo-useaegis.xyz-blue)](https://useaegis.xyz)
 
@@ -76,7 +76,13 @@ cd ../demo && npx tsx run-economy.ts
 
 ## Aegis Gate
 
+```bash
+npm install aegis-ows-gate
+```
+
 One line of code turns any Express endpoint into a paid API service.
+
+**Try the live x402 endpoint:** [useaegis.xyz/api/x402/scrape](https://useaegis.xyz/api/x402/scrape) — returns a real 402 payment response.
 
 **Server side — publish a paid endpoint:**
 
@@ -155,6 +161,36 @@ Four pages, zero database required. Nexus reads live from `~/.ows/aegis/`.
 **Agent Detail** — Drill into any agent. Wallet balances (via Zerion), full transaction history, earning vs. spending breakdown, and which services it called or provided. Fund agents via MoonPay on-ramp.
 
 **Policy Control Center** — Interactive editors for all three policy executables. Edit budget limits, guard addresses, and deadswitch thresholds via form inputs. Live enforcement statistics and JSON config preview.
+
+---
+
+## MCP Server
+
+Aegis ships an MCP server so Claude Code, Cursor, and any MCP client can interact with the economy directly.
+
+```json
+{
+  "mcpServers": {
+    "aegis": {
+      "command": "node",
+      "args": ["packages/mcp-server/dist/index.js"]
+    }
+  }
+}
+```
+
+Tools: `aegis_economy_status`, `aegis_check_budget`, `aegis_list_agents`, `aegis_policy_log`, `aegis_discover_services`, `aegis_send_payment`
+
+---
+
+## Live x402 Endpoints
+
+These endpoints are live on Vercel — anyone can hit them and get a real 402 response:
+
+- `https://useaegis.xyz/api/x402/scrape` — 0.001 SOL, web scraping service
+- `https://useaegis.xyz/api/x402/analyze` — 0.005 SOL, data analysis service
+
+Compatible with `ows pay request --wallet <name> <url>`.
 
 ---
 

@@ -8,8 +8,21 @@
   "bin": {
     "aegis-gate": "dist/index.js"
   },
-  "files": ["dist", "README.md", "LICENSE"],
-  "keywords": ["x402", "micropayments", "express", "middleware", "ows", "agents", "commerce", "solana"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "x402",
+    "micropayments",
+    "express",
+    "middleware",
+    "ows",
+    "agents",
+    "commerce",
+    "solana"
+  ],
   "author": "Raj Karia",
   "license": "MIT",
   "repository": {
@@ -17,12 +30,15 @@
     "url": "https://github.com/rajkaria/aegis"
   },
   "homepage": "https://useaegis.xyz",
-  "scripts": { "build": "tsc", "dev": "tsc --watch" },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
   "dependencies": {
-    "@aegis-ows/shared": "file:../shared",
     "@open-wallet-standard/core": "*",
     "@solana/web3.js": "^1.98.0",
-    "express": "^5.0.0"
+    "express": "^5.0.0",
+    "@aegis-ows/shared": "file:../shared"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

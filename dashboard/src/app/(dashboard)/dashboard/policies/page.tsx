@@ -241,6 +241,7 @@ export default function PoliciesPage() {
 }
 
 function CustomPolicySection() {
+  const [open, setOpen] = useState(false);
   const [id, setId] = useState("");
   const [name, setName] = useState("");
   const [executable, setExecutable] = useState("");
@@ -276,8 +277,27 @@ function CustomPolicySection() {
     setLoading(false);
   }
 
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="w-full group rounded-xl border border-dashed border-white/[0.08] hover:border-emerald-500/30 bg-white/[0.01] hover:bg-emerald-500/[0.03] p-6 transition-all duration-300 flex items-center justify-center gap-3"
+      >
+        <div className="w-8 h-8 rounded-full border border-white/[0.1] group-hover:border-emerald-500/40 flex items-center justify-center transition-colors">
+          <svg className="w-4 h-4 text-muted-foreground group-hover:text-emerald-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </div>
+        <div className="text-left">
+          <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Add Custom Policy</span>
+          <p className="text-xs text-muted-foreground/60 mt-0.5">Register any script as an OWS policy executable</p>
+        </div>
+      </button>
+    );
+  }
+
   return (
-    <Card>
+    <Card className="animate-fade-up">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -286,7 +306,17 @@ function CustomPolicySection() {
               Register any script as an OWS policy. It must read PolicyContext from stdin and write PolicyResult to stdout.
             </p>
           </div>
-          <Badge variant="outline" className="text-[10px]">OWS Compatible</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-[10px]">OWS Compatible</Badge>
+            <button
+              onClick={() => { setOpen(false); setResult(null); }}
+              className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/[0.06] transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -365,15 +395,19 @@ function CustomPolicySection() {
           </div>
         )}
 
-        <div className="mt-4 p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]">
-          <p className="text-xs text-muted-foreground mb-2 font-medium">How custom policies work:</p>
-          <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
-            <li>Your script receives a <code className="bg-white/[0.06] px-1 rounded">PolicyContext</code> JSON on stdin</li>
-            <li>It evaluates your custom rules</li>
-            <li>It writes <code className="bg-white/[0.06] px-1 rounded">{`{"allow": true}`}</code> or <code className="bg-white/[0.06] px-1 rounded">{`{"allow": false, "reason": "..."}`}</code> to stdout</li>
-            <li>OWS runs it before every signing operation</li>
-          </ol>
-        </div>
+        <details className="mt-4">
+          <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+            How custom policies work
+          </summary>
+          <div className="mt-2 p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]">
+            <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+              <li>Your script receives a <code className="bg-white/[0.06] px-1 rounded">PolicyContext</code> JSON on stdin</li>
+              <li>It evaluates your custom rules</li>
+              <li>It writes <code className="bg-white/[0.06] px-1 rounded">{`{"allow": true}`}</code> or <code className="bg-white/[0.06] px-1 rounded">{`{"allow": false, "reason": "..."}`}</code> to stdout</li>
+              <li>OWS runs it before every signing operation</li>
+            </ol>
+          </div>
+        </details>
       </CardContent>
     </Card>
   );

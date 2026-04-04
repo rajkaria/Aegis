@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { appendEarningsEntry, ensureAegisDir } from "@aegis-ows/shared";
 import { appendLedgerEntry } from "@aegis-ows/shared";
-import { signMessage, getWallet } from "@open-wallet-standard/core";
+import { signMessage, signTypedData, getWallet } from "@open-wallet-standard/core";
 import { sendSolPayment } from "./solana-pay.js";
 
 export { announceServices } from "./announce.js";
@@ -60,7 +60,18 @@ export function aegisGate(options: AegisGateOptions) {
         fromAgent?: string;
         txHash?: string;
         timestamp?: string;
+        deadline?: number;
+        signatureType?: string;
       };
+
+      // Verify deadline for EIP-712 signed payments
+      if (payment.deadline) {
+        const now = Math.floor(Date.now() / 1000);
+        if (now > payment.deadline) {
+          res.status(401).json({ error: "Payment authorization expired" });
+          return;
+        }
+      }
 
       // Verify timestamp freshness to prevent replay attacks (5-minute window)
       if (payment.timestamp) {
@@ -133,22 +144,59 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
     description: `x402 payment to ${recipient} for ${details.resource ?? url}`,
   });
 
-  // Step 3: Sign a payment proof using the caller's OWS wallet
+  // Step 3: Sign a payment authorization using EIP-712 typed data (Permit2-style)
   const paymentTimestamp = new Date().toISOString();
+  const deadline = Math.floor(Date.now() / 1000) + 300; // 5 minutes
   let txProof: string;
   try {
-    const message = JSON.stringify({
-      action: "x402_payment",
-      to: recipient,
-      amount,
-      token: details.token ?? "USDC",
-      timestamp: paymentTimestamp,
+    const typedData = JSON.stringify({
+      types: {
+        EIP712Domain: [
+          { name: "name", type: "string" },
+          { name: "version", type: "string" },
+          { name: "chainId", type: "uint256" },
+        ],
+        PaymentAuthorization: [
+          { name: "to", type: "address" },
+          { name: "amount", type: "uint256" },
+          { name: "token", type: "string" },
+          { name: "nonce", type: "uint256" },
+          { name: "deadline", type: "uint256" },
+          { name: "resource", type: "string" },
+        ],
+      },
+      primaryType: "PaymentAuthorization",
+      domain: {
+        name: "AegisGate",
+        version: "1",
+        chainId: 1,
+      },
+      message: {
+        to: recipient ?? "0x0",
+        amount: Math.floor(parseFloat(amount) * 1e6).toString(), // Convert to smallest unit
+        token: details.token ?? "USDC",
+        nonce: Date.now().toString(),
+        deadline: deadline.toString(),
+        resource: details.resource ?? url,
+      },
     });
-    const result = signMessage(callerAgentId, "evm", message);
+    const result = signTypedData(callerAgentId, "evm", typedData);
     txProof = result.signature;
   } catch {
-    // Fallback to mock if OWS wallet not available (e.g., on Vercel)
-    txProof = `mock-tx-${Date.now()}`;
+    // Fallback to signMessage if signTypedData unavailable
+    try {
+      const message = JSON.stringify({
+        action: "x402_payment",
+        to: recipient,
+        amount,
+        token: details.token ?? "USDC",
+        timestamp: paymentTimestamp,
+      });
+      const result = signMessage(callerAgentId, "evm", message);
+      txProof = result.signature;
+    } catch {
+      txProof = `mock-tx-${Date.now()}`;
+    }
   }
 
   // Try real on-chain Solana payment when the network is Solana
@@ -168,6 +216,8 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
         amount,
         txHash: txProof,
         timestamp: paymentTimestamp,
+        deadline,
+        signatureType: "eip712",
       }),
     },
   });

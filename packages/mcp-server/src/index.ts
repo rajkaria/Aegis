@@ -3,6 +3,9 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { homedir } from "node:os";
 
 import {
   computeAllProfiles,
@@ -17,6 +20,15 @@ import {
   getOWSWallets,
 } from "@aegis-ows/shared";
 
+// Check if we have local data or need to warn
+const AEGIS_DIR = join(homedir(), ".ows", "aegis");
+const hasLocalData = existsSync(AEGIS_DIR);
+
+if (!hasLocalData) {
+  console.error("[aegis-mcp] Warning: ~/.ows/aegis/ not found. Run 'aegis init' or './setup.sh' first.");
+  console.error("[aegis-mcp] Some tools will return empty data until the economy is seeded.");
+}
+
 const server = new McpServer({
   name: "aegis",
   version: "0.1.0",
@@ -29,6 +41,16 @@ server.tool(
   {},
   async () => {
     const profiles = computeAllProfiles();
+
+    if (profiles.length === 0) {
+      return {
+        content: [{
+          type: "text" as const,
+          text: "No economy data found. Run 'cd demo && npx tsx seed.ts' to seed the demo economy, or 'aegis init' to create a fresh configuration.",
+        }],
+      };
+    }
+
     const earnings = readEarningsLedger();
     const policyLog = readPolicyLog();
 
@@ -140,7 +162,12 @@ server.tool(
     }
 
     if (profiles.length === 0) {
-      lines.push("No agents found. Run the demo seed script to populate data.");
+      return {
+        content: [{
+          type: "text" as const,
+          text: "No agents found. Run 'cd demo && npx tsx seed.ts' to seed the demo economy, or 'aegis init' to create a fresh configuration.",
+        }],
+      };
     }
 
     return {
@@ -185,7 +212,7 @@ server.tool(
           type: "text" as const,
           text: lines.length > 0
             ? `Policy Log (${recent.length}/${entries.length} entries)\n\n${lines.join("\n")}`
-            : "No policy log entries found.",
+            : "No policy log entries found. Run 'cd demo && npx tsx seed.ts' to seed demo data, or trigger policy checks with 'aegis budget set' and agent transactions.",
         },
       ],
     };

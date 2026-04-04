@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { existsSync } from "node:fs";
 import type { BudgetLedger, LedgerEntry } from "./types.js";
 import { PATHS, ensureAegisDir } from "./paths.js";
+import { withFileLock } from "./file-lock.js";
 
 export function readLedger(): BudgetLedger {
   if (!existsSync(PATHS.budgetLedger)) {
@@ -16,10 +17,12 @@ export function readLedger(): BudgetLedger {
 }
 
 export function appendLedgerEntry(entry: LedgerEntry): void {
-  ensureAegisDir();
-  const ledger = readLedger();
-  ledger.entries.push(entry);
-  writeFileSync(PATHS.budgetLedger, JSON.stringify(ledger, null, 2), "utf-8");
+  withFileLock(PATHS.budgetLedger, () => {
+    ensureAegisDir();
+    const ledger = readLedger();
+    ledger.entries.push(entry);
+    writeFileSync(PATHS.budgetLedger, JSON.stringify(ledger, null, 2), "utf-8");
+  });
 }
 
 export function getSpentInPeriod(

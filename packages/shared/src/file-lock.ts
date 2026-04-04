@@ -1,0 +1,51 @@
+import { writeFileSync, unlinkSync, existsSync, mkdirSync, statSync } from "node:fs";
+import { dirname } from "node:path";
+
+const LOCK_TIMEOUT_MS = 5000; // Max wait for lock
+const LOCK_STALE_MS = 10000; // Consider lock stale after this
+
+export function withFileLock<T>(filePath: string, fn: () => T): T {
+  const lockPath = filePath + ".lock";
+  const startTime = Date.now();
+
+  // Wait for existing lock to be released
+  while (existsSync(lockPath)) {
+    // Check if lock is stale
+    try {
+      const { mtimeMs } = statSync(lockPath);
+      if (Date.now() - mtimeMs > LOCK_STALE_MS) {
+        // Stale lock — remove it
+        try { unlinkSync(lockPath); } catch {}
+        break;
+      }
+    } catch {
+      break; // Lock file disappeared
+    }
+
+    if (Date.now() - startTime > LOCK_TIMEOUT_MS) {
+      // Timeout — proceed without lock (better than deadlock)
+      break;
+    }
+
+    // Spin wait (small delay)
+    const end = Date.now() + 10;
+    while (Date.now() < end) {} // busy wait 10ms
+  }
+
+  // Acquire lock
+  try {
+    const dir = dirname(lockPath);
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    writeFileSync(lockPath, `${process.pid}:${Date.now()}`, { flag: "wx" });
+  } catch {
+    // Failed to acquire exclusively — another process got it
+    // Proceed anyway (worst case: one write is lost, better than crash)
+  }
+
+  try {
+    return fn();
+  } finally {
+    // Release lock
+    try { unlinkSync(lockPath); } catch {}
+  }
+}

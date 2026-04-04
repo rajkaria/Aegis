@@ -7,3 +7,4 @@ export * from "./config.js";
 export * from "./policy-log.js";
 export * from "./messages.js";
 export * from "./ows.js";
+export * from "./file-lock.js";

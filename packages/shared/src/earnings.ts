@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { PATHS, ensureAegisDir } from "./paths.js";
 import type { EarningsLedger, EarningsEntry } from "./types.js";
+import { withFileLock } from "./file-lock.js";
 
 export function readEarningsLedger(): EarningsLedger {
   if (!existsSync(PATHS.earningsLedger)) return { entries: [] };
@@ -8,10 +9,12 @@ export function readEarningsLedger(): EarningsLedger {
 }
 
 export function appendEarningsEntry(entry: EarningsEntry): void {
-  ensureAegisDir();
-  const ledger = readEarningsLedger();
-  ledger.entries.push(entry);
-  writeFileSync(PATHS.earningsLedger, JSON.stringify(ledger, null, 2));
+  withFileLock(PATHS.earningsLedger, () => {
+    ensureAegisDir();
+    const ledger = readEarningsLedger();
+    ledger.entries.push(entry);
+    writeFileSync(PATHS.earningsLedger, JSON.stringify(ledger, null, 2));
+  });
 }
 
 export function getEarningsByAgent(agentId: string): EarningsEntry[] {

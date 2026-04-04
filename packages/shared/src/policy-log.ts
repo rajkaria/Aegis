@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { existsSync } from "node:fs";
 import type { PolicyLog, PolicyLogEntry } from "./types.js";
 import { PATHS, ensureAegisDir } from "./paths.js";
+import { withFileLock } from "./file-lock.js";
 
 export function readPolicyLog(): PolicyLog {
   if (!existsSync(PATHS.policyLog)) {
@@ -16,8 +17,10 @@ export function readPolicyLog(): PolicyLog {
 }
 
 export function appendPolicyLog(entry: PolicyLogEntry): void {
-  ensureAegisDir();
-  const log = readPolicyLog();
-  log.entries.push(entry);
-  writeFileSync(PATHS.policyLog, JSON.stringify(log, null, 2), "utf-8");
+  withFileLock(PATHS.policyLog, () => {
+    ensureAegisDir();
+    const log = readPolicyLog();
+    log.entries.push(entry);
+    writeFileSync(PATHS.policyLog, JSON.stringify(log, null, 2), "utf-8");
+  });
 }

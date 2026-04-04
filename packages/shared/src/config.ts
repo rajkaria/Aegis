@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { existsSync } from "node:fs";
 import type { BudgetConfig, GuardConfig, DeadswitchConfig } from "./types.js";
 import { PATHS, ensureAegisDir } from "./paths.js";
+import { withFileLock } from "./file-lock.js";
 
 // === Budget Config ===
 
@@ -18,8 +19,10 @@ export function readBudgetConfig(): BudgetConfig | null {
 }
 
 export function writeBudgetConfig(config: BudgetConfig): void {
-  ensureAegisDir();
-  writeFileSync(PATHS.budgetConfig, JSON.stringify(config, null, 2), "utf-8");
+  withFileLock(PATHS.budgetConfig, () => {
+    ensureAegisDir();
+    writeFileSync(PATHS.budgetConfig, JSON.stringify(config, null, 2), "utf-8");
+  });
 }
 
 // === Guard Config ===
@@ -37,8 +40,10 @@ export function readGuardConfig(): GuardConfig | null {
 }
 
 export function writeGuardConfig(config: GuardConfig): void {
-  ensureAegisDir();
-  writeFileSync(PATHS.guardConfig, JSON.stringify(config, null, 2), "utf-8");
+  withFileLock(PATHS.guardConfig, () => {
+    ensureAegisDir();
+    writeFileSync(PATHS.guardConfig, JSON.stringify(config, null, 2), "utf-8");
+  });
 }
 
 // === Deadswitch Config ===
@@ -53,8 +58,10 @@ function readJson<T>(path: string, fallback: T): T {
 }
 
 function writeJson(path: string, data: unknown): void {
-  ensureAegisDir();
-  writeFileSync(path, JSON.stringify(data, null, 2), "utf-8");
+  withFileLock(path, () => {
+    ensureAegisDir();
+    writeFileSync(path, JSON.stringify(data, null, 2), "utf-8");
+  });
 }
 
 export function readDeadswitchConfig(): DeadswitchConfig | null {

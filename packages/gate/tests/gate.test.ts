@@ -6,6 +6,8 @@ import { tmpdir } from "node:os";
 // Mock @open-wallet-standard/core since it may not be available in test
 vi.mock("@open-wallet-standard/core", () => ({
   signMessage: () => ({ signature: "mock-sig" }),
+  signTypedData: () => ({ signature: "mock-eip712-sig" }),
+  signTransaction: () => ({ signature: "mock-tx-sig" }),
   getWallet: () => null,
 }));
 
@@ -104,7 +106,7 @@ describe("aegisGate middleware", () => {
 
     const req = mockReq({
       headers: {
-        "x-payment": JSON.stringify({ fromAgent: "buyer", txHash: "0xabc" }),
+        "x-payment": JSON.stringify({ fromAgent: "buyer", txHash: "0xabc123def456" }),
       },
     });
     const res = mockRes();
@@ -126,7 +128,7 @@ describe("aegisGate middleware", () => {
 
     const req = mockReq({
       headers: {
-        "x-payment": JSON.stringify({ fromAgent: "buyer", txHash: "0xabc" }),
+        "x-payment": JSON.stringify({ fromAgent: "buyer", txHash: "0xabc123def456" }),
       },
     });
     const res = mockRes();

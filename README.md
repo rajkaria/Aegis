@@ -33,6 +33,32 @@ The key insight: agents are simultaneously **buyers and sellers**. An analyst ag
 
 ---
 
+## Use Aegis in Your Project
+
+Aegis is published on npm and ready to use:
+
+```bash
+npm install aegis-ows-gate
+```
+
+**Monetize an API (3 lines):**
+```typescript
+import express from "express";
+import { aegisGate } from "aegis-ows-gate";
+
+app.get("/api/data", aegisGate({ price: "0.001", token: "SOL", agentId: "my-service" }), handler);
+```
+
+**Pay for a service (1 line):**
+```typescript
+import { payAndFetch } from "aegis-ows-gate";
+const result = await payAndFetch("http://service/api/data", "my-agent");
+```
+
+See [useaegis.xyz/use-aegis](https://useaegis.xyz/use-aegis) for complete integration guides.
+
+---
+
 ## Architecture
 
 ```

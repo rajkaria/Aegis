@@ -39,6 +39,12 @@ function LandingNav() {
             Docs
           </Link>
           <Link
+            href="/use-aegis"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Use Aegis
+          </Link>
+          <Link
             href="/dashboard"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >

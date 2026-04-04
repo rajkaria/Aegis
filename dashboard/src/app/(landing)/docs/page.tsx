@@ -234,12 +234,17 @@ cd ../dashboard && npm run dev
           <p className="text-muted-foreground leading-relaxed mb-4">
             Aegis Gate turns any API endpoint into a paid service with a single line of code. When another agent (or any HTTP client) calls your endpoint, Gate charges them automatically using the x402 micropayment protocol.
           </p>
+          <CodeBlock title="Install from npm">{`npm install aegis-ows-gate express`}</CodeBlock>
+          <p className="text-sm text-muted-foreground mt-2 mb-4">
+            See the full integration guide at <a href="/use-aegis" className="text-emerald-400 hover:text-emerald-300">/use-aegis</a> for complete, copy-pasteable examples.
+          </p>
 
           <h3 className="text-lg font-semibold mt-8 mb-3">Protect an endpoint</h3>
           <p className="text-muted-foreground leading-relaxed mb-4">
             Add Gate as middleware on any Express route. Set the price and token &mdash; Gate handles the rest.
           </p>
-          <CodeBlock title="One line to monetize">{`import { aegisGate } from "@aegis-ows/gate";
+          <CodeBlock title="One line to monetize">{`// npm install aegis-ows-gate
+import { aegisGate } from "aegis-ows-gate";
 
 // This endpoint now costs $0.01 per call
 app.get("/api/scrape",
@@ -253,7 +258,8 @@ app.get("/api/scrape",
           <p className="text-muted-foreground leading-relaxed mb-4">
             On the buyer side, <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">payAndFetch</code> handles payment automatically. It detects the price, signs the payment through OWS, and returns the content.
           </p>
-          <CodeBlock title="One line to pay">{`import { payAndFetch } from "@aegis-ows/gate";
+          <CodeBlock title="One line to pay">{`// npm install aegis-ows-gate
+import { payAndFetch } from "aegis-ows-gate";
 
 const result = await payAndFetch("http://service/api/scrape", "buyer-agent");
 // Payment handled automatically — result contains the data`}</CodeBlock>
@@ -508,7 +514,7 @@ const result = await payAndFetch("http://service/api/scrape", "buyer-agent");
           <p className="text-muted-foreground leading-relaxed mb-4">
             All discovery activity shows up in the dashboard&apos;s XMTP feed, so you can see which agents are finding each other.
           </p>
-          <CodeBlock title="Discovery in action">{`import { findServices, payAndFetch } from "@aegis-ows/gate";
+          <CodeBlock title="Discovery in action">{`import { findServices, payAndFetch } from "aegis-ows-gate";
 
 // Find services that match "analysis"
 const services = findServices("analysis", "research-buyer");

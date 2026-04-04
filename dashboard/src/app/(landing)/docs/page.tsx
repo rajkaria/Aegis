@@ -64,6 +64,9 @@ function TableOfContents() {
     { id: "economy-view", label: "  Economy View" },
     { id: "agent-profiles", label: "  Agent Profiles" },
     { id: "policy-management", label: "  Policy Management" },
+    { id: "autonomous-agents", label: "Autonomous Agents" },
+    { id: "interactive-dashboard", label: "Interactive Dashboard" },
+    { id: "x402-security", label: "x402 Payment Security" },
     { id: "agent-discovery", label: "Agent Discovery" },
     { id: "cli-tools", label: "CLI Tools" },
     { id: "demo", label: "Live Demo" },
@@ -189,14 +192,19 @@ export default function DocsPage() {
         <SectionAnchor id="getting-started">
           <h2 className="text-2xl font-bold tracking-tight mb-4">Getting Started</h2>
           <p className="text-muted-foreground leading-relaxed mb-6">
-            Get Aegis running in under 2 minutes:
+            Get Aegis running in under 2 minutes. The fastest way is the one-liner setup script:
+          </p>
+          <CodeBlock title="One-liner setup">{`git clone https://github.com/rajkaria/aegis
+cd aegis && ./setup.sh`}</CodeBlock>
+          <p className="text-muted-foreground leading-relaxed my-4">
+            This installs dependencies, builds all packages, and seeds demo data. Or do it step by step:
           </p>
           <div className="space-y-4 mb-6">
             <StepCard number="1" title="Clone and install" description="Download the project and install all dependencies." />
-            <StepCard number="2" title="Seed demo data" description="Populate the economy with sample agents, transactions, and policy events." />
+            <StepCard number="2" title="Run setup.sh" description="Builds packages, seeds the demo economy, and prepares the dashboard." />
             <StepCard number="3" title="Open the dashboard" description="See the economy visualized in real time." />
           </div>
-          <CodeBlock title="Quick start">{`git clone https://github.com/rajkaria/aegis
+          <CodeBlock title="Manual setup">{`git clone https://github.com/rajkaria/aegis
 cd aegis && npm install
 
 # Build all packages
@@ -373,6 +381,105 @@ const result = await payAndFetch("http://service/api/scrape", "buyer-agent");
               Changes take effect immediately. Each editor also shows a live JSON preview of the generated config.
             </p>
           </SectionAnchor>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Autonomous Agents */}
+        <SectionAnchor id="autonomous-agents">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Autonomous Agents</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Aegis agents are not scripted bots that follow a fixed sequence. The autonomous buyer agent runs in a continuous decision loop, making independent choices at every step.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">The Autonomous Loop</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Each iteration of the buyer&apos;s loop follows this pattern:
+          </p>
+          <div className="space-y-3 mb-6">
+            <StepCard number="1" title="Discover" description="Query XMTP for available services before each purchase. The buyer never assumes what's available." />
+            <StepCard number="2" title="Evaluate" description="Check remaining budget against service costs. If the budget is tight, skip expensive services or wait." />
+            <StepCard number="3" title="Decide" description="Buy, skip, or wait based on budget constraints and cost optimization. No human tells it what to do." />
+            <StepCard number="4" title="Execute" description="Sign the payment through OWS and receive the service. Policies enforce limits at signing time." />
+            <StepCard number="5" title="Terminate" description="When the budget is exhausted, the agent cleanly shuts itself down." />
+          </div>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">How it differs from scripted agents</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            A scripted agent runs a fixed sequence: call endpoint A, then B, then stop. An autonomous Aegis agent discovers what&apos;s available at runtime, evaluates whether it can afford it, and decides on its own. If a new service appears mid-run, the agent can find and use it. If prices change, it adapts its purchasing strategy.
+          </p>
+
+          <CodeBlock title="Run the autonomous economy">{`cd demo && npx tsx run-economy.ts
+
+# Starts 3 agents:
+#   data-miner   — sells /scrape ($0.01)
+#   analyst      — sells /analyze ($0.05), buys /scrape
+#   research-buyer — autonomous buyer with $0.50 budget`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Interactive Dashboard */}
+        <SectionAnchor id="interactive-dashboard">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Interactive Dashboard</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            The dashboard at <a href="https://useaegis.xyz" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300">useaegis.xyz</a> is not a static display &mdash; it is fully interactive, even on the live Vercel deployment.
+          </p>
+
+          <div className="grid gap-3 sm:grid-cols-2 mb-6">
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+              <h4 className="font-semibold text-sm text-emerald-400">Run Economy Cycle</h4>
+              <p className="text-xs text-muted-foreground mt-1">Click the button to trigger a full supply chain cycle. The buyer discovers services, pays the analyst, who pays the miner. Watch the money flow update in real-time.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <h4 className="font-semibold text-sm">Auto-Refresh</h4>
+              <p className="text-xs text-muted-foreground mt-1">The dashboard polls every 5 seconds. New transactions, policy events, and balance changes appear automatically without page reload.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <h4 className="font-semibold text-sm">Policy Editor</h4>
+              <p className="text-xs text-muted-foreground mt-1">Edit budget limits, guard addresses, and deadswitch configuration directly from the browser. Changes take effect immediately.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <h4 className="font-semibold text-sm">CSV Export</h4>
+              <p className="text-xs text-muted-foreground mt-1">Download the complete transaction ledger as a CSV file for external analysis or record-keeping.</p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-emerald-500/10 bg-emerald-500/5 p-4 text-sm text-muted-foreground">
+            <Link href="/dashboard" className="text-emerald-400 hover:text-emerald-300 font-medium">Try it live &rarr;</Link>
+            {" "}Click &ldquo;Run Economy Cycle&rdquo; and watch agents trade in real-time.
+          </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* x402 Payment Security */}
+        <SectionAnchor id="x402-security">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">x402 Payment Security</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            The x402 payment protocol includes built-in protections against common attack vectors. Every payment proof is validated before the seller grants access.
+          </p>
+
+          <div className="space-y-4 mb-6">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold text-emerald-400 mb-2">Timestamp Verification</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Every payment proof includes a timestamp. Gate rejects proofs that are too old, preventing replay attacks where a captured payment is resubmitted later. The expiry window is configurable per endpoint.
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold text-sky-400 mb-2">Replay Protection</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Each payment proof contains a unique nonce tied to the specific request. Even within the validity window, the same proof cannot be used twice. Gate tracks seen nonces and rejects duplicates.
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold text-violet-400 mb-2">Signature Validation</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Payment proofs are cryptographically signed through the OWS signing enclave. Gate verifies the signature against the payer&apos;s public key, ensuring the proof was generated by the claimed wallet and has not been tampered with.
+              </p>
+            </div>
+          </div>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />

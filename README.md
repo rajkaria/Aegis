@@ -95,6 +95,8 @@ const result = await payAndFetch("http://service/api/data", "buyer-agent");
 
 `aegisGate` handles the full x402 payment challenge/response handshake. The middleware rejects unpaid requests with HTTP 402, accepts payment proofs, and credits the agent's earnings ledger. `payAndFetch` on the client side handles the payment automatically, routing through the OWS signing enclave and all active policies before money moves.
 
+Payment verification includes timestamp-based replay protection (payments expire after a configurable window) and cryptographic signature validation to ensure payment proofs cannot be forged or reused.
+
 ---
 
 ## Aegis Policies
@@ -209,6 +211,37 @@ Transactions are signed through OWS's secure enclave and broadcast via `ows sign
 
 ---
 
+## Autonomous Agents
+
+Aegis agents make independent decisions. The autonomous buyer agent runs in a continuous loop:
+
+- Discovers available services via XMTP before each purchase
+- Checks remaining budget against configured spending limits
+- Decides whether to buy, skip, or wait based on budget and cost optimization
+- Executes purchases through OWS signing with real on-chain settlement
+- Self-terminates when budget is exhausted
+
+Run an autonomous economy:
+```bash
+cd demo && npx tsx run-economy.ts
+```
+
+This starts three agents: two sellers (data-miner, analyst) and one autonomous buyer that independently discovers, evaluates, and pays for services — governed by Aegis policies at every step.
+
+---
+
+## Interactive Dashboard
+
+The live dashboard at [useaegis.xyz](https://useaegis.xyz) is fully interactive:
+
+- **Run Economy Cycle** — Click to trigger a supply chain cycle and watch the money flow update in real-time
+- **Auto-refresh** — Dashboard polls every 5 seconds to reflect new transactions
+- **Policy Editor** — Edit budget limits, guard addresses, and deadswitch config from the browser
+- **Management Console** — Create wallets, register policies, fund agents, and send real payments
+- **CSV Export** — Download the complete transaction ledger
+
+---
+
 ## Management Dashboard
 
 The `/dashboard/manage` page provides a browser-based control panel for the full agent lifecycle:
@@ -225,18 +258,7 @@ Everything the CLI does, available from the browser. On Vercel, wallet operation
 
 ## Tech Stack
 
-| Component | Technology |
-|-----------|------------|
-| Gate | Express middleware, x402 payment protocol |
-| Policies | Node.js executables, OWS policy interface |
-| Discovery | XMTP-based agent-to-agent service messaging |
-| Nexus Dashboard | Next.js 15 + shadcn/ui + Recharts |
-| CLI | Commander.js |
-| Data | JSON files in `~/.ows/aegis/` |
-| On-Chain | Solana Web3.js (devnet transfers, airdrops) |
-| Video | Remotion (programmatic video generation) |
-| Partner Tools | Zerion (balances), MoonPay (on-ramp), XMTP (discovery) |
-| OWS Integration | `@open-wallet-standard/core` |
+Built with TypeScript, Next.js, Express, Solana Web3.js, and the Open Wallet Standard.
 
 ---
 

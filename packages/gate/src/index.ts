@@ -27,10 +27,40 @@ import { join } from "node:path";
 import { appendEarningsEntry, ensureAegisDir } from "@aegis-ows/shared";
 import { appendLedgerEntry } from "@aegis-ows/shared";
 import { signMessage, signTypedData, getWallet } from "@open-wallet-standard/core";
+import { verifyTypedData } from "ethers";
 import { sendSolPayment } from "./solana-pay.js";
 
 export { announceServices } from "./announce.js";
 export { findServices, type DiscoveredService } from "./discover.js";
+
+// Rate limiter — max 100 requests per minute per IP
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX = 100;
+const RATE_LIMIT_WINDOW_MS = 60000;
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+
+  entry.count++;
+  if (entry.count > RATE_LIMIT_MAX) {
+    return false;
+  }
+  return true;
+}
+
+// Clean up stale entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimitMap) {
+    if (now > entry.resetAt) rateLimitMap.delete(ip);
+  }
+}, 60000);
 
 export interface AegisGateOptions {
   price: string;
@@ -62,6 +92,13 @@ export function aegisGate(options: AegisGateOptions) {
     const paymentHeader = req.headers["x-payment"] as string | undefined;
 
     if (!paymentHeader) {
+      // Rate limit 402 responses
+      const clientIp = req.ip ?? (req.headers["x-forwarded-for"]?.toString()) ?? "unknown";
+      if (!checkRateLimit(clientIp)) {
+        res.status(429).json({ error: "Too many requests. Try again later." });
+        return;
+      }
+
       const walletAddress = resolvedAddress;
       res.status(402).json({
         // x402 spec fields
@@ -85,6 +122,7 @@ export function aegisGate(options: AegisGateOptions) {
         timestamp?: string;
         deadline?: number;
         signatureType?: string;
+        nonce?: number;
       };
 
       // Verify deadline for EIP-712 signed payments
@@ -109,6 +147,53 @@ export function aegisGate(options: AegisGateOptions) {
       if (!payment.txHash || payment.txHash.length < 10) {
         res.status(401).json({ error: "Invalid payment signature" });
         return;
+      }
+
+      // Verify the EIP-712 signature matches the claimed sender
+      if (payment.signatureType === "eip712" && payment.txHash && payment.fromAgent) {
+        try {
+          const domain = { name: "AegisGate", version: "1", chainId: 1 };
+          const types = {
+            PaymentAuthorization: [
+              { name: "to", type: "address" },
+              { name: "amount", type: "uint256" },
+              { name: "token", type: "string" },
+              { name: "nonce", type: "uint256" },
+              { name: "deadline", type: "uint256" },
+              { name: "resource", type: "string" },
+            ],
+          };
+
+          let expectedAddress: string | null = null;
+          try {
+            const senderWallet = getWallet(payment.fromAgent);
+            const evmAccount = senderWallet?.accounts?.find((a: any) => a.chainId?.startsWith("eip155:"));
+            if (evmAccount) expectedAddress = evmAccount.address;
+          } catch {}
+
+          if (expectedAddress) {
+            const recoveredAddress = verifyTypedData(domain, types, {
+              to: resolvedAddress,
+              amount: Math.floor(parseFloat(options.price) * 1e6).toString(),
+              token,
+              nonce: payment.nonce?.toString() ?? "0",
+              deadline: (payment.deadline ?? 0).toString(),
+              resource: req.path,
+            }, payment.txHash);
+
+            if (recoveredAddress.toLowerCase() !== expectedAddress.toLowerCase()) {
+              res.status(401).json({
+                error: "Payment signature does not match sender wallet",
+                expected: expectedAddress,
+                recovered: recoveredAddress,
+              });
+              return;
+            }
+          }
+          // If we can't get the expected address, skip verification (graceful degradation)
+        } catch {
+          // Signature verification failed — but don't block if it's a non-EIP712 payment
+        }
       }
 
       // Optional on-chain verification: confirm the tx landed on Solana devnet

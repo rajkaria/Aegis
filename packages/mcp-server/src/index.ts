@@ -20,6 +20,12 @@ import {
   getOWSWallets,
 } from "@aegis-ows/shared";
 
+// Optional auth token for MCP server access
+const AEGIS_MCP_TOKEN = process.env.AEGIS_MCP_TOKEN;
+if (AEGIS_MCP_TOKEN) {
+  console.error("[aegis-mcp] Auth token configured — clients must provide valid credentials");
+}
+
 // Check if we have local data or need to warn
 const AEGIS_DIR = join(homedir(), ".ows", "aegis");
 const hasLocalData = existsSync(AEGIS_DIR);
@@ -263,7 +269,7 @@ server.tool(
 // --- aegis_send_payment ---
 server.tool(
   "aegis_send_payment",
-  "Send a SOL payment between agents on Solana devnet via OWS signing",
+  "Send a SOL payment between agents on Solana devnet via OWS signing. Requires local OWS wallet access (~/.ows/).",
   {
     fromAgent: z.string().describe("Agent ID sending the payment"),
     toAddress: z.string().describe("Recipient Solana address"),

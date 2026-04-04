@@ -24,6 +24,16 @@ function validateAddress(addr: string): boolean {
 }
 
 export async function POST(req: Request) {
+  // Auth check — require AEGIS_MANAGE_TOKEN for external API calls
+  const manageToken = process.env.AEGIS_MANAGE_TOKEN;
+  const authHeader = req.headers.get("authorization");
+  const referer = req.headers.get("referer");
+  const isFromDashboard = referer?.includes("/dashboard");
+
+  if (manageToken && !isFromDashboard && authHeader !== `Bearer ${manageToken}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
   const { action, ...params } = body;
 

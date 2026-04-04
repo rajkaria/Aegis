@@ -3,6 +3,14 @@ import { dirname } from "node:path";
 
 const LOCK_TIMEOUT_MS = 5000; // Max wait for lock
 const LOCK_STALE_MS = 10000; // Consider lock stale after this
+const POLL_INTERVAL_MS = 50;
+
+function sleepSync(ms: number): void {
+  // Use Atomics.wait for efficient synchronous sleep (no CPU spin)
+  const buf = new SharedArrayBuffer(4);
+  const arr = new Int32Array(buf);
+  Atomics.wait(arr, 0, 0, ms);
+}
 
 export function withFileLock<T>(filePath: string, fn: () => T): T {
   const lockPath = filePath + ".lock";
@@ -12,8 +20,8 @@ export function withFileLock<T>(filePath: string, fn: () => T): T {
   while (existsSync(lockPath)) {
     // Check if lock is stale
     try {
-      const { mtimeMs } = statSync(lockPath);
-      if (Date.now() - mtimeMs > LOCK_STALE_MS) {
+      const stats = statSync(lockPath);
+      if (Date.now() - stats.mtimeMs > LOCK_STALE_MS) {
         // Stale lock — remove it
         try { unlinkSync(lockPath); } catch {}
         break;
@@ -27,9 +35,7 @@ export function withFileLock<T>(filePath: string, fn: () => T): T {
       break;
     }
 
-    // Spin wait (small delay)
-    const end = Date.now() + 10;
-    while (Date.now() < end) {} // busy wait 10ms
+    sleepSync(POLL_INTERVAL_MS); // Efficient non-spinning wait
   }
 
   // Acquire lock

@@ -8,7 +8,8 @@
     "data-miner": "tsx agents/data-miner.ts",
     "analyst": "tsx agents/analyst.ts",
     "buyer": "tsx agents/research-buyer.ts",
-    "demo": "tsx run-economy.ts"
+    "demo": "tsx run-economy.ts",
+    "autonomous": "tsx agents/autonomous-buyer.ts"
   },
   "dependencies": {
     "@aegis-ows/shared": "file:../packages/shared",

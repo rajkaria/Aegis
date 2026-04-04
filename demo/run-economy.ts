@@ -26,9 +26,9 @@ async function main() {
   console.log("Waiting for servers to start...");
   await new Promise(r => setTimeout(r, 3000));
 
-  // Run buyer
-  console.log("\nStarting research-buyer...\n");
-  const buyer = spawn("npx", ["tsx", join(__dirname, "agents/research-buyer.ts")], {
+  // Run autonomous buyer
+  console.log("\nStarting autonomous-buyer...\n");
+  const buyer = spawn("npx", ["tsx", join(__dirname, "agents/autonomous-buyer.ts")], {
     stdio: "inherit",
     shell: true,
   });

@@ -74,7 +74,7 @@ export function AgentPnlTable({ profiles }: { profiles: AgentProfile[] }) {
                 <div className="flex items-center">
                   <StatusDot profitable={isProfitable} />
                   <Link
-                    href={`/agents/${p.agentId}`}
+                    href={`/dashboard/agents/${p.agentId}`}
                     className="font-medium hover:underline group-hover:text-foreground transition-colors"
                   >
                     {p.agentId}

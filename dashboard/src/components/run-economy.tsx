@@ -29,9 +29,14 @@ export function RunEconomy({ onComplete }: { onComplete?: () => void }) {
         {running ? "Running..." : "Run Economy Cycle"}
       </Button>
       {result && (
-        <span className="text-xs text-muted-foreground animate-fade-up">
-          Buyer spent {result.buyer_spent} → Analyst earned {result.analyst_earned} → Miner earned {result.miner_earned}
-        </span>
+        <div className="animate-fade-up">
+          <span className="text-xs text-emerald-400">
+            Buyer → {result.buyer_spent} | Analyst → {result.analyst_earned} | Miner → {result.miner_earned}
+          </span>
+          <span className="text-[10px] text-muted-foreground ml-2">
+            Live session data — refreshes on page reload
+          </span>
+        </div>
       )}
     </div>
   );

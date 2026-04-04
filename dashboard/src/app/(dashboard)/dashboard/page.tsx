@@ -19,7 +19,7 @@ function DemoBanner() {
       <div>
         <p className="text-sm font-medium text-sky-300">You&apos;re viewing a live preview</p>
         <p className="text-xs text-muted-foreground mt-1">
-          This dashboard is populated with real data from a 3-agent economy running on Solana devnet.
+          This dashboard shows real transaction data from a 3-agent economy on Solana devnet. Click &apos;Run Economy Cycle&apos; above to add live transactions — they appear instantly and persist during your session.
           To create your own agents and send real payments, clone the repo and run <code className="bg-white/5 px-1 rounded">./setup.sh</code>
         </p>
       </div>

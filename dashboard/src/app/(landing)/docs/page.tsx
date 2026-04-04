@@ -76,6 +76,8 @@ function TableOfContents() {
     { id: "solana-payments", label: "On-Chain Payments" },
     { id: "custom-policies", label: "Custom Policies" },
     { id: "manage-ui", label: "Manage UI" },
+    { id: "mcp-server", label: "MCP Server" },
+    { id: "x402-endpoints", label: "Live x402 Endpoints" },
   ];
 
   return (
@@ -879,6 +881,86 @@ const txHash = await sendSolPayment(
   "fromAddress": "<base58>", "toAddress": "<base58>",
   "fromWallet": "data-miner", "amount": "0.1" }`}</CodeBlock>
             </div>
+          </div>
+        </SectionAnchor>
+
+        {/* MCP Server */}
+        <SectionAnchor id="mcp-server">
+          <div className="mt-20 space-y-6">
+            <div>
+              <Badge variant="outline" className="mb-3 text-[10px]">MCP</Badge>
+              <h2 className="text-2xl font-bold tracking-tight">MCP Server</h2>
+              <p className="text-muted-foreground mt-2 leading-relaxed">
+                The Aegis MCP server lets Claude Code, Cursor, and other MCP clients interact with your agent economy directly. Query agent P&amp;L, check budgets, discover services, and review policy logs without leaving your editor.
+              </p>
+            </div>
+            <h3 className="text-lg font-semibold">Setup</h3>
+            <CodeBlock title="Build the MCP server">{`cd packages/mcp-server
+npm install && npx tsc`}</CodeBlock>
+            <p className="text-sm text-muted-foreground">Add to your Claude Code or Cursor MCP config:</p>
+            <CodeBlock title="~/.claude/settings.json or .mcp.json">{`{
+  "mcpServers": {
+    "aegis": {
+      "command": "node",
+      "args": ["/path/to/aegis/packages/mcp-server/dist/index.js"]
+    }
+  }
+}`}</CodeBlock>
+            <h3 className="text-lg font-semibold mt-6">Available Tools</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border border-white/[0.06] rounded-lg overflow-hidden">
+                <thead>
+                  <tr className="border-b border-white/[0.06] bg-white/[0.02]">
+                    <th className="text-left px-4 py-2 font-medium">Tool</th>
+                    <th className="text-left px-4 py-2 font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr className="border-b border-white/[0.06]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">aegis_economy_status</td><td className="px-4 py-2">Full economy overview: total flow, agent P&amp;L, policy stats</td></tr>
+                  <tr className="border-b border-white/[0.06]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">aegis_check_budget</td><td className="px-4 py-2">Remaining budget for an agent by period</td></tr>
+                  <tr className="border-b border-white/[0.06]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">aegis_list_agents</td><td className="px-4 py-2">All agents with wallet addresses and P&amp;L</td></tr>
+                  <tr className="border-b border-white/[0.06]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">aegis_policy_log</td><td className="px-4 py-2">Recent policy enforcement events</td></tr>
+                  <tr className="border-b border-white/[0.06]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">aegis_discover_services</td><td className="px-4 py-2">Search for available services on the XMTP message bus</td></tr>
+                  <tr><td className="px-4 py-2 font-mono text-xs text-emerald-400">aegis_send_payment</td><td className="px-4 py-2">Prepare a SOL payment between agents on devnet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </SectionAnchor>
+
+        {/* Live x402 Endpoints */}
+        <SectionAnchor id="x402-endpoints">
+          <div className="mt-20 space-y-6">
+            <div>
+              <Badge variant="outline" className="mb-3 text-[10px]">x402</Badge>
+              <h2 className="text-2xl font-bold tracking-tight">Live x402 Endpoints</h2>
+              <p className="text-muted-foreground mt-2 leading-relaxed">
+                The dashboard hosts real x402-compliant API endpoints. Any client (including <code className="text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">ows pay</code>) that hits these routes gets a 402 response with payment details. After paying, the endpoint returns the paid content.
+              </p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border border-white/[0.06] rounded-lg overflow-hidden">
+                <thead>
+                  <tr className="border-b border-white/[0.06] bg-white/[0.02]">
+                    <th className="text-left px-4 py-2 font-medium">Endpoint</th>
+                    <th className="text-left px-4 py-2 font-medium">Price</th>
+                    <th className="text-left px-4 py-2 font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr className="border-b border-white/[0.06]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">/api/x402/scrape</td><td className="px-4 py-2">0.001 SOL</td><td className="px-4 py-2">Web scraping service</td></tr>
+                  <tr><td className="px-4 py-2 font-mono text-xs text-emerald-400">/api/x402/analyze</td><td className="px-4 py-2">0.005 SOL</td><td className="px-4 py-2">Data analysis service</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <CodeBlock title="Try it — unpaid request returns 402">{`curl -s https://your-app.vercel.app/api/x402/scrape | jq
+# Returns: { x402Version: 1, payTo: "...", price: "0.001", token: "SOL", ... }`}</CodeBlock>
+            <CodeBlock title="Paid request with X-PAYMENT header">{`curl -s https://your-app.vercel.app/api/x402/scrape \\
+  -H 'X-PAYMENT: {"txHash":"abc123...","token":"SOL","fromAgent":"my-agent","timestamp":"2025-01-01T00:00:00Z"}' | jq
+# Returns: { success: true, data: { title: "Live x402 Response from Aegis", ... } }`}</CodeBlock>
+            <p className="text-sm text-muted-foreground">
+              Payment verification includes timestamp freshness (5-minute window) and transaction hash validation. Expired or invalid payments are rejected with a 401.
+            </p>
           </div>
         </SectionAnchor>
 

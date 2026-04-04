@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "aegis": {
+      "command": "node",
+      "args": ["/path/to/aegis/packages/mcp-server/dist/index.js"]
+    }
+  }
+}

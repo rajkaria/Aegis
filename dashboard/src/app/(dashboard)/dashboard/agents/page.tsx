@@ -1,5 +1,6 @@
 import { getEconomyOverview } from "@/lib/aegis-data";
 import { AgentPnlTable } from "@/components/agent-pnl-table";
+import { AddAgent } from "@/components/add-agent";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "@/components/stat-card";
 
@@ -53,6 +54,8 @@ export default function AgentsPage() {
           <AgentPnlTable profiles={profiles} />
         </CardContent>
       </Card>
+
+      <AddAgent />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 /**
  * Data provider that reads from ~/.ows/aegis/ locally,
- * or falls back to bundled seed data on Vercel (no filesystem).
+ * or falls back to in-memory store (which starts from bundled seed data) on Vercel.
+ * If simulated cycles have been added via /api/simulate, the in-memory store takes
+ * priority so the dashboard reflects those changes without requiring a filesystem.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -24,6 +26,14 @@ import bundledGuardConfig from "@/data/guard-config.json";
 import bundledDeadswitchConfig from "@/data/deadswitch-config.json";
 import bundledMessages from "@/data/messages.json";
 
+// In-memory store — updated by /api/simulate, works on Vercel
+import {
+  getMemoryLedger,
+  getMemoryEarnings,
+  getMemoryPolicyLog,
+  hasSimulatedData,
+} from "@/lib/in-memory-store";
+
 const AEGIS_DIR = join(homedir(), ".ows", "aegis");
 
 function isLocal(): boolean {
@@ -45,16 +55,20 @@ function readLocal<T>(filename: string, fallback: T): T {
 }
 
 export function readLedger(): BudgetLedger {
+  // In-memory store takes priority when simulated data exists (Vercel or local after simulate)
+  if (hasSimulatedData()) return getMemoryLedger() as BudgetLedger;
   if (isLocal()) return readLocal("budget-ledger.json", { entries: [] });
   return bundledBudgetLedger as BudgetLedger;
 }
 
 export function readEarningsLedger(): EarningsLedger {
+  if (hasSimulatedData()) return getMemoryEarnings() as EarningsLedger;
   if (isLocal()) return readLocal("earnings-ledger.json", { entries: [] });
   return bundledEarningsLedger as EarningsLedger;
 }
 
 export function readPolicyLog(): PolicyLog {
+  if (hasSimulatedData()) return getMemoryPolicyLog() as PolicyLog;
   if (isLocal()) return readLocal("policy-log.json", { entries: [] });
   return bundledPolicyLog as PolicyLog;
 }

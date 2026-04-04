@@ -59,7 +59,24 @@ export function aegisGate(options: AegisGateOptions) {
       const payment = JSON.parse(paymentHeader) as {
         fromAgent?: string;
         txHash?: string;
+        timestamp?: string;
       };
+
+      // Verify timestamp freshness to prevent replay attacks (5-minute window)
+      if (payment.timestamp) {
+        const age = Date.now() - new Date(payment.timestamp).getTime();
+        if (age > 5 * 60 * 1000) {
+          res.status(401).json({ error: "Payment proof expired" });
+          return;
+        }
+      }
+
+      // Verify that a non-trivial txHash / signature is present
+      if (!payment.txHash || payment.txHash.length < 10) {
+        res.status(401).json({ error: "Invalid payment signature" });
+        return;
+      }
+
       ensureAegisDir();
 
       appendEarningsEntry({
@@ -69,7 +86,7 @@ export function aegisGate(options: AegisGateOptions) {
         fromAgent: payment.fromAgent ?? "unknown",
         token,
         amount: options.price,
-        txHash: payment.txHash ?? `mock-${Date.now()}`,
+        txHash: payment.txHash,
       });
 
       next();
@@ -117,6 +134,7 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
   });
 
   // Step 3: Sign a payment proof using the caller's OWS wallet
+  const paymentTimestamp = new Date().toISOString();
   let txProof: string;
   try {
     const message = JSON.stringify({
@@ -124,7 +142,7 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
       to: recipient,
       amount,
       token: details.token ?? "USDC",
-      timestamp: new Date().toISOString(),
+      timestamp: paymentTimestamp,
     });
     const result = signMessage(callerAgentId, "evm", message);
     txProof = result.signature;
@@ -141,7 +159,7 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
     }
   }
 
-  // Step 4: Retry with payment
+  // Step 4: Retry with payment — include timestamp so Gate can verify freshness
   const paidRes = await fetch(url, {
     headers: {
       "X-PAYMENT": JSON.stringify({
@@ -149,6 +167,7 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
         token: details.token,
         amount,
         txHash: txProof,
+        timestamp: paymentTimestamp,
       }),
     },
   });

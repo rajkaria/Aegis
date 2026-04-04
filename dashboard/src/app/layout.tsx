@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   title: "Aegis — Agent Commerce Protocol",
   description:
     "The commerce protocol for agent economies. Agents earn via x402-gated services, spend within policy guardrails, and operate transparently.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

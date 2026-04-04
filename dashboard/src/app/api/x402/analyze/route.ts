@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
+import { corsHeaders } from "@/lib/cors";
 
 export const dynamic = "force-dynamic";
+
+export async function OPTIONS() {
+  return corsHeaders(new NextResponse(null, { status: 204 }));
+}
 
 export async function GET(req: Request) {
   const paymentHeader = req.headers.get("x-payment");
 
   if (!paymentHeader) {
-    return NextResponse.json(
+    return corsHeaders(NextResponse.json(
       {
         x402Version: 1,
         payTo: "0x6344D6E94BbeBB612bA5eC55f3125Bf7a0B8666F",
@@ -18,7 +23,7 @@ export async function GET(req: Request) {
         description: "Data analysis service powered by Aegis Gate — structured insights from raw data",
       },
       { status: 402 }
-    );
+    ));
   }
 
   try {
@@ -28,22 +33,22 @@ export async function GET(req: Request) {
     if (payment.timestamp) {
       const age = Date.now() - new Date(payment.timestamp).getTime();
       if (age > 5 * 60 * 1000) {
-        return NextResponse.json(
+        return corsHeaders(NextResponse.json(
           { error: "Payment expired" },
           { status: 401 }
-        );
+        ));
       }
     }
 
     // Verify signature exists
     if (!payment.txHash || payment.txHash.length < 10) {
-      return NextResponse.json(
+      return corsHeaders(NextResponse.json(
         { error: "Invalid payment proof" },
         { status: 401 }
-      );
+      ));
     }
 
-    return NextResponse.json({
+    return corsHeaders(NextResponse.json({
       success: true,
       data: {
         title: "Live x402 Analysis from Aegis",
@@ -64,11 +69,11 @@ export async function GET(req: Request) {
           txHash: payment.txHash,
         },
       },
-    });
+    }));
   } catch {
-    return NextResponse.json(
+    return corsHeaders(NextResponse.json(
       { error: "Invalid payment header" },
       { status: 400 }
-    );
+    ));
   }
 }

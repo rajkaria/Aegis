@@ -29,7 +29,7 @@ import type { Request, Response, NextFunction } from "express";
 import { Router } from "express";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { appendEarningsEntry, ensureAegisDir, createReceipt, updateReceiptProof } from "@aegis-ows/shared";
+import { appendEarningsEntry, ensureAegisDir, createReceipt, updateReceiptProof, getUnanchoredReceipts } from "@aegis-ows/shared";
 import { appendLedgerEntry } from "@aegis-ows/shared";
 import { anchorReceiptOnChain } from "./receipt-anchor.js";
 import { signMessage, signTypedData, getWallet } from "@open-wallet-standard/core";
@@ -69,12 +69,37 @@ setInterval(() => {
   }
 }, 60000);
 
+// Gate operator stats
+interface GateStats {
+  total402: number;
+  totalPaid: number;
+  totalRevenue: number;
+  totalRejected: number;
+  startedAt: string;
+}
+
+const gateStats: GateStats = {
+  total402: 0,
+  totalPaid: 0,
+  totalRevenue: 0,
+  totalRejected: 0,
+  startedAt: new Date().toISOString(),
+};
+
+export function getGateStats(): GateStats & { conversionRate: string } {
+  const rate = gateStats.total402 > 0
+    ? ((gateStats.totalPaid / gateStats.total402) * 100).toFixed(1) + "%"
+    : "0%";
+  return { ...gateStats, conversionRate: rate };
+}
+
 export function aegisHealth() {
   return (_req: Request, res: Response): void => {
     res.json({
       status: "healthy",
       service: "aegis-gate",
       version: "0.1.0",
+      stats: getGateStats(),
       timestamp: new Date().toISOString(),
     });
   };
@@ -117,6 +142,7 @@ export function aegisGate(options: AegisGateOptions) {
         return;
       }
 
+      gateStats.total402++;
       const walletAddress = resolvedAddress;
       res.status(402).json({
         // x402 spec fields
@@ -147,6 +173,7 @@ export function aegisGate(options: AegisGateOptions) {
       if (payment.deadline) {
         const now = Math.floor(Date.now() / 1000);
         if (now > payment.deadline) {
+          gateStats.totalRejected++;
           res.status(401).json({ error: "Payment authorization expired" });
           return;
         }
@@ -156,6 +183,7 @@ export function aegisGate(options: AegisGateOptions) {
       if (payment.timestamp) {
         const age = Date.now() - new Date(payment.timestamp).getTime();
         if (age > 5 * 60 * 1000) {
+          gateStats.totalRejected++;
           res.status(401).json({ error: "Payment proof expired" });
           return;
         }
@@ -163,6 +191,7 @@ export function aegisGate(options: AegisGateOptions) {
 
       // Verify that a non-trivial txHash / signature is present
       if (!payment.txHash || payment.txHash.length < 10) {
+        gateStats.totalRejected++;
         res.status(401).json({ error: "Invalid payment signature" });
         return;
       }
@@ -200,6 +229,7 @@ export function aegisGate(options: AegisGateOptions) {
             }, payment.txHash);
 
             if (recoveredAddress.toLowerCase() !== expectedAddress.toLowerCase()) {
+              gateStats.totalRejected++;
               res.status(401).json({
                 error: "Payment signature does not match sender wallet",
                 expected: expectedAddress,
@@ -225,6 +255,9 @@ export function aegisGate(options: AegisGateOptions) {
           }
         } catch {}
       }
+
+      gateStats.totalPaid++;
+      gateStats.totalRevenue += parseFloat(options.price);
 
       ensureAegisDir();
 
@@ -390,6 +423,14 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
       }
     })
     .catch(() => {});
+
+  // Retry any previously unanchored receipts (best effort, max 3)
+  const unanchored = getUnanchoredReceipts().slice(0, 3);
+  for (const old of unanchored) {
+    anchorReceiptOnChain(callerAgentId, old.receiptHash)
+      .then(proofTx => { if (proofTx) updateReceiptProof(old.id, proofTx); })
+      .catch(() => {});
+  }
 
   return paidRes.json();
 }

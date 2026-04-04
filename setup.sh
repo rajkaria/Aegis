@@ -1,11 +1,25 @@
 #!/bin/bash
 set -e
 
+# Error handler
+trap 'echo ""; echo "Setup failed at step above. Check the error and try again."; exit 1' ERR
+
 echo "==================================================="
 echo "  AEGIS — Agent Commerce Protocol for OWS"
 echo "  One-click setup"
 echo "==================================================="
 echo ""
+
+# Check prerequisites
+if ! command -v curl &>/dev/null; then
+  echo "Error: curl is required but not installed."
+  exit 1
+fi
+
+if ! command -v npm &>/dev/null; then
+  echo "Error: npm is required. Install Node.js first: https://nodejs.org"
+  exit 1
+fi
 
 # 1. Check for OWS
 if ! command -v ows &>/dev/null; then
@@ -13,7 +27,14 @@ if ! command -v ows &>/dev/null; then
   curl -fsSL https://openwallet.sh/install.sh | bash
   source ~/.zshrc 2>/dev/null || source ~/.bashrc 2>/dev/null
 fi
-echo "OWS: $(ows --version 2>/dev/null || echo 'installed')"
+
+# Verify OWS installed
+if ! command -v ows &>/dev/null; then
+  echo "Warning: OWS install may have failed. Continuing without wallet operations..."
+  echo "Install manually: curl -fsSL https://openwallet.sh/install.sh | bash"
+else
+  echo "OWS: $(ows --version 2>/dev/null || echo 'installed')"
+fi
 
 # 2. Install dependencies
 echo ""

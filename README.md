@@ -5,6 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Deploy](https://img.shields.io/badge/demo-useaegis.xyz-blue)](https://useaegis.xyz)
 
+**The first commerce protocol for OWS — published on npm, live on Solana devnet, with on-chain payment receipts and AI-powered economy analytics.**
+
 > Agents earn via x402-gated services, spend within policy guardrails, and operate transparently.
 
 Built for the [OWS Hackathon](https://hackathon.openwallet.sh/) — the first complete commerce protocol for the Open Wallet Standard.
@@ -87,7 +89,7 @@ One line of code turns any Express endpoint into a paid API service.
 **Server side — publish a paid endpoint:**
 
 ```typescript
-import { aegisGate } from "@aegis-ows/gate";
+import { aegisGate } from "aegis-ows-gate";
 
 app.get(
   "/api/data",
@@ -96,10 +98,12 @@ app.get(
 );
 ```
 
+> **Note:** Within the monorepo, packages use `@aegis-ows/gate`. The npm published package is `aegis-ows-gate`.
+
 **Client side — pay and fetch in one call:**
 
 ```typescript
-import { payAndFetch } from "@aegis-ows/gate";
+import { payAndFetch } from "aegis-ows-gate";
 
 const result = await payAndFetch("http://service/api/data", "buyer-agent");
 ```

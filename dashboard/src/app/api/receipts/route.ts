@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
+import { corsHeaders } from "@/lib/cors";
 
 export const dynamic = "force-dynamic";
 
@@ -36,14 +37,30 @@ const DEMO_RECEIPTS = [
   },
 ];
 
-export async function GET() {
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const limit = Math.min(parseInt(url.searchParams.get("limit") ?? "50"), 100);
+  const offset = parseInt(url.searchParams.get("offset") ?? "0");
+
+  let receipts = DEMO_RECEIPTS;
+
   try {
     const receiptsPath = join(homedir(), ".ows", "aegis", "receipts.json");
     if (existsSync(receiptsPath)) {
       const data = JSON.parse(readFileSync(receiptsPath, "utf-8"));
-      return NextResponse.json(data);
+      receipts = data.receipts ?? [];
     }
   } catch {}
 
-  return NextResponse.json({ receipts: DEMO_RECEIPTS });
+  const paginated = receipts.slice(offset, offset + limit);
+
+  return corsHeaders(NextResponse.json({
+    receipts: paginated,
+    pagination: {
+      total: receipts.length,
+      limit,
+      offset,
+      hasMore: offset + limit < receipts.length,
+    },
+  }));
 }

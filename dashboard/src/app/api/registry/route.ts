@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { corsHeaders } from "@/lib/cors";
 
 export const dynamic = "force-dynamic";
 
@@ -18,9 +19,15 @@ let services: RegistryEntry[] = [
   { agentId: "analyst", endpoint: "/analyze", price: "0.005", token: "SOL", description: "AI-powered data analysis", baseUrl: "http://localhost:4002", registeredAt: new Date().toISOString() },
 ];
 
+export async function OPTIONS() {
+  return corsHeaders(new NextResponse(null, { status: 204 }));
+}
+
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const query = url.searchParams.get("q");
+  const limit = Math.min(parseInt(url.searchParams.get("limit") ?? "50"), 100);
+  const offset = parseInt(url.searchParams.get("offset") ?? "0");
 
   let results = services;
   if (query) {
@@ -32,14 +39,25 @@ export async function GET(req: Request) {
     );
   }
 
-  return NextResponse.json({ services: results, total: results.length });
+  const paginated = results.slice(offset, offset + limit);
+
+  return corsHeaders(NextResponse.json({
+    services: paginated,
+    total: results.length,
+    pagination: {
+      total: results.length,
+      limit,
+      offset,
+      hasMore: offset + limit < results.length,
+    },
+  }));
 }
 
 export async function POST(req: Request) {
   const body = await req.json() as Partial<RegistryEntry>;
 
   if (!body.agentId || !body.endpoint || !body.price || !body.baseUrl) {
-    return NextResponse.json({ error: "Missing required fields: agentId, endpoint, price, baseUrl" }, { status: 400 });
+    return corsHeaders(NextResponse.json({ error: "Missing required fields: agentId, endpoint, price, baseUrl" }, { status: 400 }));
   }
 
   services = services.filter(s => !(s.agentId === body.agentId && s.endpoint === body.endpoint));
@@ -55,5 +73,5 @@ export async function POST(req: Request) {
   };
   services.push(entry);
 
-  return NextResponse.json({ success: true, registered: entry });
+  return corsHeaders(NextResponse.json({ success: true, registered: entry }));
 }

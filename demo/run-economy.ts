@@ -1,4 +1,5 @@
 import { spawn, ChildProcess } from "node:child_process";
+import { createConnection } from "node:net";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -14,9 +15,30 @@ function startServer(script: string, label: string): ChildProcess {
   return child;
 }
 
+async function isPortAvailable(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const socket = createConnection({ port, host: "127.0.0.1" });
+    socket.on("connect", () => { socket.destroy(); resolve(false); });
+    socket.on("error", () => { resolve(true); });
+    socket.setTimeout(1000, () => { socket.destroy(); resolve(true); });
+  });
+}
+
 async function main() {
   console.log("Starting Aegis 3-Agent Economy Demo\n");
   console.log("Supply chain: research-buyer → analyst → data-miner\n");
+
+  // Check for port conflicts before starting servers
+  const port4001 = await isPortAvailable(4001);
+  const port4002 = await isPortAvailable(4002);
+
+  if (!port4001 || !port4002) {
+    console.error("Port conflict detected:");
+    if (!port4001) console.error("  Port 4001 is in use (data-miner)");
+    if (!port4002) console.error("  Port 4002 is in use (analyst)");
+    console.error("Kill the existing processes or use different ports.");
+    process.exit(1);
+  }
 
   // Start servers
   const miner = startServer("agents/data-miner.ts", "MINER");

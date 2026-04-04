@@ -90,6 +90,11 @@ export function updateReceiptProof(receiptId: string, proofTxHash: string): void
   });
 }
 
+export function getUnanchoredReceipts(): PaymentReceipt[] {
+  const ledger = readReceipts();
+  return ledger.receipts.filter(r => r.status === "created");
+}
+
 export function getReceiptsByAgent(agentId: string): PaymentReceipt[] {
   const ledger = readReceipts();
   return ledger.receipts.filter(r => r.from === agentId || r.to === agentId);

@@ -8,6 +8,7 @@ const links = [
   { href: "/dashboard", label: "Economy", icon: FlowIcon },
   { href: "/dashboard/agents", label: "Agents", icon: UsersIcon },
   { href: "/dashboard/policies", label: "Policies", icon: ShieldIcon },
+  { href: "/dashboard/manage", label: "Manage", icon: WrenchIcon },
 ];
 
 function FlowIcon({ className }: { className?: string }) {
@@ -61,6 +62,39 @@ function ShieldIcon({ className }: { className?: string }) {
       strokeLinejoin="round"
     >
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  );
+}
+
+function WrenchIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+    </svg>
+  );
+}
+
+function BookIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
     </svg>
   );
 }
@@ -157,6 +191,17 @@ export function Nav() {
           );
         })}
       </nav>
+
+      {/* Docs link */}
+      <div className="px-4 pb-2 pt-3 border-t border-white/[0.05]">
+        <Link
+          href="/docs"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.04] transition-all duration-200 group"
+        >
+          <BookIcon className="h-3.5 w-3.5 group-hover:text-emerald-400 transition-colors" />
+          Docs
+        </Link>
+      </div>
 
       {/* Partner Integrations */}
       <div className="px-4 pb-2 pt-3 border-t border-white/[0.05]">

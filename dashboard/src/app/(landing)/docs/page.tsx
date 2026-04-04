@@ -70,6 +70,7 @@ function TableOfContents() {
     { id: "integrations", label: "Integrations" },
     { id: "for-developers", label: "For Developers" },
     { id: "solana-payments", label: "Solana On-Chain Payments" },
+    { id: "manage-ui", label: "Manage UI" },
   ];
 
   return (
@@ -630,6 +631,54 @@ const txHash = await sendSolPayment(
                   <tr><td className="px-4 py-2 font-mono text-xs text-foreground">txHash in ledger entries</td><td className="px-4 py-2">Stored in both budget-ledger.json and earnings-ledger.json; shown as Explorer links in the activity feed</td></tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+        </SectionAnchor>
+
+        <SectionAnchor id="manage-ui">
+          <div className="space-y-6">
+            <div>
+              <Badge className="mb-3 bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Dashboard</Badge>
+              <h3 className="text-2xl font-bold">Manage UI</h3>
+              <p className="text-muted-foreground mt-2 leading-relaxed">
+                The <code className="text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">/dashboard/manage</code> page provides a browser-based control panel for everything the CLI can do. It requires OWS installed locally &mdash; on Vercel, wallet operations are view-only.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-lg font-semibold">Sections</h4>
+              <table className="w-full text-sm border border-white/[0.06] rounded-xl overflow-hidden">
+                <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-3 text-left">Section</th>
+                    <th className="px-4 py-3 text-left">Description</th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">Create Agent Wallet</td><td className="px-4 py-2">Creates an OWS wallet with addresses across all chains</td></tr>
+                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">Register Policy</td><td className="px-4 py-2">Registers aegis-budget, aegis-guard, or aegis-deadswitch with OWS</td></tr>
+                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">Create API Key</td><td className="px-4 py-2">Generates an API key bound to wallets and policies</td></tr>
+                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">Fund Agent (Devnet)</td><td className="px-4 py-2">Requests a Solana devnet airdrop to an agent address</td></tr>
+                  <tr><td className="px-4 py-2 font-semibold text-foreground">Send Payment</td><td className="px-4 py-2">Sends SOL between agents via OWS signing on devnet</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="space-y-3">
+              <h4 className="text-lg font-semibold">API Route</h4>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                All manage actions go through a single <code className="text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">POST /api/manage</code> endpoint. Send a JSON body with an <code className="text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">action</code> field to select the operation.
+              </p>
+              <CodeBlock title="POST /api/manage">{`// Create a wallet
+{ "action": "create_wallet", "name": "my-agent" }
+
+// Fund on devnet
+{ "action": "fund_solana", "address": "<base58>", "amount": "1" }
+
+// Send SOL via OWS
+{ "action": "send_sol",
+  "fromAddress": "<base58>", "toAddress": "<base58>",
+  "fromWallet": "data-miner", "amount": "0.1" }`}</CodeBlock>
             </div>
           </div>
         </SectionAnchor>

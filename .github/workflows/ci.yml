@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build shared
+        run: cd packages/shared && npx tsc
+
+      - name: Build policies
+        run: cd packages/policies && npx tsc
+
+      - name: Build gate
+        run: cd packages/gate && npx tsc
+
+      - name: Build CLI
+        run: cd packages/cli && npx tsc
+
+      - name: Run tests
+        run: npx vitest run --config vitest.config.ts
+
+      - name: Build dashboard
+        run: cd dashboard && npm run build

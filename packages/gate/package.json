@@ -1,9 +1,22 @@
 {
   "name": "@aegis-ows/gate",
   "version": "0.1.0",
+  "description": "Express middleware for x402 micropayments — turn any API into a paid service",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "aegis-gate": "dist/index.js"
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "keywords": ["x402", "micropayments", "express", "middleware", "ows", "agents", "commerce", "solana"],
+  "author": "Raj Karia",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rajkaria/aegis"
+  },
+  "homepage": "https://useaegis.xyz",
   "scripts": { "build": "tsc", "dev": "tsc --watch" },
   "dependencies": {
     "@aegis-ows/shared": "file:../shared",

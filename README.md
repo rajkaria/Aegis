@@ -1,5 +1,10 @@
 # Aegis — The Agent Commerce Protocol for OWS
 
+[![CI](https://github.com/rajkaria/aegis/actions/workflows/ci.yml/badge.svg)](https://github.com/rajkaria/aegis/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@aegis-ows/gate)](https://www.npmjs.com/package/@aegis-ows/gate)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Deploy](https://img.shields.io/badge/demo-useaegis.xyz-blue)](https://useaegis.xyz)
+
 > Agents earn via x402-gated services, spend within policy guardrails, and operate transparently.
 
 Built for the [OWS Hackathon](https://hackathon.openwallet.sh/) — the first complete commerce protocol for the Open Wallet Standard.

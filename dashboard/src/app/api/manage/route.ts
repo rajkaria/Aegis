@@ -46,10 +46,11 @@ export async function POST(req: Request) {
   try {
     switch (action) {
       case "create_wallet": {
-        const name = sanitize(params.name);
-        if (!validateWalletName(name)) {
-          return NextResponse.json({ error: "Invalid wallet name. Use alphanumeric characters, hyphens, and underscores only." }, { status: 400 });
+        // Validate raw input BEFORE sanitizing — reject if it contains dangerous chars
+        if (!validateWalletName(params.name)) {
+          return NextResponse.json({ error: "Invalid wallet name. Use alphanumeric characters, hyphens, and underscores only (1-64 chars)." }, { status: 400 });
         }
+        const name = sanitize(params.name);
         const result = execSync(
           `ows wallet create --name "${name}"`,
           { encoding: "utf-8", timeout: 15000, env }
@@ -197,7 +198,7 @@ export async function POST(req: Request) {
           rules: [],
           executable: execPath,
           config: null,
-          action: params.policyAction || "deny",
+          action: "deny", // OWS v1.2 only supports "deny" action
         };
         writeFileSync(
           "/tmp/custom-policy.json",

@@ -245,7 +245,7 @@ function CustomPolicySection() {
   const [id, setId] = useState("");
   const [name, setName] = useState("");
   const [executable, setExecutable] = useState("");
-  const [action, setAction] = useState<"deny" | "warn">("deny");
+  const [action] = useState<"deny">("deny"); // OWS v1.2 only supports "deny"
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
 
@@ -350,27 +350,8 @@ function CustomPolicySection() {
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Action</label>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setAction("deny")}
-                className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
-                  action === "deny"
-                    ? "bg-red-500/10 border-red-500/30 text-red-400"
-                    : "bg-white/[0.02] border-white/[0.06] text-muted-foreground hover:bg-white/[0.04]"
-                }`}
-              >
-                Deny (block tx)
-              </button>
-              <button
-                onClick={() => setAction("warn")}
-                className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
-                  action === "warn"
-                    ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-400"
-                    : "bg-white/[0.02] border-white/[0.06] text-muted-foreground hover:bg-white/[0.04]"
-                }`}
-              >
-                Warn (log only)
-              </button>
+            <div className="px-3 py-2 rounded-lg text-xs font-medium bg-red-500/10 border border-red-500/30 text-red-400 text-center">
+              Deny (block transaction if policy returns false)
             </div>
           </div>
           <div className="flex items-end">

@@ -112,6 +112,7 @@ export interface ActivityItem {
   amount?: string;
   token?: string;
   description: string;
+  txHash?: string;
 }
 
 export interface DiscoveryEvent {
@@ -195,7 +196,8 @@ export function getEconomyOverview() {
       agentId: e.agentId,
       amount: e.amount,
       token: e.token,
-      description: `${e.agentId} earned $${e.amount} from ${e.fromAgent} (${e.endpoint})`,
+      description: `${e.agentId} earned ${e.amount} ${e.token} from ${e.fromAgent} (${e.endpoint})`,
+      txHash: e.txHash,
     });
   }
 
@@ -207,7 +209,8 @@ export function getEconomyOverview() {
       amount: e.amount,
       token: e.token,
       description:
-        e.description ?? `${e.apiKeyId} spent $${e.amount} ${e.token}`,
+        e.description ?? `${e.apiKeyId} spent ${e.amount} ${e.token}`,
+      txHash: e.txHash,
     });
   }
 

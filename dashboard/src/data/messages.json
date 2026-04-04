@@ -3,7 +3,7 @@
     {
       "type": "service_announcement",
       "agentId": "data-miner",
-      "timestamp": "2026-04-03T05:03:24.273Z",
+      "timestamp": "2026-04-04T00:25:29.764Z",
       "services": [
         {
           "endpoint": "/scrape",
@@ -17,7 +17,7 @@
     {
       "type": "service_announcement",
       "agentId": "analyst",
-      "timestamp": "2026-04-03T05:13:24.273Z",
+      "timestamp": "2026-04-04T00:35:29.764Z",
       "services": [
         {
           "endpoint": "/analyze",
@@ -31,13 +31,13 @@
     {
       "type": "service_query",
       "agentId": "research-buyer",
-      "timestamp": "2026-04-03T05:23:24.273Z",
+      "timestamp": "2026-04-04T00:45:29.764Z",
       "query": "analysis"
     },
     {
       "type": "service_response",
       "agentId": "analyst",
-      "timestamp": "2026-04-03T05:23:25.273Z",
+      "timestamp": "2026-04-04T00:45:30.764Z",
       "inResponseTo": "research-buyer",
       "matches": [
         {
@@ -51,8 +51,35 @@
     {
       "type": "service_query",
       "agentId": "research-buyer",
-      "timestamp": "2026-04-03T05:33:24.273Z",
+      "timestamp": "2026-04-04T00:55:29.764Z",
       "query": "scrape"
+    },
+    {
+      "type": "wallet_info",
+      "agentId": "data-miner",
+      "timestamp": "2026-04-03T23:25:29.764Z",
+      "walletAddresses": {
+        "eip155:1": "0x6344D6E94BbeBB612bA5eC55f3125Bf7a0B8666F",
+        "solana:mainnet": "2G55SdspdgSLcrXm3ZcfSHuDhvuhXtQLWqf1zVbAYCcq"
+      }
+    },
+    {
+      "type": "wallet_info",
+      "agentId": "analyst",
+      "timestamp": "2026-04-03T23:25:29.764Z",
+      "walletAddresses": {
+        "eip155:1": "0x4ef5aaef757B4180512a52A17023E3471BA3e361",
+        "solana:mainnet": "CePyeKXCtB6RzAatosDnnun3yryUzETKXA5rNEjPeSkL"
+      }
+    },
+    {
+      "type": "wallet_info",
+      "agentId": "research-buyer",
+      "timestamp": "2026-04-03T23:25:29.764Z",
+      "walletAddresses": {
+        "eip155:1": "0x2219FF712dbcf3fEE0a712bAD2E111D0008a2f1d",
+        "solana:mainnet": "9LK89Mk3xQP3qf3bJjxW8Qe9HoiPer4EisY5tUoPY22A"
+      }
     }
   ]
 }

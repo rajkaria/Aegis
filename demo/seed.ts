@@ -50,22 +50,44 @@ writeDeadswitchConfig({
 });
 console.log("Deadswitch: 30min timeout, enabled");
 
-// 4. Seed the 3-agent supply chain transactions
+// 4. Seed the 3-agent supply chain transactions (3 real on-chain cycles)
 // research-buyer pays analyst, analyst pays data-miner
+// Using real Solana devnet tx hashes from executed on-chain transfers
 const baseTime = Date.now();
 
-for (let i = 0; i < 10; i++) {
-  const ts = new Date(baseTime - (10 - i) * 300000).toISOString(); // 5min apart
+// Real devnet tx hashes for 3 supply chain cycles (txs 1–6 from executed transfers)
+// Cycle 1: tx1 (research-buyer → analyst 0.005 SOL), tx2 (analyst → data-miner 0.001 SOL)
+// Cycle 2: tx3 (research-buyer → analyst 0.005 SOL), tx4 (analyst → data-miner 0.001 SOL)
+// Cycle 3: tx5 (research-buyer → analyst 0.005 SOL), tx6 (analyst → data-miner 0.001 SOL)
+const cycles = [
+  {
+    buyerToAnalystTx: "JEX7PjWZLia2NpRVSZGFBUvhqP6cqXMWv5NKXHf2JjZZxkim8Ni5wuiVziNmdLwo4kBLVV7pGM1X3cnhywqb5GA",
+    analystToMinerTx: "zBARyaWkhfedVrnXEWB9LzGCERwWfkeXm5Fk3GuFJ1fuW2JBxiUDHmHC7NQF3Jz26C9nBJAy5EFDdCkv7iLGB7V",
+  },
+  {
+    buyerToAnalystTx: "5tsNpRhnaksJ5BXUdjNMfDA7oZUWAy1YXJB1AAbTcHCz7gqj8pGHKuFheuqGb4j1g2jvdncgX87PMrbEe3WKCXbj",
+    analystToMinerTx: "QyxHktA6QsaNGVYFepaqRgipquAiSPL7bwh73fHMBAE1mqfFDwvUopf3tJkSAq8cEW7Ary7yENQ4T3JxyjhCSxN",
+  },
+  {
+    buyerToAnalystTx: "sGwQzNQAD2zfJ3JLhinjAoNHzQGHMwZ72UYw6XWxufrhaypSrdtPbmHdXtVc9qb58mNJKJNE9A6zHf1gTo2Mmby",
+    analystToMinerTx: "3QVCwpJJoKgkQZc4fp5G3FrnHY5HqrRANtiMCRVGwjbkDnWXKgxcGDDcZkknqwPr1UdXdhEVz2gKh8hjyvHVu4eW",
+  },
+];
 
-  // research-buyer pays analyst $0.05
+for (let i = 0; i < cycles.length; i++) {
+  const ts = new Date(baseTime - (cycles.length - i) * 300000).toISOString(); // 5min apart
+  const { buyerToAnalystTx, analystToMinerTx } = cycles[i];
+
+  // research-buyer pays analyst 0.005 SOL
   appendLedgerEntry({
     timestamp: ts,
     apiKeyId: "research-buyer",
-    chainId: "eip155:8453",
-    token: "USDC",
-    amount: "0.05",
+    chainId: "solana:devnet",
+    token: "SOL",
+    amount: "0.005",
     tool: "http://localhost:4002/analyze",
     description: "x402 payment to analyst for /analyze",
+    txHash: buyerToAnalystTx,
   });
 
   appendEarningsEntry({
@@ -73,20 +95,22 @@ for (let i = 0; i < 10; i++) {
     agentId: "analyst",
     endpoint: "/analyze",
     fromAgent: "research-buyer",
-    token: "USDC",
-    amount: "0.05",
+    token: "SOL",
+    amount: "0.005",
+    txHash: buyerToAnalystTx,
   });
 
-  // analyst pays data-miner $0.01
+  // analyst pays data-miner 0.001 SOL
   const ts2 = new Date(new Date(ts).getTime() + 100).toISOString();
   appendLedgerEntry({
     timestamp: ts2,
     apiKeyId: "analyst",
-    chainId: "eip155:8453",
-    token: "USDC",
-    amount: "0.01",
+    chainId: "solana:devnet",
+    token: "SOL",
+    amount: "0.001",
     tool: "http://localhost:4001/scrape",
     description: "x402 payment to data-miner for /scrape",
+    txHash: analystToMinerTx,
   });
 
   appendEarningsEntry({
@@ -94,12 +118,13 @@ for (let i = 0; i < 10; i++) {
     agentId: "data-miner",
     endpoint: "/scrape",
     fromAgent: "analyst",
-    token: "USDC",
-    amount: "0.01",
+    token: "SOL",
+    amount: "0.001",
+    txHash: analystToMinerTx,
   });
 }
 
-console.log("Seeded 20 ledger + 20 earnings entries (10 cycles of supply chain)");
+console.log("Seeded 6 ledger + 6 earnings entries (3 real on-chain Solana devnet cycles)");
 
 // 5. Seed policy log
 const policyEvents = [

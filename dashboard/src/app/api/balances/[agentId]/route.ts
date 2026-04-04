@@ -26,74 +26,35 @@ const AGENT_WALLETS: Record<
 };
 
 // Fallback balances when real RPC calls are not configured or fail
+// SOL amounts reflect real post-transaction devnet balances after 3 supply chain cycles
 const FALLBACK_BALANCES: Record<string, ChainBalance[]> = {
   "data-miner": [
     {
-      chain: "Base",
-      chainId: "eip155:8453",
-      token: "USDC",
-      balance: "12.45",
-      usdValue: "12.45",
-      source: "fallback",
-    },
-    {
-      chain: "Base",
-      chainId: "eip155:8453",
-      token: "ETH",
-      balance: "0.008",
-      usdValue: "24.00",
-      source: "fallback",
-    },
-    {
       chain: "Solana",
-      chainId: "solana:mainnet",
+      chainId: "solana:devnet",
       token: "SOL",
-      balance: "0.52",
-      usdValue: "93.60",
+      balance: "4.997",
+      usdValue: "899.46",
       source: "fallback",
     },
   ],
   analyst: [
     {
-      chain: "Base",
-      chainId: "eip155:8453",
-      token: "USDC",
-      balance: "34.20",
-      usdValue: "34.20",
-      source: "fallback",
-    },
-    {
-      chain: "Ethereum",
-      chainId: "eip155:1",
-      token: "USDC",
-      balance: "5.00",
-      usdValue: "5.00",
-      source: "fallback",
-    },
-    {
-      chain: "XRP Ledger",
-      chainId: "ripple:0",
-      token: "XRP",
-      balance: "15.00",
-      usdValue: "37.50",
+      chain: "Solana",
+      chainId: "solana:devnet",
+      token: "SOL",
+      balance: "5.012",
+      usdValue: "902.16",
       source: "fallback",
     },
   ],
   "research-buyer": [
     {
-      chain: "Base",
-      chainId: "eip155:8453",
-      token: "USDC",
-      balance: "0.15",
-      usdValue: "0.15",
-      source: "fallback",
-    },
-    {
       chain: "Solana",
-      chainId: "solana:mainnet",
+      chainId: "solana:devnet",
       token: "SOL",
-      balance: "0.10",
-      usdValue: "18.00",
+      balance: "1.985",
+      usdValue: "357.30",
       source: "fallback",
     },
   ],

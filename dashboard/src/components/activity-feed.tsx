@@ -94,8 +94,18 @@ export function ActivityFeed({ entries }: ActivityFeedProps) {
               <div className="text-sm truncate">{entry.description}</div>
               {entry.amount && (
                 <div className="text-xs text-muted-foreground font-mono">
-                  ${entry.amount} {entry.token ?? ""}
+                  {entry.amount} {entry.token ?? ""}
                 </div>
+              )}
+              {entry.txHash && entry.txHash.length > 40 && !entry.txHash.startsWith("mock") && (
+                <a
+                  href={`https://explorer.solana.com/tx/${entry.txHash}?cluster=devnet`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] text-emerald-400 hover:text-emerald-300 font-mono"
+                >
+                  View on Solana Explorer ↗
+                </a>
               )}
             </div>
             <time className="text-[10px] text-muted-foreground/70 shrink-0 pt-0.5 tabular-nums">

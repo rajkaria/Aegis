@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { appendEarningsEntry, ensureAegisDir } from "@aegis-ows/shared";
 import { appendLedgerEntry } from "@aegis-ows/shared";
 import { signMessage, getWallet } from "@open-wallet-standard/core";
+import { sendSolPayment } from "./solana-pay.js";
 
 export { announceServices } from "./announce.js";
 export { findServices, type DiscoveredService } from "./discover.js";
@@ -130,6 +131,14 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
   } catch {
     // Fallback to mock if OWS wallet not available (e.g., on Vercel)
     txProof = `mock-tx-${Date.now()}`;
+  }
+
+  // Try real on-chain Solana payment when the network is Solana
+  if (details.network?.includes("solana") || (recipient && recipient.length === 44)) {
+    const solTxHash = await sendSolPayment(callerAgentId, recipient ?? "", parseFloat(amount) * 0.001);
+    if (solTxHash) {
+      txProof = solTxHash;
+    }
   }
 
   // Step 4: Retry with payment

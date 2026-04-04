@@ -8,6 +8,7 @@
   "dependencies": {
     "@aegis-ows/shared": "file:../shared",
     "@open-wallet-standard/core": "*",
+    "@solana/web3.js": "^1.98.0",
     "express": "^5.0.0"
   },
   "devDependencies": {

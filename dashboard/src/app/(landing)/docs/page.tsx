@@ -69,6 +69,7 @@ function TableOfContents() {
     { id: "demo", label: "Live Demo" },
     { id: "integrations", label: "Integrations" },
     { id: "for-developers", label: "For Developers" },
+    { id: "solana-payments", label: "Solana On-Chain Payments" },
   ];
 
   return (
@@ -558,6 +559,79 @@ npx tsx run-economy.ts # Start all 3 agents + run transactions`}</CodeBlock>
           <p className="text-muted-foreground text-sm mt-4">
             The dashboard is a standalone Next.js app that reads from the same data files. All data lives as JSON in a local directory &mdash; no database required. See the <a href="https://github.com/rajkaria/aegis" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300">GitHub repo</a> for full source code and contributing guide.
           </p>
+        </SectionAnchor>
+
+        {/* Solana On-Chain Payments */}
+        <SectionAnchor id="solana-payments">
+          <h2 className="text-2xl font-bold mt-16 mb-6">Solana On-Chain Payments</h2>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+            Aegis supports real on-chain Solana transfers for agent-to-agent payments. When an x402 payment targets a Solana address,{" "}
+            <code className="font-mono text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">payAndFetch</code> automatically builds and submits a SOL transfer transaction via the OWS signing SDK.
+            Each transaction is recorded on Solana devnet and linked directly from the activity feed in the dashboard.
+          </p>
+
+          <div className="mb-6">
+            <h3 className="font-semibold mb-3 text-sm uppercase tracking-wider text-muted-foreground">How It Works</h3>
+            <CodeBlock title="packages/gate/src/solana-pay.ts">{`import { sendSolPayment } from "@aegis-ows/gate/solana-pay";
+
+// Called automatically inside payAndFetch when network is Solana
+const txHash = await sendSolPayment(
+  "research-buyer",              // OWS wallet name
+  "CePyeKXCtB6RzAatosDnnun3yryUzETKXA5rNEjPeSkL", // analyst's address
+  0.005                          // amount in SOL
+);
+// Returns a real Solana devnet tx hash, e.g.:
+// "JEX7PjWZLia2NpRVS...kwqb5GA"`}
+            </CodeBlock>
+          </div>
+
+          <div className="mb-6">
+            <h3 className="font-semibold mb-3 text-sm uppercase tracking-wider text-muted-foreground">Real Devnet Transactions</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-3">
+              The demo economy ran 3 supply chain cycles on Solana devnet. Each cycle produced 2 real on-chain transfers:
+              research-buyer → analyst (0.005 SOL) and analyst → data-miner (0.001 SOL).
+              All transactions are viewable on Solana Explorer with <code className="font-mono text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">?cluster=devnet</code>.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border border-white/[0.06] rounded-xl overflow-hidden">
+                <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-3 text-left">From</th>
+                    <th className="px-4 py-3 text-left">To</th>
+                    <th className="px-4 py-3 text-left">Amount</th>
+                    <th className="px-4 py-3 text-left">Explorer</th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2">research-buyer</td><td className="px-4 py-2">analyst</td><td className="px-4 py-2 font-mono">0.005 SOL</td><td className="px-4 py-2"><a href="https://explorer.solana.com/tx/JEX7PjWZLia2NpRVSZGFBUvhqP6cqXMWv5NKXHf2JjZZxkim8Ni5wuiVziNmdLwo4kBLVV7pGM1X3cnhywqb5GA?cluster=devnet" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 font-mono text-xs">JEX7...b5GA</a></td></tr>
+                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2">analyst</td><td className="px-4 py-2">data-miner</td><td className="px-4 py-2 font-mono">0.001 SOL</td><td className="px-4 py-2"><a href="https://explorer.solana.com/tx/zBARyaWkhfedVrnXEWB9LzGCERwWfkeXm5Fk3GuFJ1fuW2JBxiUDHmHC7NQF3Jz26C9nBJAy5EFDdCkv7iLGB7V?cluster=devnet" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 font-mono text-xs">zBAR...GB7V</a></td></tr>
+                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2">research-buyer</td><td className="px-4 py-2">analyst</td><td className="px-4 py-2 font-mono">0.005 SOL</td><td className="px-4 py-2"><a href="https://explorer.solana.com/tx/5tsNpRhnaksJ5BXUdjNMfDA7oZUWAy1YXJB1AAbTcHCz7gqj8pGHKuFheuqGb4j1g2jvdncgX87PMrbEe3WKCXbj?cluster=devnet" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 font-mono text-xs">5tsN...Xbj</a></td></tr>
+                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2">analyst</td><td className="px-4 py-2">data-miner</td><td className="px-4 py-2 font-mono">0.001 SOL</td><td className="px-4 py-2"><a href="https://explorer.solana.com/tx/QyxHktA6QsaNGVYFepaqRgipquAiSPL7bwh73fHMBAE1mqfFDwvUopf3tJkSAq8cEW7Ary7yENQ4T3JxyjhCSxN?cluster=devnet" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 font-mono text-xs">QyxH...xN</a></td></tr>
+                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2">research-buyer</td><td className="px-4 py-2">analyst</td><td className="px-4 py-2 font-mono">0.005 SOL</td><td className="px-4 py-2"><a href="https://explorer.solana.com/tx/sGwQzNQAD2zfJ3JLhinjAoNHzQGHMwZ72UYw6XWxufrhaypSrdtPbmHdXtVc9qb58mNJKJNE9A6zHf1gTo2Mmby?cluster=devnet" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 font-mono text-xs">sGwQ...Mby</a></td></tr>
+                  <tr><td className="px-4 py-2">analyst</td><td className="px-4 py-2">data-miner</td><td className="px-4 py-2 font-mono">0.001 SOL</td><td className="px-4 py-2"><a href="https://explorer.solana.com/tx/3QVCwpJJoKgkQZc4fp5G3FrnHY5HqrRANtiMCRVGwjbkDnWXKgxcGDDcZkknqwPr1UdXdhEVz2gKh8hjyvHVu4eW?cluster=devnet" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 font-mono text-xs">3QVC...u4eW</a></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <h3 className="font-semibold mb-3 text-sm uppercase tracking-wider text-muted-foreground">Configuration Options</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border border-white/[0.06] rounded-xl overflow-hidden">
+                <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-3 text-left">Option</th>
+                    <th className="px-4 py-3 text-left">Description</th>
+                  </tr>
+                </thead>
+                <tbody className="text-muted-foreground">
+                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">network: "solana:devnet"</td><td className="px-4 py-2">Triggers on-chain Solana transfer in payAndFetch</td></tr>
+                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-foreground">payTo: &lt;44-char base58&gt;</td><td className="px-4 py-2">Solana address automatically triggers SOL payment</td></tr>
+                  <tr><td className="px-4 py-2 font-mono text-xs text-foreground">txHash in ledger entries</td><td className="px-4 py-2">Stored in both budget-ledger.json and earnings-ledger.json; shown as Explorer links in the activity feed</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </SectionAnchor>
 
         {/* Footer */}

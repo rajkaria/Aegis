@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { execSync } from "node:child_process";
+import { writeFileSync } from "node:fs";
 
 export const dynamic = "force-dynamic";
 
@@ -118,6 +119,28 @@ export async function POST(req: Request) {
         );
         const parsed = JSON.parse(result.trim());
         return NextResponse.json({ success: true, txHash: parsed.tx_hash });
+      }
+
+      case "register_custom_policy": {
+        const policyJson = {
+          id: params.id,
+          name: params.name,
+          version: 1,
+          created_at: new Date().toISOString(),
+          rules: [],
+          executable: params.executable,
+          config: null,
+          action: params.policyAction || "deny",
+        };
+        writeFileSync(
+          "/tmp/custom-policy.json",
+          JSON.stringify(policyJson, null, 2)
+        );
+        const result = execSync(
+          `ows policy create --file /tmp/custom-policy.json`,
+          { encoding: "utf-8", timeout: 15000, env }
+        );
+        return NextResponse.json({ success: true, output: result });
       }
 
       default:

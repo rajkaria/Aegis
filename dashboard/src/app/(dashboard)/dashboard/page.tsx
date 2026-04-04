@@ -10,6 +10,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
+function DemoBanner() {
+  return (
+    <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-4 flex items-start gap-3">
+      <div className="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-sky-500/10 flex items-center justify-center">
+        <span className="text-sm">✨</span>
+      </div>
+      <div>
+        <p className="text-sm font-medium text-sky-300">You&apos;re viewing a live preview</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          This dashboard is populated with real data from a 3-agent economy running on Solana devnet.
+          To create your own agents and send real payments, clone the repo and run <code className="bg-white/5 px-1 rounded">./setup.sh</code>
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function EconomyPage() {
   const data = getEconomyOverview();
 
@@ -40,6 +57,9 @@ export default function EconomyPage() {
           <DashboardControls />
         </div>
       </div>
+
+      {/* Demo Banner */}
+      {process.env.VERCEL && <DemoBanner />}
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

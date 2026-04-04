@@ -195,6 +195,34 @@ Run it: `cd demo && npx tsx run-economy.ts`
 
 ---
 
+## On-Chain Transactions
+
+Aegis executes real payments on Solana devnet. Every supply chain cycle produces verifiable on-chain transactions:
+
+| Payment | Tx Hash | Explorer |
+|---------|---------|----------|
+| research-buyer → analyst | `JEX7PjWZ...` | [View on Solana Explorer](https://explorer.solana.com/tx/JEX7PjWZLia2NpRVSZGFBUvhqP6cqXMWv5NKXHf2JjZZxkim8Ni5wuiVziNmdLwo4kBLVV7pGM1X3cnhywqb5GA?cluster=devnet) |
+| analyst → data-miner | `zBARyaWk...` | [View on Solana Explorer](https://explorer.solana.com/tx/zBARyaWkhfedVrnXEWB9LzGCERwWfkeXm5Fk3GuFJ1fuW2JBxiUDHmHC7NQF3Jz26C9nBJAy5EFDdCkv7iLGB7V?cluster=devnet) |
+| + 4 more cycles | | |
+
+Transactions are signed through OWS's secure enclave and broadcast via `ows sign send-tx`. Agent keys never leave the vault.
+
+---
+
+## Management Dashboard
+
+The `/dashboard/manage` page provides a browser-based control panel for the full agent lifecycle:
+
+- **Create Wallets** — Provision new OWS wallets with addresses across all supported chains
+- **Register Policies** — Register aegis-budget, aegis-guard, or aegis-deadswitch with OWS, or create custom policies
+- **Create API Keys** — Generate keys bound to specific wallets and policies
+- **Fund Agents** — Request Solana devnet airdrops to agent wallets
+- **Send Payments** — Send real SOL between agent wallets on Solana devnet via OWS signing
+
+Everything the CLI does, available from the browser. On Vercel, wallet operations are view-only.
+
+---
+
 ## Tech Stack
 
 | Component | Technology |
@@ -205,6 +233,8 @@ Run it: `cd demo && npx tsx run-economy.ts`
 | Nexus Dashboard | Next.js 15 + shadcn/ui + Recharts |
 | CLI | Commander.js |
 | Data | JSON files in `~/.ows/aegis/` |
+| On-Chain | Solana Web3.js (devnet transfers, airdrops) |
+| Video | Remotion (programmatic video generation) |
 | Partner Tools | Zerion (balances), MoonPay (on-ramp), XMTP (discovery) |
 | OWS Integration | `@open-wallet-standard/core` |
 
@@ -233,6 +263,8 @@ All packages are TypeScript-first. Shared types (including `PolicyContext` and `
 **Spans three tracks.** Most submissions pick one. Aegis covers API monetization (Gate), spend governance (Policies), and multi-agent coordination (Nexus) as a unified protocol — not bolted-together features.
 
 **A running economy, not a demo button.** The 3-agent supply chain produces real transactions, real earnings, and real policy decisions. The Sankey diagram in Nexus is live data.
+
+**Real on-chain payments.** Not mocks. Not simulations. Real SOL transfers on Solana devnet, verifiable on Solana Explorer.
 
 **Extends OWS natively.** The policy executables use the exact stdin/stdout interface OWS defines as its extension point. Gate uses OWS's signing enclave for every payment. Nothing bypasses the standard.
 

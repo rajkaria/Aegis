@@ -69,7 +69,9 @@ function TableOfContents() {
     { id: "demo", label: "Live Demo" },
     { id: "integrations", label: "Integrations" },
     { id: "for-developers", label: "For Developers" },
-    { id: "solana-payments", label: "Solana On-Chain Payments" },
+    { id: "manage-dashboard", label: "Management Dashboard" },
+    { id: "solana-payments", label: "On-Chain Payments" },
+    { id: "custom-policies", label: "Custom Policies" },
     { id: "manage-ui", label: "Manage UI" },
   ];
 
@@ -469,7 +471,7 @@ npx tsx run-economy.ts # Start all 3 agents + run transactions`}</CodeBlock>
         <SectionAnchor id="integrations">
           <h2 className="text-2xl font-bold tracking-tight mb-4">Integrations</h2>
           <p className="text-muted-foreground leading-relaxed mb-6">
-            Aegis integrates with 7 partner tools to provide real on-chain data, cross-chain balances, transaction verification, and agent funding.
+            Aegis integrates with 8 partner tools to provide real on-chain data, cross-chain balances, transaction verification, on-chain payments, and agent funding.
           </p>
           <div className="grid gap-3">
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
@@ -562,6 +564,43 @@ npx tsx run-economy.ts # Start all 3 agents + run transactions`}</CodeBlock>
           </p>
         </SectionAnchor>
 
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Management Dashboard */}
+        <SectionAnchor id="manage-dashboard">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Management Dashboard</h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            The <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">/dashboard/manage</code> page is a browser-based control center for the full agent lifecycle. Everything the CLI does is available from the UI.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 mb-6">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <h4 className="font-semibold text-sm">Create Wallets</h4>
+              <p className="text-xs text-muted-foreground mt-1">Provision new OWS wallets with derived addresses across all supported chains.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <h4 className="font-semibold text-sm">Register Policies</h4>
+              <p className="text-xs text-muted-foreground mt-1">Register built-in or custom policy executables with the OWS runtime.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <h4 className="font-semibold text-sm">Fund Agents</h4>
+              <p className="text-xs text-muted-foreground mt-1">Request Solana devnet airdrops to fund agent wallets for testing.</p>
+            </div>
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+              <h4 className="font-semibold text-sm text-emerald-400">Send Payments</h4>
+              <p className="text-xs text-muted-foreground mt-1">Send real SOL between agent wallets on Solana devnet via OWS signing. Transactions are verifiable on Solana Explorer.</p>
+            </div>
+          </div>
+          <p className="text-muted-foreground text-sm">
+            The manage page also supports creating API keys bound to specific wallets and policies, and creating custom policy executables. All operations call a single <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">POST /api/manage</code> endpoint.
+          </p>
+          <div className="rounded-xl border border-emerald-500/10 bg-emerald-500/5 p-4 text-sm text-muted-foreground mt-4">
+            <a href="/dashboard/manage" className="text-emerald-400 hover:text-emerald-300 font-medium">Open the Control Center &rarr;</a>
+            {" "}to create wallets, register policies, and send real on-chain payments.
+          </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
         {/* Solana On-Chain Payments */}
         <SectionAnchor id="solana-payments">
           <h2 className="text-2xl font-bold mt-16 mb-6">Solana On-Chain Payments</h2>
@@ -635,6 +674,58 @@ const txHash = await sendSolPayment(
           </div>
         </SectionAnchor>
 
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Custom Policies */}
+        <SectionAnchor id="custom-policies">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Custom Policies</h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            Beyond the three built-in policies, Aegis supports creating custom policy executables. A custom policy is any script that reads a <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">PolicyContext</code> from stdin and writes a <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">PolicyResult</code> to stdout.
+          </p>
+
+          <h3 className="text-lg font-semibold mb-3">Creating a Custom Policy</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Use the Management Dashboard or the API to register a custom policy. Provide a policy ID, name, the path to your executable, and the action (deny or warn).
+          </p>
+          <CodeBlock title="Custom policy JSON">{`{
+  "id": "my-rate-limiter",
+  "name": "Rate Limiter Policy",
+  "version": 1,
+  "created_at": "2024-01-01T00:00:00Z",
+  "rules": [],
+  "executable": "/usr/local/bin/my-rate-limiter",
+  "config": null,
+  "action": "deny"
+}`}</CodeBlock>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">Via the API</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Send a POST request to <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">/api/manage</code> with the <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">register_custom_policy</code> action:
+          </p>
+          <CodeBlock title="POST /api/manage">{`{
+  "action": "register_custom_policy",
+  "id": "my-rate-limiter",
+  "name": "Rate Limiter Policy",
+  "executable": "/usr/local/bin/my-rate-limiter",
+  "policyAction": "deny"
+}`}</CodeBlock>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">Policy Interface</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Your executable must follow the OWS policy interface. It receives a JSON <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">PolicyContext</code> on stdin and must print a JSON <code className="text-sm bg-white/[0.06] px-1.5 py-0.5 rounded">PolicyResult</code> to stdout:
+          </p>
+          <CodeBlock title="PolicyResult format">{`// Allow the transaction
+{ "decision": "allow" }
+
+// Block the transaction
+{ "decision": "deny", "reason": "Rate limit exceeded" }
+
+// Warn but allow
+{ "decision": "warn", "reason": "Approaching rate limit" }`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
         <SectionAnchor id="manage-ui">
           <div className="space-y-6">
             <div>
@@ -657,6 +748,7 @@ const txHash = await sendSolPayment(
                 <tbody className="text-muted-foreground">
                   <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">Create Agent Wallet</td><td className="px-4 py-2">Creates an OWS wallet with addresses across all chains</td></tr>
                   <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">Register Policy</td><td className="px-4 py-2">Registers aegis-budget, aegis-guard, or aegis-deadswitch with OWS</td></tr>
+                  <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">Custom Policy</td><td className="px-4 py-2">Creates and registers a custom policy executable with OWS</td></tr>
                   <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">Create API Key</td><td className="px-4 py-2">Generates an API key bound to wallets and policies</td></tr>
                   <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">Fund Agent (Devnet)</td><td className="px-4 py-2">Requests a Solana devnet airdrop to an agent address</td></tr>
                   <tr><td className="px-4 py-2 font-semibold text-foreground">Send Payment</td><td className="px-4 py-2">Sends SOL between agents via OWS signing on devnet</td></tr>

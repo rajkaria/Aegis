@@ -81,6 +81,8 @@ function TableOfContents() {
     { id: "security", label: "Security" },
     { id: "service-registry", label: "Service Registry" },
     { id: "payment-receipts", label: "Payment Receipts" },
+    { id: "economy-analytics", label: "Economy Analytics" },
+    { id: "multi-chain", label: "Multi-Chain Support" },
   ];
 
   return (
@@ -1135,6 +1137,82 @@ if (proofTx) updateReceiptProof(receipt.id, proofTx);
 
 // Query receipts for an agent
 const myReceipts = getReceiptsByAgent("analyst");`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="economy-analytics">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Economy Analytics</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Aegis includes a rule-based intelligence engine that generates insights about your agent economy. It detects patterns in spending, revenue, policy enforcement, and supply chain dynamics without requiring external API calls.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">Insight Types</h3>
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06]">
+                  <th className="text-left px-4 py-2 font-medium">Insight</th>
+                  <th className="text-left px-4 py-2 font-medium">Description</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">Economy Health</td><td className="px-4 py-2">Net flow analysis — is the economy self-sustaining?</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">Top Earner</td><td className="px-4 py-2">Identifies highest-revenue agent and best-performing endpoint</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">Budget Alert</td><td className="px-4 py-2">Warns when agents exceed 80% or 95% of daily budget limits</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">Policy Enforcement</td><td className="px-4 py-2">Block rate analysis — are policies too restrictive?</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">Supply Chain</td><td className="px-4 py-2">Buyer/intermediary/seller classification with margin analysis</td></tr>
+                <tr><td className="px-4 py-2 font-mono text-xs text-emerald-400">Activity Trend</td><td className="px-4 py-2">24-hour transaction volume with day-over-day comparison</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">Access</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Insights appear in the dashboard&apos;s Economy Intelligence card and are also available via the MCP server tool <code className="bg-white/5 px-1 rounded">aegis_economy_insights</code>.
+          </p>
+          <CodeBlock title="MCP Tool">{`// Available as an MCP tool for any AI assistant
+aegis_economy_insights
+// Returns: Economy Intelligence Report with all detected patterns`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="multi-chain">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Multi-Chain Support</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Aegis Gate and Policies work across all OWS-supported chains. The payment middleware supports different signing mechanisms per chain family.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">Supported Chains</h3>
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06]">
+                  <th className="text-left px-4 py-2 font-medium">Chain</th>
+                  <th className="text-left px-4 py-2 font-medium">Signing Method</th>
+                  <th className="text-left px-4 py-2 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">Solana</td><td className="px-4 py-2">On-chain SOL transfers</td><td className="px-4 py-2">Active (devnet)</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">Ethereum</td><td className="px-4 py-2">EIP-712 signed authorizations</td><td className="px-4 py-2">Active</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">Base</td><td className="px-4 py-2">EIP-712 signed authorizations</td><td className="px-4 py-2">Active</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">Bitcoin</td><td className="px-4 py-2">signMessage proofs</td><td className="px-4 py-2">Ready</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">Cosmos</td><td className="px-4 py-2">signMessage proofs</td><td className="px-4 py-2">Ready</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">Tron</td><td className="px-4 py-2">signMessage proofs</td><td className="px-4 py-2">Ready</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">TON</td><td className="px-4 py-2">signMessage proofs</td><td className="px-4 py-2">Ready</td></tr>
+                <tr><td className="px-4 py-2 font-mono text-xs text-emerald-400">Sui</td><td className="px-4 py-2">signMessage proofs</td><td className="px-4 py-2">Ready</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">Usage</h3>
+          <CodeBlock title="Multi-chain Gate configuration">{`// Set the network parameter to target any OWS chain
+aegisGate({
+  price: "0.01",
+  token: "USDC",
+  agentId: "my-agent",
+  network: "eip155:8453",  // Base
+  // network: "solana:devnet"  // Solana
+  // network: "eip155:1"      // Ethereum mainnet
+})`}</CodeBlock>
         </SectionAnchor>
 
         {/* Footer */}

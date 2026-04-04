@@ -8,7 +8,9 @@ import { DiscoveryFeed } from "@/components/discovery-feed";
 import { DashboardControls } from "@/components/dashboard-controls";
 import { Onboarding } from "@/components/onboarding";
 import { ReceiptList } from "@/components/receipt-list";
+import { EconomyInsights } from "@/components/economy-insights";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 
@@ -119,6 +121,9 @@ export default function EconomyPage() {
         </CardContent>
       </Card>
 
+      {/* Economy Intelligence */}
+      <EconomyInsights insights={data.insights} />
+
       {/* Budget Consumption */}
       {data.budgets.length > 0 && (
         <Card>
@@ -171,6 +176,35 @@ export default function EconomyPage() {
       </div>
       {/* Payment Receipts */}
       <ReceiptList />
+
+      {/* Multi-Chain Support */}
+      <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-sm">{"\u{1F517}"}</span>
+          <h3 className="text-sm font-medium">Multi-Chain Ready</h3>
+          <Badge variant="outline" className="text-[9px] ml-auto">via OWS</Badge>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { name: "Solana", active: true },
+            { name: "Ethereum", active: true },
+            { name: "Base", active: true },
+            { name: "Bitcoin", active: false },
+            { name: "Cosmos", active: false },
+            { name: "Tron", active: false },
+            { name: "TON", active: false },
+            { name: "Sui", active: false },
+          ].map(chain => (
+            <span key={chain.name} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs border ${chain.active ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-400" : "border-white/[0.06] bg-white/[0.02] text-muted-foreground"}`}>
+              <span className={`w-1 h-1 rounded-full ${chain.active ? "bg-emerald-500" : "bg-zinc-500"}`} />
+              {chain.name}
+            </span>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground mt-2">
+          Aegis Gate and Policies work on any OWS-supported chain. Demo runs on Solana devnet.
+        </p>
+      </div>
 
       {/* Data Sources */}
       <div className="rounded-xl border border-border/50 bg-muted/30 p-4">

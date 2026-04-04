@@ -239,6 +239,20 @@ export default function LandingPage() {
         </div>
       </RevealSection>
 
+      {/* ---- PRODUCTION READY ---- */}
+      <RevealSection className="pb-12 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Production Ready</p>
+          <div className="flex flex-wrap justify-center gap-3 text-xs text-muted-foreground">
+            {["EIP-712 Signatures", "Rate Limiting", "Webhook Alerts", "Chain-Agnostic Verification", "File Locking"].map(f => (
+              <span key={f} className="px-3 py-1.5 rounded-full border border-white/[0.06] bg-white/[0.02]">
+                {f}
+              </span>
+            ))}
+          </div>
+        </div>
+      </RevealSection>
+
       {/* ---- HOW IT WORKS ---- */}
       <RevealSection className="py-24 px-6">
         <div className="max-w-4xl mx-auto">

@@ -78,6 +78,8 @@ function TableOfContents() {
     { id: "manage-ui", label: "Manage UI" },
     { id: "mcp-server", label: "MCP Server" },
     { id: "x402-endpoints", label: "Live x402 Endpoints" },
+    { id: "security", label: "Security" },
+    { id: "service-registry", label: "Service Registry" },
   ];
 
   return (
@@ -961,6 +963,102 @@ npm install && npx tsc`}</CodeBlock>
             <p className="text-sm text-muted-foreground">
               Payment verification includes timestamp freshness (5-minute window) and transaction hash validation. Expired or invalid payments are rejected with a 401.
             </p>
+          </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Security */}
+        <SectionAnchor id="security">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Security</h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            Aegis is built with production-grade security at every layer. Here are the protections that keep your agent economy safe.
+          </p>
+
+          <div className="space-y-4 mb-6">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold text-emerald-400 mb-2">EIP-712 Signature Verification</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Payment authorizations use EIP-712 typed data signatures. Gate recovers the signer&apos;s address and verifies it matches the sender&apos;s OWS wallet, ensuring payments cannot be forged.
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold text-sky-400 mb-2">Chain-Agnostic Settlement Verification</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                On-chain verification supports Solana (devnet and mainnet) and EVM chains including Ethereum, Base, Polygon, and Arbitrum. Gate confirms the payment transaction actually landed on-chain before granting access.
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold text-violet-400 mb-2">Rate Limiting</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                402 payment challenge responses are rate-limited to 100 per minute per IP address. This prevents bad actors from spamming your endpoints with unpaid requests.
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold text-emerald-400 mb-2">Webhook Alerting</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Set the <code className="text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">AEGIS_WEBHOOK_URL</code> environment variable to receive notifications whenever a policy blocks a transaction. Stay informed about enforcement events in real time.
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold text-sky-400 mb-2">File Locking</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Concurrent policy execution is safe via exclusive file locks with stale lock detection. Multiple agents can operate simultaneously without data corruption.
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h3 className="font-semibold text-violet-400 mb-2">Input Sanitization</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                The management API validates all inputs to prevent command injection and other attacks. All user-provided data is sanitized before being passed to system commands.
+              </p>
+            </div>
+          </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Service Registry */}
+        <SectionAnchor id="service-registry">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Service Registry</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            In addition to XMTP-based discovery, Aegis provides an HTTP service registry for cross-machine agent discovery. Agents on different servers can register their services and find each other through a simple REST API.
+          </p>
+
+          <div className="space-y-4 mb-6">
+            <StepCard number="1" title="Register" description="An agent POSTs its service details (endpoint, price, description) to the registry when it starts up." />
+            <StepCard number="2" title="Discover" description="Any agent can search the registry by keyword to find services matching its needs." />
+            <StepCard number="3" title="Connect" description="The agent calls the discovered service URL directly and pays via x402." />
+          </div>
+
+          <CodeBlock title="Register a service">{`POST /api/registry
+{
+  "agentId": "my-agent",
+  "endpoint": "/analyze",
+  "price": "0.005",
+  "token": "SOL",
+  "description": "AI-powered data analysis",
+  "baseUrl": "https://my-agent.example.com"
+}`}</CodeBlock>
+
+          <div className="mt-4">
+            <CodeBlock title="Search for services">{`GET /api/registry?q=analysis
+// Returns: { services: [...], total: 1 }`}</CodeBlock>
+          </div>
+
+          <div className="overflow-x-auto mt-6">
+            <table className="w-full text-sm border border-white/[0.06] rounded-xl overflow-hidden">
+              <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3 text-left">Method</th>
+                  <th className="px-4 py-3 text-left">Endpoint</th>
+                  <th className="px-4 py-3 text-left">Description</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">GET</td><td className="px-4 py-2 font-mono text-xs">/api/registry</td><td className="px-4 py-2">List all services (optional <code className="text-xs bg-white/[0.06] px-1 rounded">?q=</code> filter)</td></tr>
+                <tr><td className="px-4 py-2 font-mono text-xs text-emerald-400">POST</td><td className="px-4 py-2 font-mono text-xs">/api/registry</td><td className="px-4 py-2">Register or update a service</td></tr>
+              </tbody>
+            </table>
           </div>
         </SectionAnchor>
 

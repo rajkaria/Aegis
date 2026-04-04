@@ -234,6 +234,10 @@ research-buyer  →  analyst  →  data-miner
 
 Before purchasing, `research-buyer` discovers the analyst via XMTP wallet-to-wallet messaging — browsing service announcements on the shared message bus. The discovery events appear in the Nexus dashboard alongside payment events.
 
+For cross-machine discovery, agents can also use the HTTP registry:
+- `POST https://useaegis.xyz/api/registry` — register a service
+- `GET https://useaegis.xyz/api/registry?q=scraping` — discover services
+
 Run it: `cd demo && npx tsx run-economy.ts`
 
 ---
@@ -294,6 +298,30 @@ The `/dashboard/manage` page provides a browser-based control panel for the full
 - **Send Payments** — Send real SOL between agent wallets on Solana devnet via OWS signing
 
 Everything the CLI does, available from the browser. On Vercel, wallet operations are view-only.
+
+---
+
+## Security
+
+- **EIP-712 Signature Verification** — Payment authorizations use typed data signatures. Gate recovers the signer's address and verifies it matches the sender's OWS wallet.
+- **Chain-Agnostic Settlement** — On-chain verification supports Solana (devnet + mainnet) and EVM chains (Ethereum, Base, Polygon, Arbitrum).
+- **Replay Protection** — Deadlines and nonces in payment proofs prevent replay attacks.
+- **Rate Limiting** — 402 responses are rate-limited (100/min per IP) to prevent spam.
+- **File Locking** — Concurrent policy execution is safe via exclusive file locks with stale detection.
+- **Input Sanitization** — Management API validates all inputs to prevent command injection.
+- **Webhook Alerting** — Set `AEGIS_WEBHOOK_URL` to get notified when policies block transactions.
+
+---
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ZERION_API_KEY` | Zerion API for EVM wallet portfolio data |
+| `UNIBLOCK_API_KEY` | Uniblock for multi-chain token balances |
+| `ALLIUM_API_KEY` | Allium for on-chain transaction verification |
+| `AEGIS_WEBHOOK_URL` | Webhook URL for policy block notifications |
+| `AEGIS_MANAGE_TOKEN` | Bearer token for /api/manage authentication |
 
 ---
 

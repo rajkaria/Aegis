@@ -32,6 +32,7 @@ import { sendSolPayment } from "./solana-pay.js";
 
 export { announceServices } from "./announce.js";
 export { findServices, type DiscoveredService } from "./discover.js";
+export { verifySettlement } from "./verify-settlement.js";
 
 // Rate limiter — max 100 requests per minute per IP
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -207,22 +208,16 @@ export function aegisGate(options: AegisGateOptions) {
         }
       }
 
-      // Optional on-chain verification: confirm the tx landed on Solana devnet
-      if (options.verify && payment.txHash && payment.txHash.length > 60 && !payment.txHash.startsWith("mock")) {
+      // Optional on-chain verification: confirm the tx landed on-chain (Solana + EVM)
+      if (options.verify && payment.txHash && payment.txHash.length > 20 && !payment.txHash.startsWith("mock")) {
         try {
-          const { Connection } = await import("@solana/web3.js");
-          const conn = new Connection("https://api.devnet.solana.com", "confirmed");
-          const txInfo = await conn.getTransaction(payment.txHash, { maxSupportedTransactionVersion: 0 });
-
-          if (!txInfo || txInfo.meta?.err) {
-            res.status(402).json({ error: "Payment transaction not confirmed on-chain", txHash: payment.txHash });
+          const { verifySettlement } = await import("./verify-settlement.js");
+          const verified = await verifySettlement(payment.txHash, network);
+          if (verified === false) {
+            res.status(402).json({ error: "Payment not confirmed on-chain", txHash: payment.txHash });
             return;
           }
-          // Verified — payment landed on chain
-        } catch {
-          // Verification failed but don't block — log warning
-          console.error("[aegis-gate] On-chain verification failed for tx:", payment.txHash);
-        }
+        } catch {}
       }
 
       ensureAegisDir();

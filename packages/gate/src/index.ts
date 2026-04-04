@@ -62,6 +62,17 @@ setInterval(() => {
   }
 }, 60000);
 
+export function aegisHealth() {
+  return (_req: Request, res: Response): void => {
+    res.json({
+      status: "healthy",
+      service: "aegis-gate",
+      version: "0.1.0",
+      timestamp: new Date().toISOString(),
+    });
+  };
+}
+
 export interface AegisGateOptions {
   price: string;
   token?: string;        // default "USDC"

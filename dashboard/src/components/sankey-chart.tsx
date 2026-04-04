@@ -22,7 +22,7 @@ function AgentNode({ node, index }: { node: FlowNode; index: number }) {
     >
       <div
         className={`
-          relative px-5 py-4 rounded-xl border backdrop-blur-sm min-w-[120px] text-center
+          relative px-5 py-4 rounded-xl border backdrop-blur-sm min-w-[100px] sm:min-w-[120px] text-center
           transition-all duration-300 hover:scale-[1.03]
           ${isProfit
             ? "border-emerald-500/40 bg-emerald-500/10 shadow-[0_0_32px_rgba(16,185,129,0.2)]"
@@ -61,7 +61,7 @@ function AgentNode({ node, index }: { node: FlowNode; index: number }) {
 function FlowArrow({ value, index }: { value: number; index: number }) {
   return (
     <div
-      className="flex flex-col items-center justify-center min-w-[96px] animate-fade-up"
+      className="flex flex-col items-center justify-center min-w-[50px] sm:min-w-[96px] animate-fade-up"
       style={{ animationDelay: `${index * 120 + 60}ms` }}
     >
       {/* Arrow line with animated dots and gradient glow */}
@@ -193,7 +193,7 @@ export function MoneyFlow({
       {/* Pipeline background line connecting all nodes */}
       <div className="absolute top-1/2 left-8 right-8 -translate-y-1/2 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
       {/* Flow container */}
-      <div className="relative flex items-center justify-center gap-2 py-8 overflow-x-auto">
+      <div className="relative flex flex-col sm:flex-row items-center justify-center gap-2 py-8 overflow-x-auto">
         {displayElements}
       </div>
       {/* Bottom glow line */}

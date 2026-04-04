@@ -59,12 +59,46 @@ function shouldBuy(remaining: number, price: number): { buy: boolean; reason: st
   return { buy: true, reason: "Within budget, proceeding" };
 }
 
+async function checkServers(): Promise<boolean> {
+  const servers = [
+    { name: "data-miner", url: "http://localhost:4001/health" },
+    { name: "analyst", url: "http://localhost:4002/health" },
+  ];
+
+  let allUp = true;
+  for (const server of servers) {
+    try {
+      const res = await fetch(server.url, { signal: AbortSignal.timeout(3000) });
+      if (res.ok) {
+        console.log(`  ${server.name}: online`);
+      } else {
+        console.error(`  ${server.name}: responded with ${res.status}`);
+        allUp = false;
+      }
+    } catch {
+      console.error(`  ${server.name}: OFFLINE — start it with: npx tsx agents/${server.name}.ts`);
+      allUp = false;
+    }
+  }
+  return allUp;
+}
+
 async function autonomousLoop() {
   console.log("\n╔══════════════════════════════════════════════════╗");
   console.log("║  AEGIS Autonomous Agent: research-buyer          ║");
   console.log("║  Mode: Autonomous decision-making                ║");
   console.log("║  Cycle interval: 10 seconds                      ║");
   console.log("╚══════════════════════════════════════════════════╝\n");
+
+  console.log("Checking agent servers...");
+  const serversOk = await checkServers();
+  if (!serversOk) {
+    console.log("\nSome servers are offline. Start them first:");
+    console.log("  Terminal 1: npx tsx agents/data-miner.ts");
+    console.log("  Terminal 2: npx tsx agents/analyst.ts");
+    console.log("  Terminal 3: npx tsx agents/autonomous-buyer.ts");
+    process.exit(1);
+  }
 
   let cycle = 0;
   let totalSpent = 0;

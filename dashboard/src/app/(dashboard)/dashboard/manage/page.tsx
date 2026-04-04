@@ -21,6 +21,22 @@ const KNOWN_AGENTS = [
 
 const POLICY_TYPES = ["aegis-budget", "aegis-guard", "aegis-deadswitch"];
 
+function friendlyError(error: string): string {
+  if (error.includes("ENOENT") || error.includes("not found")) {
+    return "OWS is not installed on this server. This feature requires a local installation \u2014 clone the repo and run ./setup.sh";
+  }
+  if (error.includes("command not found") || error.includes("ows")) {
+    return "Could not reach OWS. Make sure it's installed: curl -fsSL https://openwallet.sh/install.sh | bash";
+  }
+  if (error.includes("EACCES") || error.includes("permission")) {
+    return "Permission denied. Check that the OWS wallet directory is accessible.";
+  }
+  if (error.includes("429") || error.includes("rate limit")) {
+    return "Rate limited. Please wait a moment and try again.";
+  }
+  return error;
+}
+
 type Result = {
   type: "success" | "error";
   message: string;
@@ -201,9 +217,9 @@ export default function ManagePage() {
       } else {
         setWalletResult({
           type: "error",
-          message: data.error || "Failed to create wallet.",
+          message: friendlyError(data.error || "Failed to create wallet."),
         });
-        logActivity("Create Wallet", data.error || "Failed", false);
+        logActivity("Create Wallet", friendlyError(data.error || "Failed"), false);
       }
     } catch {
       setWalletResult({
@@ -232,9 +248,9 @@ export default function ManagePage() {
       } else {
         setPolicyResult({
           type: "error",
-          message: data.error || "Failed to register policy.",
+          message: friendlyError(data.error || "Failed to register policy."),
         });
-        logActivity("Register Policy", data.error || "Failed", false);
+        logActivity("Register Policy", friendlyError(data.error || "Failed"), false);
       }
     } catch {
       setPolicyResult({
@@ -270,9 +286,9 @@ export default function ManagePage() {
       } else {
         setCustomPolicyResult({
           type: "error",
-          message: data.error || "Failed to create custom policy.",
+          message: friendlyError(data.error || "Failed to create custom policy."),
         });
-        logActivity("Custom Policy", data.error || "Failed", false);
+        logActivity("Custom Policy", friendlyError(data.error || "Failed"), false);
       }
     } catch {
       setCustomPolicyResult({
@@ -313,9 +329,9 @@ export default function ManagePage() {
       } else {
         setKeyResult({
           type: "error",
-          message: data.error || "Failed to create API key.",
+          message: friendlyError(data.error || "Failed to create API key."),
         });
-        logActivity("Create API Key", data.error || "Failed", false);
+        logActivity("Create API Key", friendlyError(data.error || "Failed"), false);
       }
     } catch {
       setKeyResult({
@@ -349,9 +365,9 @@ export default function ManagePage() {
       } else {
         setFundResult({
           type: "error",
-          message: data.error || "Airdrop failed.",
+          message: friendlyError(data.error || "Airdrop failed."),
         });
-        logActivity("Fund Agent", data.error || "Failed", false);
+        logActivity("Fund Agent", friendlyError(data.error || "Failed"), false);
       }
     } catch {
       setFundResult({ type: "error", message: "Airdrop request failed." });
@@ -390,9 +406,9 @@ export default function ManagePage() {
       } else {
         setSendResult({
           type: "error",
-          message: data.error || "Transaction failed.",
+          message: friendlyError(data.error || "Transaction failed."),
         });
-        logActivity("Send Payment", data.error || "Failed", false);
+        logActivity("Send Payment", friendlyError(data.error || "Failed"), false);
       }
     } catch {
       setSendResult({ type: "error", message: "Transaction request failed." });

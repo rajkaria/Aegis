@@ -60,4 +60,7 @@ export const initCommand = new Command("init")
         console.log(`  ${f}`);
       }
     }
+
+    console.log("\nOptional: Set AEGIS_WEBHOOK_URL to receive alerts on policy blocks");
+    console.log("  export AEGIS_WEBHOOK_URL=https://your-slack-webhook.com/...");
   });

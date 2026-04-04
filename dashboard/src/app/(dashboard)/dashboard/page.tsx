@@ -6,6 +6,7 @@ import { ActivityFeed } from "@/components/activity-feed";
 import { BudgetBar } from "@/components/budget-bar";
 import { DiscoveryFeed } from "@/components/discovery-feed";
 import { DashboardControls } from "@/components/dashboard-controls";
+import { Onboarding } from "@/components/onboarding";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +47,7 @@ export default function EconomyPage() {
 
   return (
     <div className="space-y-6">
+      <Onboarding />
       {/* Hero */}
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Aegis Nexus</h2>
@@ -83,6 +85,27 @@ export default function EconomyPage() {
           value={data.totalBlocked}
           description="Blocked by policy enforcement"
         />
+      </div>
+
+      {/* Agent Status */}
+      <div className="flex flex-wrap gap-2">
+        {data.profiles.map(p => {
+          const lastActivity = data.activity.find(a => a.agentId === p.agentId);
+          const minutesAgo = lastActivity
+            ? Math.floor((Date.now() - new Date(lastActivity.timestamp).getTime()) / 60000)
+            : null;
+          const isRecent = minutesAgo !== null && minutesAgo < 30;
+
+          return (
+            <div key={p.agentId} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/[0.06] bg-white/[0.02] text-xs">
+              <span className={`w-1.5 h-1.5 rounded-full ${isRecent ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-500'}`} />
+              <span className="font-medium">{p.agentId}</span>
+              <span className="text-muted-foreground">
+                {minutesAgo !== null ? (minutesAgo < 1 ? 'just now' : `${minutesAgo}m ago`) : 'no activity'}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
       {/* Money Flow Visualization */}

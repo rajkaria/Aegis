@@ -15,6 +15,7 @@ export const PATHS = {
   deadswitchConfig: join(AEGIS_DIR, "deadswitch-config.json"),
   earningsLedger: join(AEGIS_DIR, "earnings-ledger.json"),
   messageBus: join(AEGIS_DIR, "messages.json"),
+  receipts: join(AEGIS_DIR, "receipts.json"),
 } as const;
 
 export function ensureAegisDir(): void {

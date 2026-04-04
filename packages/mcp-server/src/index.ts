@@ -18,6 +18,7 @@ import {
   discoverServices,
   readMessages,
   getOWSWallets,
+  generateInsights,
 } from "@aegis-ows/shared";
 
 // Optional auth token for MCP server access
@@ -314,6 +315,31 @@ server.tool(
           text: `Payment prepared:\n  From: ${fromAgent} (${solAddr})\n  To: ${toAddress}\n  Amount: ${amount} SOL\n  Network: solana:devnet\n\nTo execute, run:\n  ows pay --from "${fromAgent}" --to "${toAddress}" --amount ${amount} --chain solana:devnet`,
         },
       ],
+    };
+  }
+);
+
+// --- aegis_economy_insights ---
+server.tool(
+  "aegis_economy_insights",
+  "Generate AI-powered insights about the agent economy — budget risks, supply chain analysis, activity trends, and policy enforcement patterns",
+  {},
+  async () => {
+    const insights = generateInsights();
+
+    if (insights.length === 0) {
+      return {
+        content: [{ type: "text" as const, text: "No insights available. Seed economy data first." }],
+      };
+    }
+
+    const formatted = insights.map(i => {
+      const icon = i.type === "alert" ? "\u{1F6A8}" : i.type === "warning" ? "\u26A0\uFE0F" : i.type === "success" ? "\u2705" : "\u{1F4CA}";
+      return `${icon} ${i.title}${i.metric ? ` [${i.metric}]` : ""}\n   ${i.description}`;
+    }).join("\n\n");
+
+    return {
+      content: [{ type: "text" as const, text: `Economy Intelligence Report\n${"─".repeat(40)}\n\n${formatted}` }],
     };
   }
 );

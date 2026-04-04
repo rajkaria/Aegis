@@ -18,14 +18,20 @@
  *   low-volume or trusted environments)
  * - For high-throughput: use webhook-based confirmation from a payment
  *   indexer (e.g., Allium Realtime API)
+ *
+ * Multi-Chain Support:
+ * - Solana: real on-chain SOL transfers via sendSolPayment()
+ * - EVM (Ethereum, Base, Polygon, etc.): EIP-712 signed payment authorizations
+ * - Other OWS chains: signMessage-based proofs (extensible)
  */
 
 import type { Request, Response, NextFunction } from "express";
 import { Router } from "express";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { appendEarningsEntry, ensureAegisDir } from "@aegis-ows/shared";
+import { appendEarningsEntry, ensureAegisDir, createReceipt, updateReceiptProof } from "@aegis-ows/shared";
 import { appendLedgerEntry } from "@aegis-ows/shared";
+import { anchorReceiptOnChain } from "./receipt-anchor.js";
 import { signMessage, signTypedData, getWallet } from "@open-wallet-standard/core";
 import { verifyTypedData } from "ethers";
 import { sendSolPayment } from "./solana-pay.js";
@@ -232,6 +238,17 @@ export function aegisGate(options: AegisGateOptions) {
         txHash: payment.txHash,
       });
 
+      // Create auditable receipt for the seller side
+      createReceipt({
+        from: payment.fromAgent ?? "unknown",
+        to: options.agentId,
+        amount: options.price,
+        token,
+        chain: network,
+        endpoint: req.path,
+        paymentTxHash: payment.txHash,
+      });
+
       next();
     } catch {
       res.status(400).json({ error: "Invalid payment header" });
@@ -353,6 +370,26 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
       }),
     },
   });
+
+  // Create auditable receipt
+  const receipt = createReceipt({
+    from: callerAgentId,
+    to: recipient ?? "unknown",
+    amount,
+    token: details.token ?? "USDC",
+    chain: details.network ?? "eip155:1",
+    endpoint: details.resource ?? url,
+    paymentTxHash: txProof,
+  });
+
+  // Anchor receipt hash on Solana (async, best-effort)
+  anchorReceiptOnChain(callerAgentId, receipt.receiptHash)
+    .then(proofTxHash => {
+      if (proofTxHash) {
+        updateReceiptProof(receipt.id, proofTxHash);
+      }
+    })
+    .catch(() => {});
 
   return paidRes.json();
 }

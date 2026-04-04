@@ -80,6 +80,7 @@ function TableOfContents() {
     { id: "x402-endpoints", label: "Live x402 Endpoints" },
     { id: "security", label: "Security" },
     { id: "service-registry", label: "Service Registry" },
+    { id: "payment-receipts", label: "Payment Receipts" },
   ];
 
   return (
@@ -1060,6 +1061,80 @@ npm install && npx tsc`}</CodeBlock>
               </tbody>
             </table>
           </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Payment Receipts */}
+        <SectionAnchor id="payment-receipts">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Payment Receipts</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Every x402 payment generates a signed receipt with a SHA-256 hash. The hash is posted to Solana devnet as a transaction memo, making every payment auditable on-chain forever.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">How It Works</h3>
+          <div className="space-y-4 mb-6">
+            <StepCard number="1" title="Receipt Created" description="After every successful payment, a PaymentReceipt is created with a deterministic SHA-256 hash of the receipt data (id, timestamp, parties, amount, token, chain, endpoint)." />
+            <StepCard number="2" title="Hash Anchored" description="The receipt hash is posted to Solana devnet as a memo transaction using the Memo program (MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr). The memo contains AEGIS_RECEIPT:<hash>." />
+            <StepCard number="3" title="Proof Linked" description="The Solana transaction hash is linked back to the receipt, updating its status to 'anchored'. Anyone can verify the proof on Solana Explorer." />
+          </div>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">Receipt Fields</h3>
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06]">
+                  <th className="text-left px-4 py-2 font-medium">Field</th>
+                  <th className="text-left px-4 py-2 font-medium">Description</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">id</td><td className="px-4 py-2">Unique receipt identifier</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">from / to</td><td className="px-4 py-2">Buyer and seller agent IDs</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">receiptHash</td><td className="px-4 py-2">SHA-256 hash of the receipt data</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-mono text-xs text-emerald-400">proofTxHash</td><td className="px-4 py-2">Solana transaction that anchors this receipt on-chain</td></tr>
+                <tr><td className="px-4 py-2 font-mono text-xs text-emerald-400">status</td><td className="px-4 py-2">created | anchored | verified</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">API</h3>
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06]">
+                  <th className="text-left px-4 py-2 font-medium">Method</th>
+                  <th className="text-left px-4 py-2 font-medium">Route</th>
+                  <th className="text-left px-4 py-2 font-medium">Description</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr><td className="px-4 py-2 font-mono text-xs text-emerald-400">GET</td><td className="px-4 py-2 font-mono text-xs">/api/receipts</td><td className="px-4 py-2">List all payment receipts with on-chain proof status</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">Programmatic Usage</h3>
+          <CodeBlock title="packages/shared/src/receipts.ts">{`import { createReceipt, updateReceiptProof, getReceiptsByAgent } from "@aegis-ows/shared";
+
+// Create a receipt after payment
+const receipt = createReceipt({
+  from: "research-buyer",
+  to: "analyst",
+  amount: "0.005",
+  token: "SOL",
+  chain: "solana:devnet",
+  endpoint: "/analyze",
+  paymentTxHash: "...",
+});
+
+// Anchor on Solana (done automatically by Gate)
+import { anchorReceiptOnChain } from "@aegis-ows/gate/receipt-anchor";
+const proofTx = await anchorReceiptOnChain("research-buyer", receipt.receiptHash);
+if (proofTx) updateReceiptProof(receipt.id, proofTx);
+
+// Query receipts for an agent
+const myReceipts = getReceiptsByAgent("analyst");`}</CodeBlock>
         </SectionAnchor>
 
         {/* Footer */}

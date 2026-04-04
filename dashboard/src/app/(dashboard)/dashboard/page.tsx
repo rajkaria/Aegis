@@ -7,6 +7,7 @@ import { BudgetBar } from "@/components/budget-bar";
 import { DiscoveryFeed } from "@/components/discovery-feed";
 import { DashboardControls } from "@/components/dashboard-controls";
 import { Onboarding } from "@/components/onboarding";
+import { ReceiptList } from "@/components/receipt-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
@@ -168,6 +169,9 @@ export default function EconomyPage() {
           </CardContent>
         </Card>
       </div>
+      {/* Payment Receipts */}
+      <ReceiptList />
+
       {/* Data Sources */}
       <div className="rounded-xl border border-border/50 bg-muted/30 p-4">
         <div className="flex items-center gap-2 mb-3">

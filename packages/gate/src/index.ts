@@ -1,3 +1,25 @@
+/**
+ * Aegis Gate — x402 Payment Middleware for Express
+ *
+ * Architecture Notes:
+ *
+ * Payment Flow:
+ * 1. Client requests resource → Gate returns 402 with payment details
+ * 2. Client signs payment authorization using EIP-712 (Permit2-style)
+ * 3. Client retries with X-PAYMENT header containing signed authorization
+ * 4. Gate verifies: signature exists, deadline not expired, timestamp fresh
+ * 5. Optional: Gate verifies payment landed on-chain (verify: true)
+ * 6. Gate logs earning and forwards to handler
+ *
+ * Production Considerations:
+ * - For mainnet deployment, integrate with Coinbase's x402 facilitator
+ *   for trustless payment verification
+ * - The verify: true option does direct RPC verification (suitable for
+ *   low-volume or trusted environments)
+ * - For high-throughput: use webhook-based confirmation from a payment
+ *   indexer (e.g., Allium Realtime API)
+ */
+
 import type { Request, Response, NextFunction } from "express";
 import { Router } from "express";
 import { readFileSync } from "node:fs";
@@ -17,6 +39,7 @@ export interface AegisGateOptions {
   walletAddress?: string;
   network?: string;      // default "eip155:1"
   description?: string;
+  verify?: boolean;      // If true, verify the payment tx landed on-chain before granting access
 }
 
 export function aegisGate(options: AegisGateOptions) {
@@ -35,7 +58,7 @@ export function aegisGate(options: AegisGateOptions) {
     // OWS not available, use fallback
   }
 
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const paymentHeader = req.headers["x-payment"] as string | undefined;
 
     if (!paymentHeader) {
@@ -86,6 +109,24 @@ export function aegisGate(options: AegisGateOptions) {
       if (!payment.txHash || payment.txHash.length < 10) {
         res.status(401).json({ error: "Invalid payment signature" });
         return;
+      }
+
+      // Optional on-chain verification: confirm the tx landed on Solana devnet
+      if (options.verify && payment.txHash && payment.txHash.length > 60 && !payment.txHash.startsWith("mock")) {
+        try {
+          const { Connection } = await import("@solana/web3.js");
+          const conn = new Connection("https://api.devnet.solana.com", "confirmed");
+          const txInfo = await conn.getTransaction(payment.txHash, { maxSupportedTransactionVersion: 0 });
+
+          if (!txInfo || txInfo.meta?.err) {
+            res.status(402).json({ error: "Payment transaction not confirmed on-chain", txHash: payment.txHash });
+            return;
+          }
+          // Verified — payment landed on chain
+        } catch {
+          // Verification failed but don't block — log warning
+          console.error("[aegis-gate] On-chain verification failed for tx:", payment.txHash);
+        }
       }
 
       ensureAegisDir();

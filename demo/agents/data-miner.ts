@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const app = express();
 
-app.get("/scrape", aegisGate({ price: "0.01", token: "USDC", agentId: "data-miner", walletAddress: "0x6344D6E94BbeBB612bA5eC55f3125Bf7a0B8666F", network: "eip155:8453" }), (req, res) => {
+app.get("/scrape", aegisGate({ price: "0.01", token: "USDC", agentId: "data-miner", walletAddress: "0x6344D6E94BbeBB612bA5eC55f3125Bf7a0B8666F", network: "eip155:8453", verify: true }), (req, res) => {
   const url = req.query.url as string ?? "https://example.com";
   res.json({
     agent: "data-miner",

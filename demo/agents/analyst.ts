@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const app = express();
 
-app.get("/analyze", aegisGate({ price: "0.05", token: "USDC", agentId: "analyst", walletAddress: "0x4ef5aaef757B4180512a52A17023E3471BA3e361", network: "eip155:8453" }), async (req, res) => {
+app.get("/analyze", aegisGate({ price: "0.05", token: "USDC", agentId: "analyst", walletAddress: "0x4ef5aaef757B4180512a52A17023E3471BA3e361", network: "eip155:8453", verify: true }), async (req, res) => {
   const topic = req.query.topic as string ?? "DeFi trends";
 
   // Buy raw data from data-miner

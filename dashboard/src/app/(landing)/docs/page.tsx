@@ -84,6 +84,9 @@ function TableOfContents() {
     { id: "economy-analytics", label: "Economy Analytics" },
     { id: "multi-chain", label: "Multi-Chain Support" },
     { id: "api-features", label: "API Features" },
+    { id: "agent-reputation", label: "Agent Reputation" },
+    { id: "agent-templates", label: "Agent Templates" },
+    { id: "fleet-manager", label: "Fleet Manager" },
   ];
 
   return (
@@ -1277,6 +1280,151 @@ aegisGate({
               </p>
             </div>
           </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Agent Reputation */}
+        <SectionAnchor id="agent-reputation">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Agent Reputation</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Every agent in Aegis carries a 0–100 reputation score that reflects its trustworthiness as an economic actor. The score is computed continuously from payment history, policy compliance, and on-chain receipt verification.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">Reputation Levels</h3>
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-sm border border-white/[0.06] rounded-xl overflow-hidden">
+              <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3 text-left">Level</th>
+                  <th className="px-4 py-3 text-left">Score Range</th>
+                  <th className="px-4 py-3 text-left">Description</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">New</td><td className="px-4 py-2">0 – 24</td><td className="px-4 py-2">Agent has no or minimal payment history</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-sky-400">Trusted</td><td className="px-4 py-2">25 – 49</td><td className="px-4 py-2">Consistent payment record with few policy violations</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-emerald-400">Verified</td><td className="px-4 py-2">50 – 74</td><td className="px-4 py-2">Strong history with on-chain receipt verification</td></tr>
+                <tr><td className="px-4 py-2 font-semibold text-violet-400">Elite</td><td className="px-4 py-2">75 – 100</td><td className="px-4 py-2">Exemplary record — high volume, zero violations, anchored proofs</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">What Affects the Score</h3>
+          <div className="grid gap-3 sm:grid-cols-2 mb-6">
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4">
+              <h4 className="font-semibold text-sm text-emerald-400 mb-2">Score Increases</h4>
+              <ul className="space-y-1.5 text-xs text-muted-foreground">
+                <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">+</span>Successful x402 payments sent or received</li>
+                <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">+</span>On-chain receipts anchored to Solana</li>
+                <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">+</span>Consistent policy compliance over time</li>
+                <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">+</span>High transaction volume and net positive P&amp;L</li>
+              </ul>
+            </div>
+            <div className="rounded-xl border border-red-500/20 bg-red-500/[0.03] p-4">
+              <h4 className="font-semibold text-sm text-red-400 mb-2">Score Decreases</h4>
+              <ul className="space-y-1.5 text-xs text-muted-foreground">
+                <li className="flex items-start gap-2"><span className="text-red-400 mt-0.5">−</span>Policy violations (budget exceeded, guard blocked)</li>
+                <li className="flex items-start gap-2"><span className="text-red-400 mt-0.5">−</span>Extended inactivity triggering the deadswitch</li>
+                <li className="flex items-start gap-2"><span className="text-red-400 mt-0.5">−</span>Failed or rejected payment attempts</li>
+                <li className="flex items-start gap-2"><span className="text-red-400 mt-0.5">−</span>Unanchored receipts (payments not verified on-chain)</li>
+              </ul>
+            </div>
+          </div>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">Where It Appears</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Reputation scores are visible in the P&amp;L table on the Economy Overview page and on each agent&apos;s detail page. The score is displayed as a badge (0–100) alongside the level label. Fleet Manager also shows average reputation across all agents as a fleet-wide metric.
+          </p>
+          <p className="text-muted-foreground text-sm">
+            Agents can leverage reputation externally: a Gate server can choose to accept lower-cost payments from Elite agents, or require a minimum score before serving premium endpoints. The score is a signal your services can act on.
+          </p>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Agent Templates */}
+        <SectionAnchor id="agent-templates">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Agent Templates</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            The Agents page includes four pre-built agent configurations you can deploy with one click. Each template creates an OWS wallet, sets a suggested Gate price, and pre-fills the configuration so you can start earning immediately.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">Built-in Templates</h3>
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-sm border border-white/[0.06] rounded-xl overflow-hidden">
+              <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3 text-left">Template</th>
+                  <th className="px-4 py-3 text-left">Price / Call</th>
+                  <th className="px-4 py-3 text-left">Description</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">Data Scraper</td><td className="px-4 py-2 font-mono text-xs text-emerald-400">$0.001</td><td className="px-4 py-2">Fetches and structures web content for downstream agents</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">AI Analyzer</td><td className="px-4 py-2 font-mono text-xs text-emerald-400">$0.005</td><td className="px-4 py-2">Runs inference over data and returns structured insights</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="px-4 py-2 font-semibold text-foreground">Data Aggregator</td><td className="px-4 py-2 font-mono text-xs text-emerald-400">$0.010</td><td className="px-4 py-2">Combines multiple sources into a unified report</td></tr>
+                <tr><td className="px-4 py-2 font-semibold text-foreground">Chain Monitor</td><td className="px-4 py-2 font-mono text-xs text-emerald-400">$0.002</td><td className="px-4 py-2">Watches on-chain events and alerts when conditions are met</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">One-Click Deploy</h3>
+          <div className="space-y-4 mb-6">
+            <StepCard number="1" title="Open the Agents page" description="Navigate to /dashboard/agents and click 'Add New Agent'." />
+            <StepCard number="2" title="Select a template" description="Choose one of the four built-in templates from the template picker." />
+            <StepCard number="3" title="Name your agent" description="Give it a unique wallet name — this becomes the OWS wallet identifier." />
+            <StepCard number="4" title="Deploy" description="Click Deploy. An OWS wallet is created, the suggested Gate config is shown, and the agent appears in the fleet." />
+          </div>
+
+          <p className="text-muted-foreground text-sm">
+            Each deployed agent starts with a New reputation score (0) that grows as it transacts. Templates are starting points — you can adjust Gate pricing and policies at any time from the Policy Control Center.
+          </p>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Fleet Manager */}
+        <SectionAnchor id="fleet-manager">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Fleet Manager</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Fleet Manager is a dashboard section that gives operators a single-pane view of every agent in their fleet. Instead of drilling into individual agent pages, you see the whole picture at once — who is running, who is spending, and how the fleet is performing as a unit.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">Fleet-Wide Stats</h3>
+          <div className="grid gap-3 sm:grid-cols-2 mb-6">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <h4 className="font-semibold text-sm">Total Revenue</h4>
+              <p className="text-xs text-muted-foreground mt-1">Sum of all earnings across every agent in the fleet.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <h4 className="font-semibold text-sm">Total Spending</h4>
+              <p className="text-xs text-muted-foreground mt-1">Aggregate spend across all agents — useful for budget planning.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <h4 className="font-semibold text-sm">Net P&amp;L</h4>
+              <p className="text-xs text-muted-foreground mt-1">Fleet-wide profit and loss: total revenue minus total spending.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <h4 className="font-semibold text-sm">Avg Reputation</h4>
+              <p className="text-xs text-muted-foreground mt-1">Mean reputation score across all agents, showing overall fleet trustworthiness.</p>
+            </div>
+          </div>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">Per-Agent Status Rows</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Below the fleet stats, each agent gets a compact status row showing:
+          </p>
+          <ul className="space-y-2 text-sm text-muted-foreground mb-6">
+            <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 mt-1.5 shrink-0" />Live / Idle indicator based on recent transaction activity</li>
+            <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 mt-1.5 shrink-0" />Individual revenue and spending figures</li>
+            <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 mt-1.5 shrink-0" />Reputation score badge with level label</li>
+            <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 mt-1.5 shrink-0" />Mini budget bar showing consumption against the configured limit</li>
+          </ul>
+
+          <p className="text-muted-foreground text-sm">
+            Fleet Manager is available in the Aegis Nexus dashboard and updates automatically as new transactions arrive. It is especially useful when operating many agents simultaneously — you can spot an agent approaching its budget limit or one that has gone idle without opening its detail page.
+          </p>
         </SectionAnchor>
 
         {/* Footer */}

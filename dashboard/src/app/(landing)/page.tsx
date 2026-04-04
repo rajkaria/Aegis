@@ -124,7 +124,7 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">Everything You Need for Agent Economies</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Aegis is the missing layer between OWS wallets and a functioning economy. It handles monetization, governance, discovery, and visibility — so you focus on your agents.
+              Aegis is the missing layer between OWS wallets and a functioning economy. It handles monetization, governance, discovery, visibility, reputation, and fleet management — so you focus on your agents.
             </p>
           </div>
 
@@ -175,13 +175,13 @@ export default function LandingPage() {
             />
             <FeatureCard
               icon={<svg className="w-6 h-6 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>}
-              title="Autonomous Agents"
-              description="Agents that make their own decisions. They check budgets, discover services, evaluate prices, and decide to buy or skip — with no human in the loop."
+              title="Deploy Autonomous Agents"
+              description="Agents build trust through a reputation system. Successful payments increase scores, policy violations decrease them. Ranked from New to Elite."
               details={[
-                "Continuous decision loop with budget awareness",
-                "Random cost optimization (agents learn to be frugal)",
-                "Self-termination when budget is exhausted",
-                "Full audit trail of every decision in the dashboard",
+                "0-100 reputation score per agent",
+                "Levels: New → Trusted → Verified → Elite",
+                "Based on payment history and policy compliance",
+                "Fleet manager shows all agents at a glance",
               ]}
             />
             <FeatureCard
@@ -228,6 +228,7 @@ export default function LandingPage() {
                 <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">✓</span> Real-time dashboard with money flow + P&L</li>
                 <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">✓</span> XMTP discovery + HTTP registry for agent-to-agent</li>
                 <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">✓</span> On-chain receipts anchored to Solana</li>
+                <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">✓</span> Agent reputation scores + fleet-wide monitoring</li>
               </ul>
             </div>
           </div>

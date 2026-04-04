@@ -29,6 +29,8 @@ OWS ships a powerful wallet primitive: signing, key management, and a policy hoo
 
 **XMTP Discovery** — Agents announce and discover each other's services via wallet-to-wallet messaging before paying. The research-buyer finds the analyst through XMTP, negotiates, then pays via x402. Nobody else combines messaging + payments.
 
+**Agent Reputation** — Trust scores computed from payment history, policy compliance, and on-chain receipts. Agents are ranked New → Trusted → Verified → Elite.
+
 The key insight: agents are simultaneously **buyers and sellers**. An analyst agent pays a data-miner for scraped data, then charges a research-buyer for the analysis. Aegis makes this supply chain visible and safe.
 
 ---
@@ -379,6 +381,16 @@ All packages are TypeScript-first. Shared types (including `PolicyContext` and `
 
 ---
 
+## Agent Templates
+
+Deploy pre-configured agents with one click. Four built-in templates: Data Scraper ($0.001/call), AI Analyzer ($0.005/call), Data Aggregator ($0.01/call), and Chain Monitor ($0.002/call). Each creates an OWS wallet and suggests a Gate configuration.
+
+## Fleet Manager
+
+Monitor all agents from one dashboard card. See fleet-wide revenue, spending, net P&L, and average reputation score. Per-agent status rows show live/idle indicators with mini budget consumption bars.
+
+---
+
 ## Why Aegis
 
 **Spans three tracks.** Most submissions pick one. Aegis covers API monetization (Gate), spend governance (Policies), and multi-agent coordination (Nexus) as a unified protocol — not bolted-together features.
@@ -390,6 +402,8 @@ All packages are TypeScript-first. Shared types (including `PolicyContext` and `
 **Extends OWS natively.** The policy executables use the exact stdin/stdout interface OWS defines as its extension point. Gate uses OWS's signing enclave for every payment. Nothing bypasses the standard.
 
 **Uses partner tools.** Zerion for multi-chain wallet balances, MoonPay for agent on-ramp, XMTP for wallet-to-wallet service discovery. Each integration signals "this builder read the brief."
+
+**Agent reputation.** Trust scores mean agents can prefer high-reputation services. No other OWS project has a trust layer.
 
 **The Sankey is the pitch.** Watching money flow from research-buyer through analyst to data-miner — all governed by policies, all visible in one dashboard — makes the agent economy legible in a way no amount of text can.
 

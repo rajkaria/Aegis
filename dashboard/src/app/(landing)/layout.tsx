@@ -45,6 +45,12 @@ function LandingNav() {
             Use Aegis
           </Link>
           <Link
+            href="/roadmap"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Roadmap
+          </Link>
+          <Link
             href="/dashboard"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >

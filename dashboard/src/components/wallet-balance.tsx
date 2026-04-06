@@ -18,6 +18,7 @@ const CHAIN_COLORS: Record<string, string> = {
   Ethereum: "bg-violet-500",
   Solana: "bg-gradient-to-r from-purple-500 to-green-400",
   "XRP Ledger": "bg-gray-400",
+  Stellar: "bg-gradient-to-r from-blue-400 to-purple-400",
   Polygon: "bg-purple-600",
   Arbitrum: "bg-blue-600",
 };
@@ -27,6 +28,7 @@ const SOURCE_LABELS: Record<string, string> = {
   "xrpl-rpc": "XRPL RPC",
   zerion: "Zerion API",
   uniblock: "Uniblock",
+  "stellar-horizon": "Stellar Horizon",
   fallback: "Cached",
 };
 

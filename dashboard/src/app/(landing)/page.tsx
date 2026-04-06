@@ -335,7 +335,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-10">Integrated Partners</h2>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            {["Solana", "Ripple XRPL", "Zerion", "Uniblock", "Allium", "MoonPay", "XMTP", "OWS"].map(name => (
+            {["Solana", "Stellar", "Ripple XRPL", "Zerion", "Uniblock", "Allium", "MoonPay", "XMTP", "OWS"].map(name => (
               <span key={name} className="px-5 py-2.5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm text-sm font-medium text-foreground/80">{name}</span>
             ))}
           </div>

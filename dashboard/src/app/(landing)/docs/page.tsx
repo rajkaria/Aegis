@@ -595,7 +595,7 @@ npx tsx run-economy.ts # Start all 3 agents + run transactions`}</CodeBlock>
         <SectionAnchor id="integrations">
           <h2 className="text-2xl font-bold tracking-tight mb-4">Integrations</h2>
           <p className="text-muted-foreground leading-relaxed mb-6">
-            Aegis integrates with 8 partner tools to provide real on-chain data, cross-chain balances, transaction verification, on-chain payments, and agent funding.
+            Aegis integrates with 9 partner tools to provide real on-chain data, cross-chain balances, transaction verification, on-chain payments, and agent funding.
           </p>
           <div className="grid gap-3">
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
@@ -613,6 +613,14 @@ npx tsx run-economy.ts # Start all 3 agents + run transactions`}</CodeBlock>
                 <Badge variant="outline" className="text-[9px] ml-auto">No API key</Badge>
               </div>
               <p className="text-sm text-muted-foreground">Real XRP Ledger balance queries via WebSocket RPC. Fetches XRP balances and trust line tokens directly from the validated ledger. No API key needed.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h4 className="font-semibold">Stellar</h4>
+                <Badge variant="outline" className="text-[9px] ml-auto">No API key</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">Direct Stellar Horizon API queries for XLM and token balances on testnet and mainnet. Transaction verification via the Horizon transaction endpoint. Free Friendbot testnet funding.</p>
             </div>
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
               <div className="flex items-center gap-2 mb-2">

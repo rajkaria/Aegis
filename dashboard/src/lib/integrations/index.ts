@@ -5,6 +5,7 @@ export * from "./zerion";
 export * from "./uniblock";
 export * from "./allium";
 export * from "./moonpay";
+export * from "./stellar";
 
 // Convenience: aggregate balances from all available sources
 import { getSolanaBalances } from "./solana";
@@ -12,12 +13,14 @@ import { getXrpBalances } from "./ripple";
 import { getZerionPortfolio } from "./zerion";
 import { getEvmBalances } from "./uniblock";
 import { getAlliumBalances } from "./allium";
+import { getStellarBalances } from "./stellar";
 import type { ChainBalance } from "./types";
 
 export async function getAllBalances(addresses: {
   solana?: string;
   xrp?: string;
   evm?: string;
+  stellar?: string;
 }): Promise<ChainBalance[]> {
   const results: ChainBalance[] = [];
 
@@ -31,6 +34,7 @@ export async function getAllBalances(addresses: {
     queries.push(getEvmBalances(addresses.evm));
     queries.push(getAlliumBalances(addresses.evm, "eip155:1"));
   }
+  if (addresses.stellar) queries.push(getStellarBalances(addresses.stellar));
 
   const allResults = await Promise.allSettled(queries);
 

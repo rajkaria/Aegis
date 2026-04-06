@@ -40,5 +40,18 @@ export async function verifySettlement(txHash: string, network: string): Promise
     } catch { return null; }
   }
 
+  // Stellar verification
+  if (network.includes("stellar")) {
+    try {
+      const horizonUrl = network.includes("testnet")
+        ? "https://horizon-testnet.stellar.org"
+        : "https://horizon.stellar.org";
+      const response = await fetch(`${horizonUrl}/transactions/${txHash}`);
+      if (!response.ok) return response.status === 404 ? false : null;
+      const data = await response.json() as { successful?: boolean };
+      return data.successful === true;
+    } catch { return null; }
+  }
+
   return null;
 }

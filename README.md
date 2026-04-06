@@ -336,7 +336,7 @@ Everything the CLI does, available from the browser. On Vercel, wallet operation
 ## Security
 
 - **EIP-712 Signature Verification** — Payment authorizations use typed data signatures. Gate recovers the signer's address and verifies it matches the sender's OWS wallet.
-- **Chain-Agnostic Settlement** — On-chain verification supports Solana (devnet + mainnet) and EVM chains (Ethereum, Base, Polygon, Arbitrum).
+- **Chain-Agnostic Settlement** — On-chain verification supports Solana (devnet + mainnet), EVM chains (Ethereum, Base, Polygon, Arbitrum), and Stellar (testnet + pubnet).
 - **Replay Protection** — Deadlines and nonces in payment proofs prevent replay attacks.
 - **Rate Limiting** — 402 responses are rate-limited (100/min per IP) to prevent spam.
 - **File Locking** — Concurrent policy execution is safe via exclusive file locks with stale detection.
@@ -401,7 +401,7 @@ Monitor all agents from one dashboard card. See fleet-wide revenue, spending, ne
 
 **Extends OWS natively.** The policy executables use the exact stdin/stdout interface OWS defines as its extension point. Gate uses OWS's signing enclave for every payment. Nothing bypasses the standard.
 
-**Uses partner tools.** Zerion for multi-chain wallet balances, MoonPay for agent on-ramp, XMTP for wallet-to-wallet service discovery. Each integration signals "this builder read the brief."
+**Uses partner tools.** Zerion for multi-chain wallet balances, Stellar Horizon for XLM balances and tx verification, MoonPay for agent on-ramp, XMTP for wallet-to-wallet service discovery. Each integration signals "this builder read the brief."
 
 **Agent reputation.** Trust scores mean agents can prefer high-reputation services. No other OWS project has a trust layer.
 

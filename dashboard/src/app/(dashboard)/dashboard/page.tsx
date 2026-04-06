@@ -210,6 +210,7 @@ export default function EconomyPage() {
             { name: "Solana", active: true },
             { name: "Ethereum", active: true },
             { name: "Base", active: true },
+            { name: "Stellar", active: true },
             { name: "Bitcoin", active: false },
             { name: "Cosmos", active: false },
             { name: "Tron", active: false },
@@ -240,6 +241,7 @@ export default function EconomyPage() {
             { name: "Zerion", desc: "EVM portfolio data", active: !!process.env.ZERION_API_KEY },
             { name: "Uniblock", desc: "Multi-chain token balances", active: !!process.env.UNIBLOCK_API_KEY },
             { name: "Allium", desc: "On-chain tx verification", active: !!process.env.ALLIUM_API_KEY },
+            { name: "Stellar Horizon", desc: "XLM + token balances", active: true },
             { name: "MoonPay", desc: "Fiat on-ramp funding", active: true },
           ].map((src) => (
             <div

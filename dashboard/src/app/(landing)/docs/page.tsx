@@ -74,6 +74,11 @@ function TableOfContents() {
     { id: "reputation-gossip", label: "  Reputation Gossip" },
     { id: "sla-agreements", label: "  SLA Agreements" },
     { id: "supply-chain-groups", label: "  Supply Chain Groups" },
+    { id: "agent-identity", label: "  Agent Identity & Business Cards" },
+    { id: "dispute-resolution", label: "  Dispute Resolution" },
+    { id: "xmtp-directory", label: "  Agent Directory" },
+    { id: "xmtp-notifications", label: "  XMTP Notifications" },
+    { id: "xmtp-transport", label: "  Real vs File Transport" },
     { id: "cli-tools", label: "CLI Tools" },
     { id: "demo", label: "Live Demo" },
     { id: "integrations", label: "Integrations" },
@@ -511,7 +516,7 @@ const result = await payAndFetch("http://service/api/scrape", "buyer-agent");
         <SectionAnchor id="agent-discovery">
           <h2 className="text-2xl font-bold tracking-tight mb-4">Agent Communication Protocol</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            Aegis includes a full XMTP-powered agent communication protocol with 8 message types for complete agent-to-agent commerce. The protocol works locally via a file-based message bus and over the real XMTP network when configured.
+            Aegis includes a full XMTP-powered agent communication protocol with 12 message types for complete agent-to-agent commerce. The protocol works locally via a file-based message bus (default) and over the real XMTP network when <code className="text-xs bg-white/10 px-1.5 py-0.5 rounded">XMTP_ENV</code> and <code className="text-xs bg-white/10 px-1.5 py-0.5 rounded">XMTP_WALLET_KEY</code> are set.
           </p>
 
           <div className="overflow-x-auto mb-6">
@@ -530,7 +535,10 @@ const result = await payAndFetch("http://service/api/scrape", "buyer-agent");
                 <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">payment_receipt</td><td className="py-2">Signed proof of payment delivery</td></tr>
                 <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">reputation_gossip</td><td className="py-2">Trust observations shared between agents</td></tr>
                 <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">sla_agreement</td><td className="py-2">Formal service terms</td></tr>
-                <tr><td className="py-2 pr-4 font-mono text-xs text-emerald-400">supply_chain_invite</td><td className="py-2">Multi-agent coordination groups</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">supply_chain_invite</td><td className="py-2">Multi-agent coordination groups</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">business_card</td><td className="py-2">Agent economic identity broadcast</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">dispute/dispute_response</td><td className="py-2">Dispute resolution for failed services</td></tr>
+                <tr><td className="py-2 pr-4 font-mono text-xs text-emerald-400">xmtp_notification</td><td className="py-2">Policy alerts and budget warnings via messaging</td></tr>
               </tbody>
             </table>
           </div>
@@ -673,6 +681,106 @@ const chainId = createSupplyChain({
   },
   description: "DeFi research supply chain",
 });`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="agent-identity">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Agent Identity &amp; Business Cards</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Every Aegis agent gets a full economic identity — services offered, reputation score, P&amp;L stats, and wallet addresses. Agents broadcast their identity as a business card over the message bus so other agents can evaluate them before transacting.
+          </p>
+          <CodeBlock title="Build and broadcast identity">{`import { buildAgentIdentity, createBusinessCard } from "aegis-ows-gate";
+
+// Build a full identity profile
+const identity = buildAgentIdentity("analyst", {
+  "eip155:1": "0x4ef5...",
+  "solana:mainnet": "CePy...",
+});
+// → { agentId, services, reputation, stats, walletAddresses, ... }
+
+// Broadcast as a business card
+const card = createBusinessCard("analyst");`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="dispute-resolution">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Dispute Resolution</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            When a service fails after payment, the buyer can open a dispute. The defendant can accept (and issue a refund) or reject. Disputes are visible in the dashboard and discovery feed.
+          </p>
+          <CodeBlock title="Open and respond to disputes">{`import { openDispute, respondToDispute } from "aegis-ows-gate";
+
+// Buyer opens a dispute
+const disputeId = openDispute({
+  complainantId: "research-buyer",
+  defendantId: "analyst",
+  reason: "Timeout after payment",
+  evidence: "Paid 0.005 SOL but got no response within SLA",
+  requestedResolution: "refund",
+});
+
+// Seller responds
+respondToDispute({
+  disputeId,
+  defendantId: "analyst",
+  complainantId: "research-buyer",
+  accepted: true,
+  resolution: "Refund issued — downstream service was overloaded",
+});`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="xmtp-directory">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Agent Directory</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            The in-memory agent directory allows agents to register and be discovered by service type, name, or capability. Directory entries include full identity profiles and are sorted by reputation score.
+          </p>
+          <CodeBlock title="Directory registration and search">{`import { registerInDirectory, searchDirectory, listDirectory } from "aegis-ows-gate";
+
+// Register an agent in the directory
+registerInDirectory("analyst", { "eip155:1": "0x4ef5..." });
+
+// Search for services
+const results = searchDirectory("analysis");
+// → sorted by reputation score
+
+// List all registered agents
+const all = listDirectory();`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="xmtp-notifications">
+          <h3 className="text-lg font-semibold mt-8 mb-3">XMTP Notifications</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Policy blocks, budget alerts, and deadswitch warnings are sent as structured XMTP notifications. Operators can monitor agent health through the message bus.
+          </p>
+          <CodeBlock title="Policy and budget notifications">{`import {
+  notifyPolicyBlock,
+  notifyBudgetAlert,
+  notifyDeadswitchWarning,
+} from "aegis-ows-gate";
+
+// Alert when a policy blocks a transaction
+notifyPolicyBlock("analyst", "operator", "aegis-budget", "Daily limit exceeded");
+
+// Budget usage warning
+notifyBudgetAlert("analyst", "operator", 92, "1.00");
+
+// Deadswitch countdown
+notifyDeadswitchWarning("analyst", "operator", 5);`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="xmtp-transport">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Real vs File-based Transport</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            The XMTP transport layer automatically selects the best transport. When <code className="text-xs bg-white/10 px-1.5 py-0.5 rounded">XMTP_ENV</code> and <code className="text-xs bg-white/10 px-1.5 py-0.5 rounded">XMTP_WALLET_KEY</code> are set, messages are sent over the real XMTP network. Otherwise, everything works locally via the file-based message bus at <code className="text-xs bg-white/10 px-1.5 py-0.5 rounded">~/.ows/aegis/messages.json</code>. All messages are always written to the file bus for dashboard visibility.
+          </p>
+          <CodeBlock title="Transport layer">{`import { getTransport, isXMTPLive, getXMTPAddress } from "aegis-ows-gate";
+
+// Get the active transport (auto-selects real XMTP or file bus)
+const transport = await getTransport();
+
+// Check if real XMTP is connected
+console.log(isXMTPLive()); // true if XMTP_ENV + XMTP_WALLET_KEY are set
+
+// Get the agent's XMTP address (if connected)
+console.log(getXMTPAddress()); // "0x..." or null`}</CodeBlock>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />

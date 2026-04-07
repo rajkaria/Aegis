@@ -329,7 +329,86 @@ postMessage({
   description: "DeFi research supply chain — scrape, analyze, consume",
 });
 
-console.log("Seeded 18 XMTP message bus entries (full protocol: announcements, discovery, negotiation, health, receipts, reputation, SLA, supply chain)");
+// 6h. Business cards
+postMessage({
+  type: "business_card",
+  agentId: "analyst",
+  timestamp: new Date(baseTime - 1500000).toISOString(),
+  services: [
+    { endpoint: "/analyze", price: "0.05", token: "USDC", description: "AI-powered market analysis" },
+  ],
+  reputation: { score: 72, level: "verified", totalTransactions: 9 },
+  walletAddresses: {
+    "eip155:1": "0x4ef5aaef757B4180512a52A17023E3471BA3e361",
+    "solana:mainnet": "CePyeKXCtB6RzAatosDnnun3yryUzETKXA5rNEjPeSkL",
+  },
+  stats: { totalRevenue: 0.015, totalSpending: 0.003, profitLoss: 0.012 },
+} as unknown as import("@aegis-ows/shared").AgentMessage);
+
+postMessage({
+  type: "business_card",
+  agentId: "data-miner",
+  timestamp: new Date(baseTime - 1400000).toISOString(),
+  services: [
+    { endpoint: "/scrape", price: "0.01", token: "USDC", description: "Web scraping and parsing" },
+  ],
+  reputation: { score: 65, level: "verified", totalTransactions: 6 },
+  walletAddresses: {
+    "eip155:1": "0x6344D6E94BbeBB612bA5eC55f3125Bf7a0B8666F",
+    "solana:mainnet": "2G55SdspdgSLcrXm3ZcfSHuDhvuhXtQLWqf1zVbAYCcq",
+  },
+  stats: { totalRevenue: 0.003, totalSpending: 0, profitLoss: 0.003 },
+} as unknown as import("@aegis-ows/shared").AgentMessage);
+
+// 6i. Dispute (open) + dispute response (accepted)
+postMessage({
+  type: "dispute",
+  disputeId: "dispute-demo-001",
+  agentId: "research-buyer",
+  timestamp: new Date(baseTime - 1300000).toISOString(),
+  againstAgent: "analyst",
+  txHash: cycles[2].buyerToAnalystTx,
+  reason: "Timeout after payment — no response within SLA window",
+  evidence: "Paid 0.005 SOL for /analyze but received timeout after 8 seconds (SLA: 5000ms)",
+  requestedResolution: "refund",
+  status: "open",
+} as unknown as import("@aegis-ows/shared").AgentMessage);
+
+postMessage({
+  type: "dispute_response",
+  disputeId: "dispute-demo-001",
+  agentId: "analyst",
+  timestamp: new Date(baseTime - 1200000).toISOString(),
+  toAgent: "research-buyer",
+  accepted: true,
+  resolution: "Refund issued — downstream data-miner was temporarily overloaded",
+  refundTxHash: "mock-refund-tx-demo-001",
+} as unknown as import("@aegis-ows/shared").AgentMessage);
+
+// 6j. XMTP notifications (policy block + budget alert)
+postMessage({
+  type: "xmtp_notification",
+  agentId: "aegis-budget",
+  timestamp: new Date(baseTime - 1100000).toISOString(),
+  toAgent: "research-buyer",
+  severity: "warning",
+  title: "Policy Block: aegis-budget",
+  message: "Agent research-buyer was blocked by aegis-budget: Daily USDC limit on eip155:8453 exceeded",
+  metadata: { policy: "aegis-budget" },
+} as unknown as import("@aegis-ows/shared").AgentMessage);
+
+postMessage({
+  type: "xmtp_notification",
+  agentId: "aegis-budget",
+  timestamp: new Date(baseTime - 1000000).toISOString(),
+  toAgent: "analyst",
+  severity: "critical",
+  title: "Budget Alert: 92% used",
+  message: "Agent analyst has used 92% of daily budget (limit: $1.00)",
+  metadata: { usage: "92", limit: "1.00" },
+} as unknown as import("@aegis-ows/shared").AgentMessage);
+
+console.log("Seeded 26 XMTP message bus entries (full protocol: announcements, discovery, negotiation, health, receipts, reputation, SLA, supply chain, business cards, disputes, notifications)");
 
 // 7. Seed OWS wallet address info for dashboard display
 postMessage({

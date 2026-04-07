@@ -27,7 +27,7 @@ OWS ships a powerful wallet primitive: signing, key management, and a policy hoo
 
 **Aegis Nexus** — Real-time dashboard showing the full money flow between agents: Sankey diagrams of payment routing, per-agent P&L, policy enforcement history, and budget status.
 
-**XMTP Agent Protocol** — 8 message types for full agent-to-agent commerce over XMTP wallet-to-wallet messaging. Discovery, negotiation, health checks, payment receipts, reputation gossip, SLA agreements, and supply chain coordination. Works locally via file bus and over the real XMTP network.
+**XMTP Agent Protocol** — 12 message types for full agent-to-agent commerce over XMTP wallet-to-wallet messaging. Discovery, negotiation, health checks, payment receipts, reputation gossip, SLA agreements, supply chain coordination, agent identity cards, dispute resolution, and policy notifications. Works locally via file bus and over the real XMTP network when `XMTP_ENV` and `XMTP_WALLET_KEY` are set.
 
 **Agent Reputation** — Trust scores computed from payment history, policy compliance, on-chain receipts, and peer gossip. Agents are ranked New → Trusted → Verified → Elite.
 
@@ -37,7 +37,7 @@ The key insight: agents are simultaneously **buyers and sellers**. An analyst ag
 
 ## XMTP Agent Protocol
 
-8 message types for full agent commerce:
+12 message types for full agent commerce:
 
 | Message | Purpose |
 |---------|---------|
@@ -49,8 +49,11 @@ The key insight: agents are simultaneously **buyers and sellers**. An analyst ag
 | `reputation_gossip` | Trust observations shared between agents |
 | `sla_agreement` | Formal service terms |
 | `supply_chain_invite` | Multi-agent coordination groups |
+| `business_card` | Agent economic identity broadcast |
+| `dispute/response` | Dispute resolution for failed services |
+| `xmtp_notification` | Policy alerts via messaging |
 
-The protocol is transport-agnostic: all 8 message types work locally via a file-based message bus (default) and over the real XMTP network when `XMTP_WALLET_KEY` is set.
+The protocol is transport-agnostic: all 12 message types work locally via a file-based message bus (default) and over the real XMTP network when `XMTP_ENV` and `XMTP_WALLET_KEY` are set.
 
 ```typescript
 import {
@@ -240,7 +243,7 @@ Aegis ships an MCP server so Claude Code, Cursor, and any MCP client can interac
 }
 ```
 
-Tools: `aegis_economy_status`, `aegis_check_budget`, `aegis_list_agents`, `aegis_policy_log`, `aegis_discover_services`, `aegis_send_payment`
+Tools: `aegis_economy_status`, `aegis_check_budget`, `aegis_list_agents`, `aegis_policy_log`, `aegis_discover_services`, `aegis_send_payment`, `aegis_economy_insights`, `aegis_agent_identity`, `aegis_open_dispute`, `aegis_search_directory`
 
 ---
 

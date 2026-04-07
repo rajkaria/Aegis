@@ -344,6 +344,143 @@ server.tool(
   }
 );
 
+// --- aegis_agent_identity ---
+server.tool(
+  "aegis_agent_identity",
+  "Get the full economic identity of an agent — services, reputation, P&L, wallet addresses",
+  {
+    agentId: z.string().describe("Agent ID"),
+  },
+  async ({ agentId }) => {
+    const profile = computeAgentProfile(agentId);
+    const earnings = readEarningsLedger();
+    const policyLog = readPolicyLog();
+
+    // Build services list
+    const serviceMap = new Map<string, { price: string; token: string; count: number }>();
+    for (const e of earnings.entries.filter(e => e.agentId === agentId)) {
+      if (!serviceMap.has(e.endpoint)) {
+        serviceMap.set(e.endpoint, { price: e.amount, token: e.token, count: 0 });
+      }
+      serviceMap.get(e.endpoint)!.count++;
+    }
+
+    const services = Array.from(serviceMap.entries())
+      .map(([ep, d]) => `  ${ep}: ${d.price} ${d.token} (${d.count} calls)`)
+      .join("\n");
+
+    // Reputation
+    const ledger = readLedger();
+    const asBuyer = ledger.entries.filter(e => e.apiKeyId === agentId).length;
+    const asSeller = earnings.entries.filter(e => e.agentId === agentId).length;
+    const blocked = policyLog.entries.filter(e => e.apiKeyId === agentId && !e.allowed).length;
+    const total = asBuyer + asSeller + blocked;
+    let score = 0;
+    if (total > 0) {
+      score = 50 + Math.round(((asBuyer + asSeller) / Math.max(total, 1)) * 20) + Math.min(Math.round(((asBuyer + asSeller) / 10) * 15), 15) - Math.min(blocked * 10, 30);
+      score = Math.max(0, Math.min(100, score));
+    }
+    const level = score >= 85 ? "elite" : score >= 65 ? "verified" : score >= 40 ? "trusted" : "new";
+
+    // Wallets
+    const wallets = getOWSWallets();
+    const wallet = wallets.find(w => w.name === agentId || w.id === agentId);
+    const addrLines = wallet
+      ? Object.entries(wallet.addresses).map(([chain, addr]) => `  ${chain}: ${addr}`).join("\n")
+      : "  (no wallet found)";
+
+    return {
+      content: [{
+        type: "text" as const,
+        text: `Agent Identity: ${agentId}\n${"─".repeat(40)}\n\nReputation: ${score}/100 (${level}) | ${total} transactions | ${blocked} blocked\n\nP&L:\n  Revenue: $${profile.totalRevenue.toFixed(4)}\n  Spending: $${profile.totalSpending.toFixed(4)}\n  Net: ${profile.profitLoss >= 0 ? "+" : ""}$${profile.profitLoss.toFixed(4)}\n\nServices:\n${services || "  (none)"}\n\nWallet Addresses:\n${addrLines}`,
+      }],
+    };
+  }
+);
+
+// --- aegis_open_dispute ---
+server.tool(
+  "aegis_open_dispute",
+  "Open a dispute against an agent for failed service delivery",
+  {
+    complainantId: z.string().describe("Agent ID filing the dispute"),
+    againstAgent: z.string().describe("Agent ID being disputed"),
+    reason: z.string().describe("Reason for the dispute"),
+    evidence: z.string().describe("Description of what happened"),
+    txHash: z.string().optional().describe("Transaction hash related to the dispute"),
+  },
+  async ({ complainantId, againstAgent, reason, evidence, txHash }) => {
+    const disputeId = `dispute-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+
+    const messages = readMessages();
+    const msg = {
+      type: "dispute" as const,
+      disputeId,
+      agentId: complainantId,
+      timestamp: new Date().toISOString(),
+      againstAgent,
+      txHash,
+      reason,
+      evidence,
+      requestedResolution: "refund" as const,
+      status: "open" as const,
+    };
+
+    // Post to message bus (import postMessage dynamically to avoid circular deps)
+    const { postMessage } = await import("@aegis-ows/shared");
+    postMessage(msg as unknown as import("@aegis-ows/shared").AgentMessage);
+
+    return {
+      content: [{
+        type: "text" as const,
+        text: `Dispute opened: ${disputeId}\n\nComplainant: ${complainantId}\nAgainst: ${againstAgent}\nReason: ${reason}\nEvidence: ${evidence}${txHash ? `\nTx: ${txHash}` : ""}\n\nThe dispute has been posted to the XMTP message bus. The defendant can respond via the message bus.`,
+      }],
+    };
+  }
+);
+
+// --- aegis_search_directory ---
+server.tool(
+  "aegis_search_directory",
+  "Search the decentralized agent directory for services",
+  {
+    query: z.string().describe("Search query (e.g., 'scrape', 'analyze', agent name)"),
+  },
+  async ({ query }) => {
+    const messages = readMessages();
+    const q = query.toLowerCase();
+
+    // Search announcements for matching services
+    const results: Array<{ agentId: string; endpoint: string; price: string; token: string; description: string }> = [];
+    for (const msg of messages.messages) {
+      if (msg.type === "service_announcement") {
+        for (const svc of msg.services) {
+          if (svc.description.toLowerCase().includes(q) || svc.endpoint.toLowerCase().includes(q) || msg.agentId.toLowerCase().includes(q)) {
+            results.push({ agentId: msg.agentId, ...svc });
+          }
+        }
+      }
+    }
+
+    if (results.length === 0) {
+      return {
+        content: [{ type: "text" as const, text: `No agents or services found matching "${query}".` }],
+      };
+    }
+
+    const lines = results.map(r =>
+      `${r.agentId}\n  ${r.endpoint}: ${r.price} ${r.token}\n  ${r.description}`
+    );
+
+    return {
+      content: [{
+        type: "text" as const,
+        text: `Agent Directory — ${results.length} result(s) for "${query}":\n\n${lines.join("\n\n")}`,
+      }],
+    };
+  }
+);
+
 // --- Start the server ---
 async function main() {
   const transport = new StdioServerTransport();

@@ -475,6 +475,34 @@ export function getEconomyOverview() {
         agentId: msg.agentId,
         description: `${msg.agentId} created supply chain "${msg.description}" with ${msg.participants.length} agents`,
       });
+    } else if (msg.type === "business_card") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} broadcast identity card — ${msg.services.length} service(s), reputation ${msg.reputation.score}/100 (${msg.reputation.level})`,
+      });
+    } else if (msg.type === "dispute") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} opened dispute against ${msg.againstAgent}: ${msg.reason}`,
+      });
+    } else if (msg.type === "dispute_response") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} ${msg.accepted ? "accepted" : "rejected"} dispute ${msg.disputeId}${msg.resolution ? `: ${msg.resolution}` : ""}`,
+      });
+    } else if (msg.type === "xmtp_notification") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `[${msg.severity.toUpperCase()}] ${msg.title}: ${msg.message}`,
+      });
     }
   }
 
@@ -561,6 +589,34 @@ export function getEconomyOverview() {
         agentId: msg.agentId,
         timestamp: msg.timestamp,
         detail: `created supply chain "${msg.description}" with ${msg.participants.join(", ")}`,
+      });
+    } else if (msg.type === "business_card") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `broadcast identity — ${msg.services.length} service(s), reputation ${msg.reputation.score}/100 (${msg.reputation.level})`,
+      });
+    } else if (msg.type === "dispute") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `opened dispute against ${msg.againstAgent}: "${msg.reason}"`,
+      });
+    } else if (msg.type === "dispute_response") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `${msg.accepted ? "accepted" : "rejected"} dispute ${msg.disputeId}${msg.resolution ? ` — ${msg.resolution}` : ""}`,
+      });
+    } else if (msg.type === "xmtp_notification") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `[${msg.severity.toUpperCase()}] ${msg.title}`,
       });
     }
   }

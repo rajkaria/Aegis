@@ -129,6 +129,67 @@ export interface SupplyChainInvite {
   description: string;
 }
 
+// Business Card (Agent Identity)
+export interface AgentBusinessCardMessage {
+  type: "business_card";
+  agentId: string;
+  timestamp: string;
+  services: {
+    endpoint: string;
+    price: string;
+    token: string;
+    description: string;
+  }[];
+  reputation: {
+    score: number;
+    level: string;
+    totalTransactions: number;
+  };
+  walletAddresses: Record<string, string>;
+  stats: {
+    totalRevenue: number;
+    totalSpending: number;
+    profitLoss: number;
+  };
+}
+
+// Dispute Resolution
+export interface DisputeMessage {
+  type: "dispute";
+  agentId: string;        // complainant
+  timestamp: string;
+  disputeId: string;
+  againstAgent: string;   // defendant
+  txHash?: string;
+  reason: string;
+  evidence: string;
+  requestedResolution: "refund" | "retry" | "arbitration";
+  status: "open" | "resolved" | "escalated";
+}
+
+export interface DisputeResponseMessage {
+  type: "dispute_response";
+  agentId: string;        // defendant responding
+  timestamp: string;
+  disputeId: string;
+  toAgent: string;        // complainant
+  accepted: boolean;
+  resolution?: string;
+  refundTxHash?: string;
+}
+
+// XMTP Notifications
+export interface XMTPNotificationMessage {
+  type: "xmtp_notification";
+  agentId: string;
+  timestamp: string;
+  toAgent: string;
+  severity: "info" | "warning" | "critical";
+  title: string;
+  message: string;
+  metadata?: Record<string, string>;
+}
+
 export type AgentMessage =
   | ServiceAnnouncement
   | ServiceQuery
@@ -140,7 +201,11 @@ export type AgentMessage =
   | PaymentReceiptMessage
   | ReputationGossip
   | SLAAgreement
-  | SupplyChainInvite;
+  | SupplyChainInvite
+  | AgentBusinessCardMessage
+  | DisputeMessage
+  | DisputeResponseMessage
+  | XMTPNotificationMessage;
 
 export interface MessageBus {
   messages: AgentMessage[];

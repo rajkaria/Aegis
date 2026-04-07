@@ -50,6 +50,22 @@ const typeConfig = {
     label: "CHAIN",
     className: "bg-pink-500/20 text-pink-400 border border-pink-500/40",
   },
+  business_card: {
+    label: "IDENTITY",
+    className: "bg-sky-500/20 text-sky-400 border border-sky-500/40",
+  },
+  dispute: {
+    label: "DISPUTE",
+    className: "bg-red-500/20 text-red-400 border border-red-500/40",
+  },
+  dispute_response: {
+    label: "RESOLVED",
+    className: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40",
+  },
+  xmtp_notification: {
+    label: "ALERT",
+    className: "bg-red-500/20 text-red-400 border border-red-500/40",
+  },
 } as const;
 
 function getTypeConfig(type: string) {

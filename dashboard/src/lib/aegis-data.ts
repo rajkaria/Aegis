@@ -426,6 +426,55 @@ export function getEconomyOverview() {
         agentId: msg.agentId,
         description: `${msg.agentId} discovered services: "${msg.query}" via XMTP`,
       });
+    } else if (msg.type === "negotiation_offer") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} offered ${msg.offeredPrice} for ${msg.service} (listed at ${msg.originalPrice})`,
+      });
+    } else if (msg.type === "negotiation_response") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} ${msg.accepted ? "accepted" : "countered"} negotiation${msg.counterPrice ? ` at ${msg.counterPrice}` : ""}`,
+      });
+    } else if (msg.type === "health_ping" || msg.type === "health_pong") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} ${msg.type === "health_ping" ? "pinged" : "responded to"} ${msg.targetAgent}${msg.type === "health_pong" ? ` (${msg.status})` : ""}`,
+      });
+    } else if (msg.type === "payment_receipt") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} sent receipt to ${msg.toAgent} for ${msg.amount} ${msg.token}`,
+      });
+    } else if (msg.type === "reputation_gossip") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} rated ${msg.aboutAgent} as ${msg.rating}: ${msg.reason}`,
+      });
+    } else if (msg.type === "sla_agreement") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} ${msg.accepted ? "agreed" : "proposed"} SLA for ${msg.service} with ${msg.toAgent}`,
+      });
+    } else if (msg.type === "supply_chain_invite") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} created supply chain "${msg.description}" with ${msg.participants.length} agents`,
+      });
     }
   }
 
@@ -456,6 +505,62 @@ export function getEconomyOverview() {
         agentId: msg.agentId,
         timestamp: msg.timestamp,
         detail: `responded to ${msg.inResponseTo} with ${msg.matches.length} match(es)`,
+      });
+    } else if (msg.type === "negotiation_offer") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `offered ${msg.offeredPrice} for ${msg.service} (listed at ${msg.originalPrice})`,
+      });
+    } else if (msg.type === "negotiation_response") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `${msg.accepted ? "accepted" : "countered"} negotiation${msg.counterPrice ? ` at ${msg.counterPrice}` : ""}`,
+      });
+    } else if (msg.type === "health_ping") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `pinged ${msg.targetAgent}`,
+      });
+    } else if (msg.type === "health_pong") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `responded to ${msg.targetAgent} (${msg.status}${msg.queueDepth !== undefined ? `, queue: ${msg.queueDepth}` : ""})`,
+      });
+    } else if (msg.type === "payment_receipt") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `sent receipt to ${msg.toAgent} for ${msg.amount} ${msg.token} (${msg.service})`,
+      });
+    } else if (msg.type === "reputation_gossip") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `rated ${msg.aboutAgent} as ${msg.rating}: "${msg.reason}"`,
+      });
+    } else if (msg.type === "sla_agreement") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `${msg.accepted ? "agreed" : "proposed"} SLA for ${msg.service} (${msg.terms.maxResponseTimeMs}ms, ${msg.terms.minUptime}% uptime)`,
+      });
+    } else if (msg.type === "supply_chain_invite") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `created supply chain "${msg.description}" with ${msg.participants.join(", ")}`,
       });
     }
   }

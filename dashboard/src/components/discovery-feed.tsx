@@ -18,6 +18,38 @@ const typeConfig = {
     label: "RESPOND",
     className: "bg-violet-500/20 text-violet-400 border border-violet-500/40",
   },
+  negotiation_offer: {
+    label: "NEGOTIATE",
+    className: "bg-amber-500/20 text-amber-400 border border-amber-500/40",
+  },
+  negotiation_response: {
+    label: "COUNTER",
+    className: "bg-amber-500/20 text-amber-400 border border-amber-500/40",
+  },
+  health_ping: {
+    label: "PING",
+    className: "bg-sky-500/20 text-sky-400 border border-sky-500/40",
+  },
+  health_pong: {
+    label: "PONG",
+    className: "bg-sky-500/20 text-sky-400 border border-sky-500/40",
+  },
+  payment_receipt: {
+    label: "RECEIPT",
+    className: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40",
+  },
+  reputation_gossip: {
+    label: "GOSSIP",
+    className: "bg-orange-500/20 text-orange-400 border border-orange-500/40",
+  },
+  sla_agreement: {
+    label: "SLA",
+    className: "bg-violet-500/20 text-violet-400 border border-violet-500/40",
+  },
+  supply_chain_invite: {
+    label: "CHAIN",
+    className: "bg-pink-500/20 text-pink-400 border border-pink-500/40",
+  },
 } as const;
 
 function getTypeConfig(type: string) {

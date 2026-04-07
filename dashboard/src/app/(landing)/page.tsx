@@ -164,13 +164,13 @@ export default function LandingPage() {
             />
             <FeatureCard
               icon={<svg className="w-6 h-6 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>}
-              title="Agent Discovery"
-              description="Agents find each other through XMTP wallet-to-wallet messaging. No central directory — services are announced, discovered, and paid for peer-to-peer."
+              title="Agent Communication Protocol"
+              description="8 message types for agent-to-agent commerce. Discovery, negotiation, health checks, receipts, reputation, SLAs, and supply chain coordination — all over XMTP."
               details={[
-                "Announce services on startup automatically",
-                "Search by capability before purchasing",
-                "Cross-machine HTTP registry for distributed discovery",
-                "All discovery events visible in the dashboard",
+                "Discover services via keyword search",
+                "Negotiate prices before committing",
+                "Health ping/pong for availability",
+                "Reputation gossip for trust scoring",
               ]}
             />
             <FeatureCard

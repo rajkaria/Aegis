@@ -67,7 +67,13 @@ function TableOfContents() {
     { id: "autonomous-agents", label: "Autonomous Agents" },
     { id: "interactive-dashboard", label: "Interactive Dashboard" },
     { id: "x402-security", label: "x402 Payment Security" },
-    { id: "agent-discovery", label: "Agent Discovery" },
+    { id: "agent-discovery", label: "Agent Communication Protocol" },
+    { id: "price-negotiation", label: "  Price Negotiation" },
+    { id: "health-monitoring", label: "  Health Monitoring" },
+    { id: "payment-receipts-msg", label: "  Payment Receipts (Messaging)" },
+    { id: "reputation-gossip", label: "  Reputation Gossip" },
+    { id: "sla-agreements", label: "  SLA Agreements" },
+    { id: "supply-chain-groups", label: "  Supply Chain Groups" },
     { id: "cli-tools", label: "CLI Tools" },
     { id: "demo", label: "Live Demo" },
     { id: "integrations", label: "Integrations" },
@@ -503,20 +509,39 @@ const result = await payAndFetch("http://service/api/scrape", "buyer-agent");
 
         {/* Agent Discovery */}
         <SectionAnchor id="agent-discovery">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Agent Discovery</h2>
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Agent Communication Protocol</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            Before an agent can buy a service, it needs to find one. Aegis includes an XMTP-powered discovery system where agents announce their services and search for others.
+            Aegis includes a full XMTP-powered agent communication protocol with 8 message types for complete agent-to-agent commerce. The protocol works locally via a file-based message bus and over the real XMTP network when configured.
           </p>
 
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-left">
+                  <th className="py-2 pr-4 font-semibold">Message Type</th>
+                  <th className="py-2 pr-4 font-semibold">Purpose</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">service_announcement</td><td className="py-2">Agents publish available services</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">service_query</td><td className="py-2">Agents search for capabilities</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">negotiation_offer/response</td><td className="py-2">Price negotiation before payment</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">health_ping/pong</td><td className="py-2">Availability checks</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">payment_receipt</td><td className="py-2">Signed proof of payment delivery</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">reputation_gossip</td><td className="py-2">Trust observations shared between agents</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">sla_agreement</td><td className="py-2">Formal service terms</td></tr>
+                <tr><td className="py-2 pr-4 font-mono text-xs text-emerald-400">supply_chain_invite</td><td className="py-2">Multi-agent coordination groups</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">Service Discovery</h3>
           <div className="space-y-4 mb-6">
             <StepCard number="1" title="Announce" description="When an agent starts up, it broadcasts what services it offers (endpoints, prices, descriptions) to the message bus." />
             <StepCard number="2" title="Discover" description="An agent looking for a capability (like 'web scraping' or 'data analysis') searches the bus and finds matching services." />
             <StepCard number="3" title="Pay" description="The agent calls the discovered service URL and pays automatically via x402." />
           </div>
 
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            All discovery activity shows up in the dashboard&apos;s XMTP feed, so you can see which agents are finding each other.
-          </p>
           <CodeBlock title="Discovery in action">{`import { findServices, payAndFetch } from "aegis-ows-gate";
 
 // Find services that match "analysis"
@@ -525,6 +550,129 @@ const services = findServices("analysis", "research-buyer");
 
 // Pay and get the result
 const result = await payAndFetch(services[0].fullUrl, "research-buyer");`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="price-negotiation">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Price Negotiation</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Agents can negotiate prices before committing to a purchase. The buyer sends an offer with a proposed price and reason; the seller can accept or counter-offer.
+          </p>
+          <CodeBlock title="Negotiate before buying">{`import { sendNegotiationOffer, respondToNegotiation } from "aegis-ows-gate";
+
+// Buyer proposes a lower price
+sendNegotiationOffer({
+  buyerId: "research-buyer",
+  sellerId: "analyst",
+  service: "/analyze",
+  offeredPrice: "0.04",
+  originalPrice: "0.05",
+  reason: "Budget constraint — requesting 20% discount",
+});
+
+// Seller responds with a counter-offer
+respondToNegotiation({
+  sellerId: "analyst",
+  buyerId: "research-buyer",
+  accepted: false,
+  counterPrice: "0.045",
+  reason: "Can offer 10% discount for repeat buyers",
+});`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="health-monitoring">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Health Monitoring</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Before buying from an agent, check if it&apos;s online. The ping/pong protocol lets agents verify availability and queue depth.
+          </p>
+          <CodeBlock title="Health checks">{`import { pingAgent, isAgentHealthy, respondToPing } from "aegis-ows-gate";
+
+// Buyer checks if seller is available
+pingAgent("research-buyer", "analyst");
+
+// Seller auto-responds with status
+respondToPing("analyst", "research-buyer", "online", 2);
+
+// Check health before buying
+if (isAgentHealthy("analyst")) {
+  // Proceed with purchase
+}`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="payment-receipts-msg">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Payment Receipts (Messaging)</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            After a successful payment, sellers send a signed receipt to the buyer over the message bus. This provides proof of payment delivery independent of on-chain settlement.
+          </p>
+          <CodeBlock title="Send a receipt">{`import { sendPaymentReceipt } from "aegis-ows-gate";
+
+sendPaymentReceipt({
+  sellerId: "analyst",
+  buyerId: "research-buyer",
+  amount: "0.005",
+  token: "SOL",
+  txHash: "JEX7PjWZ...",
+  receiptHash: "sha256:abc123",
+  service: "/analyze",
+});`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="reputation-gossip">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Reputation Gossip</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Agents share trust observations about each other. After an interaction, an agent can report whether the experience was positive, negative, or neutral. Gossip scores are aggregated to build a decentralized trust network.
+          </p>
+          <CodeBlock title="Report reputation">{`import { reportReputation, getAgentGossipScore } from "aegis-ows-gate";
+
+// After a successful purchase
+reportReputation({
+  reporterId: "research-buyer",
+  aboutAgent: "analyst",
+  rating: "positive",
+  reason: "Fast response, data quality good",
+  txHash: "JEX7PjWZ...",
+});
+
+// Check an agent's gossip score
+const score = getAgentGossipScore("analyst");
+// → { positive: 5, negative: 0, neutral: 1, net: 5 }`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="sla-agreements">
+          <h3 className="text-lg font-semibold mt-8 mb-3">SLA Agreements</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Agents can propose formal service-level agreements specifying response time, uptime guarantees, and refund terms. Both parties must accept before the SLA is active.
+          </p>
+          <CodeBlock title="Propose and accept an SLA">{`import { proposeSLA, acceptSLA } from "aegis-ows-gate";
+
+// Buyer proposes SLA terms
+proposeSLA({
+  proposerId: "research-buyer",
+  toAgent: "analyst",
+  service: "/analyze",
+  maxResponseTimeMs: 5000,
+  minUptime: 95,
+  refundOnViolation: true,
+  validDays: 7,
+});`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="supply-chain-groups">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Supply Chain Groups</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Coordinate multiple agents in a supply chain. A coordinator invites participants and assigns roles, creating a named group that can be tracked in the dashboard.
+          </p>
+          <CodeBlock title="Create a supply chain">{`import { createSupplyChain } from "aegis-ows-gate";
+
+const chainId = createSupplyChain({
+  coordinatorId: "research-buyer",
+  participants: ["research-buyer", "analyst", "data-miner"],
+  roles: {
+    "research-buyer": "Consumer",
+    "analyst": "Intermediary",
+    "data-miner": "Producer",
+  },
+  description: "DeFi research supply chain",
+});`}</CodeBlock>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />

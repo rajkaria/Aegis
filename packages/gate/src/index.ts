@@ -39,6 +39,7 @@ import { sendSolPayment } from "./solana-pay.js";
 export { announceServices } from "./announce.js";
 export { findServices, type DiscoveredService } from "./discover.js";
 export { verifySettlement } from "./verify-settlement.js";
+export * from "./xmtp-protocol.js";
 
 // Rate limiter — max 100 requests per minute per IP
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();

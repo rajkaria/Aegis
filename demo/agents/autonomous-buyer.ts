@@ -1,4 +1,4 @@
-import { payAndFetch, findServices } from "@aegis-ows/gate";
+import { payAndFetch, findServices, pingAgent, isAgentHealthy, sendNegotiationOffer, reportReputation } from "@aegis-ows/gate";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
@@ -127,11 +127,32 @@ async function autonomousLoop() {
 
     const service = services[0];
     const price = parseFloat(service.price);
-    console.log(`  [2/4] Found: ${service.description} at ${service.fullUrl} ($${service.price})`);
+    const sellerAgent = (service as any).agentId ?? "analyst";
+    console.log(`  [2/6] Found: ${service.description} at ${service.fullUrl} ($${service.price})`);
 
-    // Step 2: Autonomous decision
+    // Step 2: Health check
+    console.log("  [3/6] Pinging seller for health check...");
+    pingAgent(AGENT_ID, sellerAgent);
+    // Note: in real XMTP this would be async with a response wait
+
+    // Step 3: Negotiate if price is high relative to budget
+    if (remaining !== Infinity && price > remaining * 0.3) {
+      console.log("  [4/6] Negotiating price (budget constraint)...");
+      sendNegotiationOffer({
+        buyerId: AGENT_ID,
+        sellerId: sellerAgent,
+        service: service.endpoint,
+        offeredPrice: (price * 0.8).toFixed(4),
+        originalPrice: service.price,
+        reason: "Budget constraint — requesting 20% discount",
+      });
+    } else {
+      console.log("  [4/6] Price acceptable, skipping negotiation");
+    }
+
+    // Step 4: Autonomous decision
     const decision = shouldBuy(remaining, price);
-    console.log(`  [3/4] Decision: ${decision.buy ? "BUY" : "SKIP"} — ${decision.reason}`);
+    console.log(`  [5/6] Decision: ${decision.buy ? "BUY" : "SKIP"} — ${decision.reason}`);
 
     if (!decision.buy) {
       skips++;
@@ -139,8 +160,8 @@ async function autonomousLoop() {
       continue;
     }
 
-    // Step 3: Execute purchase
-    console.log(`  [4/4] Purchasing...`);
+    // Step 5: Execute purchase
+    console.log(`  [6/6] Purchasing...`);
     try {
       const result = await payAndFetch(
         `${service.fullUrl}?topic=${encodeURIComponent(topic)}`,
@@ -153,6 +174,15 @@ async function autonomousLoop() {
       const summary = result?.analysis?.summary ?? result?.data?.title ?? "Data received";
       console.log(`  Purchased! Summary: ${String(summary).slice(0, 70)}...`);
       console.log(`  Spent: ${price} SOL | Total: ${totalSpent.toFixed(4)} SOL | Purchases: ${purchases}`);
+
+      // Step 6: Report positive reputation after successful purchase
+      reportReputation({
+        reporterId: AGENT_ID,
+        aboutAgent: sellerAgent,
+        rating: "positive",
+        reason: "Fast response, data quality good",
+        txHash: result?.txHash,
+      });
     } catch (err) {
       console.log(`  Failed: ${(err as Error).message?.slice(0, 60)}`);
       skips++;

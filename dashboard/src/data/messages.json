@@ -55,6 +55,111 @@
       "query": "scrape"
     },
     {
+      "type": "negotiation_offer",
+      "agentId": "research-buyer",
+      "timestamp": "2026-04-04T00:46:00.764Z",
+      "toAgent": "analyst",
+      "service": "/analyze",
+      "offeredPrice": "0.04",
+      "originalPrice": "0.05",
+      "reason": "Budget constraint — requesting 20% discount"
+    },
+    {
+      "type": "negotiation_response",
+      "agentId": "analyst",
+      "timestamp": "2026-04-04T00:46:10.764Z",
+      "toAgent": "research-buyer",
+      "accepted": false,
+      "counterPrice": "0.045",
+      "reason": "Can offer 10% discount for repeat buyers"
+    },
+    {
+      "type": "health_ping",
+      "agentId": "research-buyer",
+      "timestamp": "2026-04-04T00:47:00.764Z",
+      "targetAgent": "analyst"
+    },
+    {
+      "type": "health_pong",
+      "agentId": "analyst",
+      "timestamp": "2026-04-04T00:47:01.764Z",
+      "targetAgent": "research-buyer",
+      "status": "online",
+      "queueDepth": 2,
+      "uptime": "3600s"
+    },
+    {
+      "type": "health_ping",
+      "agentId": "analyst",
+      "timestamp": "2026-04-04T00:48:00.764Z",
+      "targetAgent": "data-miner"
+    },
+    {
+      "type": "health_pong",
+      "agentId": "data-miner",
+      "timestamp": "2026-04-04T00:48:01.764Z",
+      "targetAgent": "analyst",
+      "status": "online",
+      "queueDepth": 0,
+      "uptime": "7200s"
+    },
+    {
+      "type": "payment_receipt",
+      "agentId": "analyst",
+      "timestamp": "2026-04-04T00:50:00.764Z",
+      "toAgent": "research-buyer",
+      "amount": "0.005",
+      "token": "SOL",
+      "txHash": "JEX7PjWZLia2NpRVSZGFBUvhqP6cqXMWv5NKXHf2JjZZxkim8Ni5wuiVziNmdLwo4kBLVV7pGM1X3cnhywqb5GA",
+      "receiptHash": "sha256:abc123def456",
+      "service": "/analyze"
+    },
+    {
+      "type": "reputation_gossip",
+      "agentId": "research-buyer",
+      "timestamp": "2026-04-04T00:52:00.764Z",
+      "aboutAgent": "analyst",
+      "rating": "positive",
+      "reason": "Fast response, data quality good",
+      "txHash": "JEX7PjWZLia2NpRVSZGFBUvhqP6cqXMWv5NKXHf2JjZZxkim8Ni5wuiVziNmdLwo4kBLVV7pGM1X3cnhywqb5GA"
+    },
+    {
+      "type": "reputation_gossip",
+      "agentId": "analyst",
+      "timestamp": "2026-04-04T00:53:00.764Z",
+      "aboutAgent": "data-miner",
+      "rating": "neutral",
+      "reason": "Response time acceptable but could be faster",
+      "txHash": "zBARyaWkhfedVrnXEWB9LzGCERwWfkeXm5Fk3GuFJ1fuW2JBxiUDHmHC7NQF3Jz26C9nBJAy5EFDdCkv7iLGB7V"
+    },
+    {
+      "type": "sla_agreement",
+      "agentId": "research-buyer",
+      "timestamp": "2026-04-04T00:55:00.764Z",
+      "toAgent": "analyst",
+      "service": "/analyze",
+      "terms": {
+        "maxResponseTimeMs": 5000,
+        "minUptime": 95,
+        "refundOnViolation": true,
+        "validUntil": "2026-04-11T00:55:00.764Z"
+      },
+      "accepted": true
+    },
+    {
+      "type": "supply_chain_invite",
+      "agentId": "research-buyer",
+      "timestamp": "2026-04-04T00:56:00.764Z",
+      "chainId": "chain-demo-abc123",
+      "participants": ["research-buyer", "analyst", "data-miner"],
+      "roles": {
+        "research-buyer": "Consumer — purchases analysis reports",
+        "analyst": "Intermediary — buys raw data, sells analysis",
+        "data-miner": "Producer — scrapes and provides raw data"
+      },
+      "description": "DeFi research supply chain — scrape, analyze, consume"
+    },
+    {
       "type": "wallet_info",
       "agentId": "data-miner",
       "timestamp": "2026-04-03T23:25:29.764Z",

@@ -207,7 +207,129 @@ postMessage({
   query: "scrape",
 });
 
-console.log("Seeded 5 XMTP message bus entries (announcements + discovery)");
+// 6b. Negotiation offer + response
+postMessage({
+  type: "negotiation_offer",
+  agentId: "research-buyer",
+  timestamp: new Date(baseTime - 2350000).toISOString(),
+  toAgent: "analyst",
+  service: "/analyze",
+  offeredPrice: "0.04",
+  originalPrice: "0.05",
+  reason: "Budget constraint — requesting 20% discount",
+});
+
+postMessage({
+  type: "negotiation_response",
+  agentId: "analyst",
+  timestamp: new Date(baseTime - 2340000).toISOString(),
+  toAgent: "research-buyer",
+  accepted: false,
+  counterPrice: "0.045",
+  reason: "Can offer 10% discount for repeat buyers",
+});
+
+// 6c. Health ping/pong pairs
+postMessage({
+  type: "health_ping",
+  agentId: "research-buyer",
+  timestamp: new Date(baseTime - 2300000).toISOString(),
+  targetAgent: "analyst",
+});
+
+postMessage({
+  type: "health_pong",
+  agentId: "analyst",
+  timestamp: new Date(baseTime - 2299000).toISOString(),
+  targetAgent: "research-buyer",
+  status: "online",
+  queueDepth: 2,
+  uptime: "3600s",
+});
+
+postMessage({
+  type: "health_ping",
+  agentId: "analyst",
+  timestamp: new Date(baseTime - 2200000).toISOString(),
+  targetAgent: "data-miner",
+});
+
+postMessage({
+  type: "health_pong",
+  agentId: "data-miner",
+  timestamp: new Date(baseTime - 2199000).toISOString(),
+  targetAgent: "analyst",
+  status: "online",
+  queueDepth: 0,
+  uptime: "7200s",
+});
+
+// 6d. Payment receipt
+postMessage({
+  type: "payment_receipt",
+  agentId: "analyst",
+  timestamp: new Date(baseTime - 2100000).toISOString(),
+  toAgent: "research-buyer",
+  amount: "0.005",
+  token: "SOL",
+  txHash: cycles[0].buyerToAnalystTx,
+  receiptHash: "sha256:abc123def456",
+  service: "/analyze",
+});
+
+// 6e. Reputation gossip
+postMessage({
+  type: "reputation_gossip",
+  agentId: "research-buyer",
+  timestamp: new Date(baseTime - 2000000).toISOString(),
+  aboutAgent: "analyst",
+  rating: "positive",
+  reason: "Fast response, data quality good",
+  txHash: cycles[0].buyerToAnalystTx,
+});
+
+postMessage({
+  type: "reputation_gossip",
+  agentId: "analyst",
+  timestamp: new Date(baseTime - 1900000).toISOString(),
+  aboutAgent: "data-miner",
+  rating: "neutral",
+  reason: "Response time acceptable but could be faster",
+  txHash: cycles[0].analystToMinerTx,
+});
+
+// 6f. SLA agreement (accepted)
+postMessage({
+  type: "sla_agreement",
+  agentId: "research-buyer",
+  timestamp: new Date(baseTime - 1700000).toISOString(),
+  toAgent: "analyst",
+  service: "/analyze",
+  terms: {
+    maxResponseTimeMs: 5000,
+    minUptime: 95,
+    refundOnViolation: true,
+    validUntil: new Date(baseTime + 7 * 86400000).toISOString(),
+  },
+  accepted: true,
+});
+
+// 6g. Supply chain invite
+postMessage({
+  type: "supply_chain_invite",
+  agentId: "research-buyer",
+  timestamp: new Date(baseTime - 1600000).toISOString(),
+  chainId: "chain-demo-abc123",
+  participants: ["research-buyer", "analyst", "data-miner"],
+  roles: {
+    "research-buyer": "Consumer — purchases analysis reports",
+    "analyst": "Intermediary — buys raw data, sells analysis",
+    "data-miner": "Producer — scrapes and provides raw data",
+  },
+  description: "DeFi research supply chain — scrape, analyze, consume",
+});
+
+console.log("Seeded 18 XMTP message bus entries (full protocol: announcements, discovery, negotiation, health, receipts, reputation, SLA, supply chain)");
 
 // 7. Seed OWS wallet address info for dashboard display
 postMessage({

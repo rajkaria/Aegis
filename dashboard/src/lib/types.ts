@@ -129,7 +129,104 @@ export interface ServiceResponse {
   }[];
 }
 
-export type AgentMessage = ServiceAnnouncement | ServiceQuery | ServiceResponse;
+export interface NegotiationOffer {
+  type: "negotiation_offer";
+  agentId: string;
+  timestamp: string;
+  toAgent: string;
+  service: string;
+  offeredPrice: string;
+  originalPrice: string;
+  reason?: string;
+}
+
+export interface NegotiationResponse {
+  type: "negotiation_response";
+  agentId: string;
+  timestamp: string;
+  toAgent: string;
+  accepted: boolean;
+  counterPrice?: string;
+  reason?: string;
+}
+
+export interface HealthPing {
+  type: "health_ping";
+  agentId: string;
+  timestamp: string;
+  targetAgent: string;
+}
+
+export interface HealthPong {
+  type: "health_pong";
+  agentId: string;
+  timestamp: string;
+  targetAgent: string;
+  status: "online" | "busy" | "degraded";
+  queueDepth?: number;
+  uptime?: string;
+}
+
+export interface PaymentReceiptMessage {
+  type: "payment_receipt";
+  agentId: string;
+  timestamp: string;
+  toAgent: string;
+  amount: string;
+  token: string;
+  txHash?: string;
+  receiptHash: string;
+  service: string;
+}
+
+export interface ReputationGossip {
+  type: "reputation_gossip";
+  agentId: string;
+  timestamp: string;
+  aboutAgent: string;
+  rating: "positive" | "negative" | "neutral";
+  reason: string;
+  txHash?: string;
+}
+
+export interface SLAAgreement {
+  type: "sla_agreement";
+  agentId: string;
+  timestamp: string;
+  toAgent: string;
+  service: string;
+  terms: {
+    maxResponseTimeMs: number;
+    minUptime: number;
+    refundOnViolation: boolean;
+    validUntil: string;
+  };
+  accepted?: boolean;
+  signature?: string;
+}
+
+export interface SupplyChainInvite {
+  type: "supply_chain_invite";
+  agentId: string;
+  timestamp: string;
+  chainId: string;
+  participants: string[];
+  roles: Record<string, string>;
+  description: string;
+}
+
+export type AgentMessage =
+  | ServiceAnnouncement
+  | ServiceQuery
+  | ServiceResponse
+  | NegotiationOffer
+  | NegotiationResponse
+  | HealthPing
+  | HealthPong
+  | PaymentReceiptMessage
+  | ReputationGossip
+  | SLAAgreement
+  | SupplyChainInvite;
 
 export interface MessageBus {
   messages: AgentMessage[];

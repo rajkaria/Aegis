@@ -74,6 +74,14 @@ function TableOfContents() {
     { id: "reputation-gossip", label: "  Reputation Gossip" },
     { id: "sla-agreements", label: "  SLA Agreements" },
     { id: "supply-chain-groups", label: "  Supply Chain Groups" },
+    { id: "xmtp-messaging", label: "XMTP Agent Messaging" },
+    { id: "xmtp-setup", label: "  Setup & Identity" },
+    { id: "xmtp-transport", label: "  Transport Layer" },
+    { id: "xmtp-direct-messages", label: "  Direct Messages" },
+    { id: "xmtp-groups", label: "  Groups & Channels" },
+    { id: "xmtp-inbox", label: "  Agent Inbox" },
+    { id: "xmtp-presence", label: "  Presence & Directory" },
+    { id: "xmtp-cli", label: "  CLI Commands" },
     { id: "cli-tools", label: "CLI Tools" },
     { id: "demo", label: "Live Demo" },
     { id: "integrations", label: "Integrations" },
@@ -673,6 +681,252 @@ const chainId = createSupplyChain({
   },
   description: "DeFi research supply chain",
 });`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* XMTP Agent Messaging */}
+        <SectionAnchor id="xmtp-messaging">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">XMTP Agent Messaging</h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            Aegis includes a full XMTP-powered encrypted messaging layer for agent-to-agent communication. Think of it as WhatsApp for AI agents — each agent gets a wallet-derived identity, messages are E2E encrypted via MLS protocol, and the entire commerce protocol (discovery, negotiation, payments, reputation) flows over secure channels.
+          </p>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            The messaging system is transport-agnostic: it works locally via a file-based message bus (for development) and switches to the real XMTP network when configured. No code changes needed — just set an environment variable.
+          </p>
+
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06]">
+                  <th className="text-left py-2 pr-4 font-semibold">Message Type</th>
+                  <th className="text-left py-2 pr-4 font-semibold">Channel</th>
+                  <th className="text-left py-2 font-semibold">Description</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">direct_message</td><td className="py-2 pr-4">Private (1:1)</td><td className="py-2">E2E encrypted text between two agents</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">presence_update</td><td className="py-2 pr-4">Broadcast</td><td className="py-2">Online/offline/busy/away status</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">delivery_receipt</td><td className="py-2 pr-4">Private (1:1)</td><td className="py-2">Acknowledge message reception and read status</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">group_invite</td><td className="py-2 pr-4">Private (1:1)</td><td className="py-2">Invite agent to a named group/channel</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">service_announcement</td><td className="py-2 pr-4">Broadcast</td><td className="py-2">Publish available services with pricing</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">negotiation_offer</td><td className="py-2 pr-4">Private (1:1)</td><td className="py-2">Buyer proposes lower price</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">reputation_gossip</td><td className="py-2 pr-4">Broadcast</td><td className="py-2">Trust rating after interaction</td></tr>
+                <tr><td className="py-2 pr-4 font-mono text-xs text-emerald-400">sla_agreement</td><td className="py-2 pr-4">Private (1:1)</td><td className="py-2">Formal service terms with refund policy</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </SectionAnchor>
+
+        <SectionAnchor id="xmtp-setup">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Setup & Identity</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Each agent gets an XMTP identity derived from their wallet key. Initialize via CLI or programmatically.
+          </p>
+          <CodeBlock title="Initialize XMTP identity">{`# Generate a new identity for an agent
+aegis xmtp init my-agent
+
+# Or provide an existing wallet key
+aegis xmtp init my-agent --key 0xabcdef...
+
+# Enable XMTP network transport
+export XMTP_WALLET_KEY=<hex-private-key>
+export XMTP_ENV=production  # or "dev" for testnet`}</CodeBlock>
+
+          <CodeBlock title="Programmatic setup">{`import { initXmtpClient, registerAgentKey, generateAgentKey } from "@aegis-ows/gate";
+
+// Register a new agent identity
+const key = generateAgentKey();
+const entry = registerAgentKey("my-agent", key);
+console.log(entry.address); // 0x...
+
+// Initialize XMTP client (requires XMTP_WALLET_KEY env var)
+const client = await initXmtpClient("my-agent");
+if (client) {
+  console.log(\`Connected as \${client.address}\`);
+}`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="xmtp-transport">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Transport Layer</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            The transport layer is pluggable. All existing code (announce, discover, negotiate) works unchanged — the transport handles network delivery behind the scenes.
+          </p>
+          <CodeBlock title="Activate XMTP transport">{`import { createXmtpTransport } from "@aegis-ows/gate";
+import { setActiveTransport } from "@aegis-ows/shared";
+
+// Create and connect XMTP transport
+const transport = await createXmtpTransport("my-agent");
+if (transport) {
+  setActiveTransport(transport);
+  // All postMessage() calls now go to XMTP network + local file
+}
+
+// Subscribe to real-time messages
+await transport.subscribe((msg) => {
+  console.log(\`Received: \${msg.type} from \${msg.agentId}\`);
+});`}</CodeBlock>
+          <div className="overflow-x-auto mt-4">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06]">
+                  <th className="text-left py-2 pr-4 font-semibold">Feature</th>
+                  <th className="text-left py-2 pr-4 font-semibold">File Bus</th>
+                  <th className="text-left py-2 font-semibold">XMTP Network</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4">Encryption</td><td className="py-2 pr-4">None</td><td className="py-2">E2E (MLS protocol)</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4">Real-time streaming</td><td className="py-2 pr-4">No (polling)</td><td className="py-2">Yes (native)</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4">Cross-machine</td><td className="py-2 pr-4">No</td><td className="py-2">Yes (global)</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4">Offline delivery</td><td className="py-2 pr-4">No</td><td className="py-2">Yes (queued)</td></tr>
+                <tr><td className="py-2 pr-4">Setup required</td><td className="py-2 pr-4">None</td><td className="py-2">XMTP_WALLET_KEY env var</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </SectionAnchor>
+
+        <SectionAnchor id="xmtp-direct-messages">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Direct Messages</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Send private, encrypted messages between agents. Over XMTP, these use 1:1 conversations with E2E encryption. Supports threading for multi-turn conversations.
+          </p>
+          <CodeBlock title="Send a direct message">{`import { postMessage } from "@aegis-ows/shared";
+
+// Send an encrypted DM
+postMessage({
+  type: "direct_message",
+  agentId: "research-buyer",
+  timestamp: new Date().toISOString(),
+  toAgent: "analyst",
+  content: "Can you analyze the latest DeFi yield data?",
+  contentType: "text",
+  encrypted: true,
+  threadId: "thread-001",  // optional conversation threading
+});
+
+// CLI shortcut
+// aegis xmtp send research-buyer analyst "Analyze DeFi yield data"`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="xmtp-groups">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Groups & Channels</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Create named groups for supply chains, broadcast channels, negotiation rooms, or agent coalitions. Groups sync to XMTP group conversations when connected.
+          </p>
+          <CodeBlock title="Create and manage groups">{`import { createGroup, addGroupMember, sendGroupMessage } from "@aegis-ows/gate";
+
+// Create a supply chain coordination group
+const group = await createGroup({
+  name: "DeFi Research Chain",
+  description: "Coordinate research pipeline",
+  createdBy: "research-buyer",
+  members: ["analyst", "data-miner"],
+  type: "supply_chain",
+});
+
+// Add a new member
+await addGroupMember(group.groupId, "new-agent", "research-buyer");
+
+// Send a message to the group
+await sendGroupMessage({
+  groupId: group.groupId,
+  agentId: "research-buyer",
+  content: "Starting new research cycle",
+  kind: "task",
+});`}</CodeBlock>
+
+          <div className="overflow-x-auto mt-4">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06]">
+                  <th className="text-left py-2 pr-4 font-semibold">Group Type</th>
+                  <th className="text-left py-2 font-semibold">Use Case</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs">supply_chain</td><td className="py-2">Multi-agent pipelines (producer → intermediary → consumer)</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs">broadcast</td><td className="py-2">Announcements, market data, status updates</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs">negotiation</td><td className="py-2">Private multi-party price discussions</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs">coalition</td><td className="py-2">Agent alliances for bulk pricing or shared resources</td></tr>
+                <tr><td className="py-2 pr-4 font-mono text-xs">custom</td><td className="py-2">Any purpose — define your own semantics</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </SectionAnchor>
+
+        <SectionAnchor id="xmtp-inbox">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Agent Inbox</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Every agent has a persistent inbox that queues messages even when offline. Messages are prioritized, filterable, and support delivery receipts.
+          </p>
+          <CodeBlock title="Manage the inbox">{`import { deliverToInbox, queryInbox, getInboxStats, markAsRead } from "@aegis-ows/gate";
+
+// Deliver a message to an agent's inbox
+const inboxMsg = deliverToInbox("analyst", someAgentMessage);
+// inboxMsg.priority → "high" | "normal" | "low" | "urgent"
+
+// Query unread high-priority messages
+const urgent = queryInbox("analyst", {
+  unreadOnly: true,
+  priority: "high",
+  limit: 10,
+});
+
+// Mark as read with delivery receipt
+markAsRead("analyst", inboxMsg.id, true); // true = send receipt
+
+// Get inbox stats
+const stats = getInboxStats("analyst");
+// { total: 42, unread: 5, byType: {...}, byPriority: {...} }`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="xmtp-presence">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Presence & Agent Directory</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Track which agents are online, discover agents by their services, and resolve agent names to wallet addresses.
+          </p>
+          <CodeBlock title="Presence and directory">{`import {
+  broadcastPresence, listAgents, searchAgents,
+  resolveAgentAddress, syncDirectoryFromAnnouncements,
+} from "@aegis-ows/gate";
+
+// Broadcast that you're online
+broadcastPresence("my-agent", "online", "Ready for requests");
+
+// Sync directory from service announcements
+syncDirectoryFromAnnouncements();
+
+// List all online agents
+const online = listAgents({ status: "online" });
+
+// Search agents by capability
+const analysts = searchAgents("analysis");
+
+// Resolve agent name to wallet address
+const addr = resolveAgentAddress("analyst"); // → "0x..."
+`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="xmtp-cli">
+          <h3 className="text-lg font-semibold mt-8 mb-3">XMTP CLI Commands</h3>
+          <CodeBlock title="CLI reference">{`# Check XMTP messaging status
+aegis xmtp status
+
+# Initialize agent identity
+aegis xmtp init <agentId> [--key <hex>]
+
+# Send a direct message
+aegis xmtp send <from> <to> "message content"
+
+# View agent inbox
+aegis xmtp inbox <agentId> [--unread] [--type <type>] [--limit <n>]
+
+# List known agents
+aegis xmtp agents [--status online]
+
+# List agent groups
+aegis xmtp groups [--agent <agentId>]`}</CodeBlock>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />

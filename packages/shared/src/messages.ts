@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { PATHS, ensureAegisDir } from "./paths.js";
 import { withFileLock } from "./file-lock.js";
+import { getActiveTransport } from "./transport.js";
 
 // === Message Types ===
 
@@ -129,6 +130,57 @@ export interface SupplyChainInvite {
   description: string;
 }
 
+// === New XMTP-Enabled Message Types ===
+
+// Direct Message — private E2E encrypted message between two agents
+export interface DirectMessage {
+  type: "direct_message";
+  agentId: string;        // sender
+  timestamp: string;
+  toAgent: string;        // recipient
+  content: string;        // message body
+  /** Optional thread ID for conversation threading */
+  threadId?: string;
+  /** Content type (text, json, binary-ref) */
+  contentType?: "text" | "json" | "binary-ref";
+  /** Whether the message is encrypted (always true over XMTP) */
+  encrypted?: boolean;
+}
+
+// Presence Update — broadcast online/offline status
+export interface PresenceUpdate {
+  type: "presence_update";
+  agentId: string;
+  timestamp: string;
+  address: string;        // XMTP/wallet address
+  status: "online" | "offline" | "busy" | "away";
+  statusMessage?: string; // "Processing batch job", "Maintenance", etc.
+}
+
+// Delivery Receipt — acknowledge message reception
+export interface DeliveryReceipt {
+  type: "delivery_receipt";
+  agentId: string;        // acknowledger
+  timestamp: string;
+  toAgent: string;        // original sender
+  originalMessageId: string;
+  originalType: string;   // type of the acknowledged message
+  deliveredAt: string;
+  readAt?: string;
+}
+
+// Group Invite — invite agents to a named group/channel
+export interface GroupInvite {
+  type: "group_invite";
+  agentId: string;        // inviter
+  timestamp: string;
+  toAgent: string;        // invitee
+  groupId: string;
+  groupName: string;
+  groupType: "supply_chain" | "broadcast" | "negotiation" | "coalition" | "custom";
+  description: string;
+}
+
 export type AgentMessage =
   | ServiceAnnouncement
   | ServiceQuery
@@ -140,15 +192,19 @@ export type AgentMessage =
   | PaymentReceiptMessage
   | ReputationGossip
   | SLAAgreement
-  | SupplyChainInvite;
+  | SupplyChainInvite
+  | DirectMessage
+  | PresenceUpdate
+  | DeliveryReceipt
+  | GroupInvite;
 
 export interface MessageBus {
   messages: AgentMessage[];
 }
 
-// === File-based transport (default) ===
+// === File-based transport (default, always active for local state) ===
 
-export function readMessages(): MessageBus {
+function readFileMessages(): MessageBus {
   if (!existsSync(PATHS.messageBus)) return { messages: [] };
   try {
     return JSON.parse(readFileSync(PATHS.messageBus, "utf-8")) as MessageBus;
@@ -157,13 +213,49 @@ export function readMessages(): MessageBus {
   }
 }
 
-export function postMessage(msg: AgentMessage): void {
+function writeFileMessage(msg: AgentMessage): void {
   withFileLock(PATHS.messageBus, () => {
     ensureAegisDir();
-    const bus = readMessages();
+    const bus = readFileMessages();
     bus.messages.push(msg);
     writeFileSync(PATHS.messageBus, JSON.stringify(bus, null, 2));
   });
+}
+
+/**
+ * Read messages from the active transport (or file bus fallback).
+ * When XMTP is active, merges network messages with local file bus.
+ */
+export function readMessages(): MessageBus {
+  const transport = getActiveTransport();
+
+  if (transport && transport.name !== "file") {
+    // When XMTP transport is active, the file bus is still the source of truth
+    // for synchronous reads. The XMTP transport syncs into its cache which
+    // gets written to the file bus by the transport layer.
+    // For now, return the file bus which includes both local and synced messages.
+    return readFileMessages();
+  }
+
+  return readFileMessages();
+}
+
+/**
+ * Post a message. Writes to both the file bus (for dashboard/CLI) and
+ * the active transport (for network delivery).
+ */
+export function postMessage(msg: AgentMessage): void {
+  // Always write to local file bus for dashboard visibility
+  writeFileMessage(msg);
+
+  // If a network transport is active, also send over the network
+  const transport = getActiveTransport();
+  if (transport && transport.name !== "file") {
+    // Fire-and-forget network send (don't block the synchronous caller)
+    transport.post(msg).catch((err) => {
+      console.warn(`[aegis] Network transport send failed: ${err}`);
+    });
+  }
 }
 
 // === Query helpers ===

@@ -41,6 +41,69 @@ export { findServices, type DiscoveredService } from "./discover.js";
 export { verifySettlement } from "./verify-settlement.js";
 export * from "./xmtp-protocol.js";
 
+// === XMTP Agent Messaging ===
+export {
+  initXmtpClient,
+  closeXmtpClient,
+  closeAllClients,
+  isXmtpConfigured,
+  getXmtpClient,
+  generateAgentKey,
+  registerAgentKey,
+  getAgentKeyEntry,
+  listAgentKeys,
+  resolveConfig,
+  type XmtpClientConfig,
+  type XmtpClientHandle,
+} from "./xmtp-client.js";
+
+export {
+  XmtpTransport,
+  createXmtpTransport,
+} from "./xmtp-transport.js";
+
+export {
+  createGroup,
+  addGroupMember,
+  removeGroupMember,
+  sendGroupMessage,
+  listGroups,
+  getGroup,
+  deactivateGroup,
+  type AgentGroup,
+  type GroupMessage,
+} from "./xmtp-groups.js";
+
+export {
+  deliverToInbox,
+  markAsRead,
+  markAllAsRead,
+  queryInbox,
+  getInboxStats,
+  deleteFromInbox,
+  clearInbox,
+  onInboxMessage,
+  notifyInboxListeners,
+  type InboxMessage,
+  type InboxStats,
+  type InboxFilter,
+} from "./xmtp-inbox.js";
+
+export {
+  resolveAgentAddress,
+  resolveAgentName,
+  upsertAgent,
+  updatePresence,
+  broadcastPresence,
+  getAgentIdentity,
+  listAgents,
+  syncDirectoryFromAnnouncements,
+  pruneStaleAgents,
+  searchAgents,
+  type AgentIdentity,
+  type PresenceUpdate,
+} from "./xmtp-identity.js";
+
 // Rate limiter — max 100 requests per minute per IP
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_MAX = 100;

@@ -5,6 +5,7 @@ import { AgentPnlTable } from "@/components/agent-pnl-table";
 import { ActivityFeed } from "@/components/activity-feed";
 import { BudgetBar } from "@/components/budget-bar";
 import { DiscoveryFeed } from "@/components/discovery-feed";
+import { XmtpStatus } from "@/components/xmtp-status";
 import { DashboardControls } from "@/components/dashboard-controls";
 import { Onboarding } from "@/components/onboarding";
 import { ReceiptList } from "@/components/receipt-list";
@@ -168,6 +169,11 @@ export default function EconomyPage() {
             ))}
           </CardContent>
         </Card>
+      )}
+
+      {/* XMTP Agent Messaging Status */}
+      {data.xmtpStatus && (
+        <XmtpStatus data={data.xmtpStatus} />
       )}
 
       {/* XMTP Discovery Feed */}

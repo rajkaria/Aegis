@@ -50,6 +50,22 @@ const typeConfig = {
     label: "CHAIN",
     className: "bg-pink-500/20 text-pink-400 border border-pink-500/40",
   },
+  direct_message: {
+    label: "DM",
+    className: "bg-blue-500/20 text-blue-400 border border-blue-500/40",
+  },
+  presence_update: {
+    label: "PRESENCE",
+    className: "bg-teal-500/20 text-teal-400 border border-teal-500/40",
+  },
+  delivery_receipt: {
+    label: "DELIVERED",
+    className: "bg-green-500/20 text-green-400 border border-green-500/40",
+  },
+  group_invite: {
+    label: "GROUP",
+    className: "bg-indigo-500/20 text-indigo-400 border border-indigo-500/40",
+  },
 } as const;
 
 function getTypeConfig(type: string) {

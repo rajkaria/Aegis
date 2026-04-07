@@ -6,6 +6,7 @@ import { budgetCommand } from "./commands/budget.js";
 import { guardCommand } from "./commands/guard.js";
 import { installCommand } from "./commands/install.js";
 import { reportCommand } from "./commands/report.js";
+import { xmtpCommand } from "./commands/xmtp.js";
 
 const program = new Command();
 
@@ -20,5 +21,6 @@ program.addCommand(budgetCommand);
 program.addCommand(guardCommand);
 program.addCommand(installCommand);
 program.addCommand(reportCommand);
+program.addCommand(xmtpCommand);
 
 program.parse(process.argv);

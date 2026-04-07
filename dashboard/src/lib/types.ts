@@ -215,6 +215,50 @@ export interface SupplyChainInvite {
   description: string;
 }
 
+// === New XMTP-Enabled Message Types ===
+
+export interface DirectMessage {
+  type: "direct_message";
+  agentId: string;
+  timestamp: string;
+  toAgent: string;
+  content: string;
+  threadId?: string;
+  contentType?: "text" | "json" | "binary-ref";
+  encrypted?: boolean;
+}
+
+export interface PresenceUpdate {
+  type: "presence_update";
+  agentId: string;
+  timestamp: string;
+  address: string;
+  status: "online" | "offline" | "busy" | "away";
+  statusMessage?: string;
+}
+
+export interface DeliveryReceipt {
+  type: "delivery_receipt";
+  agentId: string;
+  timestamp: string;
+  toAgent: string;
+  originalMessageId: string;
+  originalType: string;
+  deliveredAt: string;
+  readAt?: string;
+}
+
+export interface GroupInvite {
+  type: "group_invite";
+  agentId: string;
+  timestamp: string;
+  toAgent: string;
+  groupId: string;
+  groupName: string;
+  groupType: "supply_chain" | "broadcast" | "negotiation" | "coalition" | "custom";
+  description: string;
+}
+
 export type AgentMessage =
   | ServiceAnnouncement
   | ServiceQuery
@@ -226,7 +270,11 @@ export type AgentMessage =
   | PaymentReceiptMessage
   | ReputationGossip
   | SLAAgreement
-  | SupplyChainInvite;
+  | SupplyChainInvite
+  | DirectMessage
+  | PresenceUpdate
+  | DeliveryReceipt
+  | GroupInvite;
 
 export interface MessageBus {
   messages: AgentMessage[];

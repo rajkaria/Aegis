@@ -475,6 +475,34 @@ export function getEconomyOverview() {
         agentId: msg.agentId,
         description: `${msg.agentId} created supply chain "${msg.description}" with ${msg.participants.length} agents`,
       });
+    } else if (msg.type === "direct_message") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} sent DM to ${msg.toAgent}${msg.encrypted ? " (encrypted)" : ""}`,
+      });
+    } else if (msg.type === "presence_update") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} is now ${msg.status}${msg.statusMessage ? `: ${msg.statusMessage}` : ""}`,
+      });
+    } else if (msg.type === "delivery_receipt") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} confirmed delivery of ${msg.originalType} to ${msg.toAgent}`,
+      });
+    } else if (msg.type === "group_invite") {
+      activity.push({
+        timestamp: msg.timestamp,
+        type: "discovery",
+        agentId: msg.agentId,
+        description: `${msg.agentId} invited ${msg.toAgent} to group "${msg.groupName}" (${msg.groupType})`,
+      });
     }
   }
 
@@ -562,6 +590,34 @@ export function getEconomyOverview() {
         timestamp: msg.timestamp,
         detail: `created supply chain "${msg.description}" with ${msg.participants.join(", ")}`,
       });
+    } else if (msg.type === "direct_message") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `sent DM to ${msg.toAgent}${msg.encrypted ? " (E2E encrypted)" : ""}`,
+      });
+    } else if (msg.type === "presence_update") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `is now ${msg.status}${msg.statusMessage ? `: "${msg.statusMessage}"` : ""}`,
+      });
+    } else if (msg.type === "delivery_receipt") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `confirmed delivery of ${msg.originalType} to ${msg.toAgent}`,
+      });
+    } else if (msg.type === "group_invite") {
+      discoveryEvents.push({
+        type: msg.type,
+        agentId: msg.agentId,
+        timestamp: msg.timestamp,
+        detail: `invited ${msg.toAgent} to group "${msg.groupName}"`,
+      });
     }
   }
   discoveryEvents.sort(
@@ -570,6 +626,27 @@ export function getEconomyOverview() {
 
   // Generate economy insights
   const insights = generateDashboardInsights(profiles, spending, earnings, policyLog, budgetConfig);
+
+  // Compute XMTP messaging status
+  const allMsgs = messages.messages;
+  const directMessages = allMsgs.filter((m) => m.type === "direct_message").length;
+  const presenceOnline = new Set(
+    allMsgs
+      .filter((m): m is import("@/lib/types").PresenceUpdate => m.type === "presence_update" && (m as any).status === "online")
+      .map((m) => m.agentId)
+  ).size;
+  const groupInvites = allMsgs.filter((m) => m.type === "group_invite").length;
+  const hasEncrypted = allMsgs.some((m) => m.type === "direct_message" && (m as any).encrypted);
+
+  const xmtpStatus = {
+    transport: hasEncrypted ? ("xmtp" as const) : ("file" as const),
+    encrypted: hasEncrypted,
+    agentCount: profiles.length,
+    messageCount: allMsgs.length,
+    directMessages,
+    presenceOnline,
+    groupCount: groupInvites,
+  };
 
   return {
     profiles,
@@ -584,6 +661,7 @@ export function getEconomyOverview() {
     discoveryEvents,
     insights,
     reputations: computeReputations(),
+    xmtpStatus,
   };
 }
 

@@ -8,9 +8,10 @@ import { Connection } from "@solana/web3.js";
 export async function verifySettlement(txHash: string, network: string): Promise<boolean | null> {
   if (network.includes("solana")) {
     try {
-      const rpcUrl = network.includes("devnet")
-        ? "https://api.devnet.solana.com"
-        : "https://api.mainnet-beta.solana.com";
+      const rpcUrl = process.env.SOLANA_RPC_URL
+        ?? (network.includes("devnet")
+          ? "https://api.devnet.solana.com"
+          : "https://api.mainnet-beta.solana.com");
       const conn = new Connection(rpcUrl, "confirmed");
       const tx = await conn.getTransaction(txHash, { maxSupportedTransactionVersion: 0 });
       if (!tx) return false;

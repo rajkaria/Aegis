@@ -79,6 +79,7 @@ function TableOfContents() {
     { id: "xmtp-directory", label: "  Agent Directory" },
     { id: "xmtp-notifications", label: "  XMTP Notifications" },
     { id: "xmtp-transport", label: "  Real vs File Transport" },
+    { id: "production-deployment", label: "Production Deployment" },
     { id: "cli-tools", label: "CLI Tools" },
     { id: "demo", label: "Live Demo" },
     { id: "integrations", label: "Integrations" },
@@ -794,6 +795,125 @@ console.log(getXMTPAddress()); // "0x..." or null`}</CodeBlock>
             <p className="text-sm text-muted-foreground">
               <strong className="text-emerald-400">Standalone:</strong> Use XMTP messaging without the x402 payment stack. Import from <code className="text-xs bg-white/10 px-1.5 py-0.5 rounded">aegis-ows-gate/xmtp-messaging</code> for messaging-only functions with zero Express/Solana/ethers dependencies.{" "}
               <Link href="/docs/xmtp#standalone" className="text-emerald-400 hover:text-emerald-300 transition-colors">Learn more &rarr;</Link>
+            </p>
+          </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* PRODUCTION DEPLOYMENT */}
+        <SectionAnchor id="production-deployment">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Production Deployment</h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            Run Aegis agents with real money on mainnet. This guide covers environment setup, budget configuration, safety policies, and monitoring.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-6 mb-3">Environment Variables</h3>
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-left">
+                  <th className="py-2 pr-4 font-semibold">Variable</th>
+                  <th className="py-2 pr-4 font-semibold">Required</th>
+                  <th className="py-2 font-semibold">Description</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">SOLANA_RPC_URL</td><td className="py-2 pr-4 text-xs">For Solana payments</td><td className="py-2 text-xs">Solana RPC endpoint. No default &mdash; must be set explicitly.</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">XMTP_ENV</td><td className="py-2 pr-4 text-xs">For live messaging</td><td className="py-2 text-xs">XMTP network: <code className="text-xs bg-white/10 px-1 rounded">dev</code> or <code className="text-xs bg-white/10 px-1 rounded">production</code></td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs text-emerald-400">XMTP_WALLET_KEY</td><td className="py-2 pr-4 text-xs">For live messaging</td><td className="py-2 text-xs">Private key for XMTP identity. Does not need funds.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">Step 1: Initialize</h3>
+          <CodeBlock title="Set up Aegis">{`npm install aegis-ows-gate aegis-ows-shared
+npx aegis init
+
+# Set your network
+export SOLANA_RPC_URL=https://api.mainnet-beta.solana.com  # mainnet
+# export SOLANA_RPC_URL=https://api.devnet.solana.com      # devnet (testing)`}</CodeBlock>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">Step 2: Configure Budget</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Set spending limits to control how much agents can spend. Aegis enforces these before every transaction &mdash; if a payment would exceed any limit, it&apos;s blocked.
+          </p>
+          <CodeBlock title="~/.ows/aegis/budget-config.json">{`{
+  "limits": [
+    {
+      "chainId": "solana:mainnet",
+      "token": "SOL",
+      "daily": "0.5",
+      "monthly": "10.0"
+    },
+    {
+      "chainId": "eip155:8453",
+      "token": "USDC",
+      "daily": "10.00",
+      "monthly": "50.00"
+    },
+    {
+      "chainId": "*",
+      "token": "*",
+      "daily": "15.00"
+    }
+  ]
+}`}</CodeBlock>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">Step 3: Configure Guard</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Restrict which addresses your agents can pay. Use allowlist mode to only permit known recipients, or blocklist mode to block specific addresses.
+          </p>
+          <CodeBlock title="~/.ows/aegis/guard-config.json">{`{
+  "mode": "allowlist",
+  "addresses": {
+    "solana:mainnet": [
+      "CePyeKXCtB6RzAatosDnnun3yryUzETKXA5rNEjPeSkL",
+      "2G55SdspdgSLcrXm3ZcfSHuDhvuhXtQLWqf1zVbAYCcq"
+    ],
+    "eip155:8453": [
+      "0xYourTrustedRecipient1",
+      "0xYourTrustedRecipient2"
+    ]
+  }
+}`}</CodeBlock>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">Step 4: Configure Deadswitch</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Auto-kill agents that go inactive. If an agent hasn&apos;t made a transaction within the timeout, its keys are revoked.
+          </p>
+          <CodeBlock title="~/.ows/aegis/deadswitch-config.json">{`{
+  "maxInactiveMinutes": 60,
+  "onTrigger": "revoke_key",
+  "enabled": true
+}`}</CodeBlock>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">Step 5: Run Your Agents</h3>
+          <CodeBlock title="Start the supply chain">{`# Terminal 1: Start the data miner (earns SOL)
+node demo/agents/data-miner.js
+
+# Terminal 2: Start the analyst (buys from miner, sells to buyers)
+node demo/agents/analyst.js
+
+# Terminal 3: Start the autonomous buyer (discovers, negotiates, buys)
+node demo/agents/autonomous-buyer.js`}</CodeBlock>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">Step 6: Monitor</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Watch everything in real-time from the Aegis dashboard or CLI.
+          </p>
+          <CodeBlock title="Monitor spending and health">{`# Check budget usage
+npx aegis budget --period daily
+
+# Check agent status
+npx aegis status
+
+# View the dashboard
+open http://localhost:3000/dashboard`}</CodeBlock>
+
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.03] p-5 mt-6">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              <strong className="text-amber-400">Safety:</strong> Always start on devnet first. Set <code className="text-xs bg-white/10 px-1 rounded">SOLANA_RPC_URL</code> to the devnet endpoint, test your agents, verify budget limits are enforced, then switch to mainnet when ready. The budget policy will block any transaction that exceeds your configured limits.
             </p>
           </div>
         </SectionAnchor>

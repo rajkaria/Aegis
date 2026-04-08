@@ -1,7 +1,17 @@
 import { Connection, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { signTransaction } from "@open-wallet-standard/core";
 
-const DEVNET_RPC = "https://api.devnet.solana.com";
+function getSolanaRpcUrl(): string {
+  const url = process.env.SOLANA_RPC_URL;
+  if (!url) {
+    throw new Error(
+      "SOLANA_RPC_URL not set. Configure it before making Solana payments:\n" +
+      "  Devnet:  export SOLANA_RPC_URL=https://api.devnet.solana.com\n" +
+      "  Mainnet: export SOLANA_RPC_URL=https://api.mainnet-beta.solana.com"
+    );
+  }
+  return url;
+}
 
 const WALLET_ADDRESSES: Record<string, string> = {
   "data-miner": "2G55SdspdgSLcrXm3ZcfSHuDhvuhXtQLWqf1zVbAYCcq",
@@ -18,7 +28,7 @@ export async function sendSolPayment(
   if (!fromAddr) return null;
 
   try {
-    const connection = new Connection(DEVNET_RPC, "confirmed");
+    const connection = new Connection(getSolanaRpcUrl(), "confirmed");
     const from = new PublicKey(fromAddr);
     const to = new PublicKey(toAddress);
 

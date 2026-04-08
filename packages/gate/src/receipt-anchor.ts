@@ -1,7 +1,18 @@
 import { Connection, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { signTransaction } from "@open-wallet-standard/core";
 
-const DEVNET_RPC = "https://api.devnet.solana.com";
+function getSolanaRpcUrl(): string {
+  const url = process.env.SOLANA_RPC_URL;
+  if (!url) {
+    throw new Error(
+      "SOLANA_RPC_URL not set. Configure it before anchoring receipts:\n" +
+      "  Devnet:  export SOLANA_RPC_URL=https://api.devnet.solana.com\n" +
+      "  Mainnet: export SOLANA_RPC_URL=https://api.mainnet-beta.solana.com"
+    );
+  }
+  return url;
+}
+
 const MEMO_PROGRAM_ID = new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
 
 const WALLET_ADDRESSES: Record<string, string> = {
@@ -23,7 +34,7 @@ export async function anchorReceiptOnChain(
   if (!signerAddr) return null;
 
   try {
-    const connection = new Connection(DEVNET_RPC, "confirmed");
+    const connection = new Connection(getSolanaRpcUrl(), "confirmed");
     const signer = new PublicKey(signerAddr);
 
     const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash("confirmed");

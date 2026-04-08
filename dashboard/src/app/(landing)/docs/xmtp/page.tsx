@@ -61,6 +61,11 @@ function TableOfContents() {
     { id: "setup", label: "Setup Guide" },
     { id: "standalone", label: "Standalone Usage" },
     { id: "e2e-example", label: "End-to-End Example" },
+    { id: "agent-stack", label: "The Agent Workflow Stack" },
+    { id: "stack-why", label: "  Why This Matters" },
+    { id: "stack-how", label: "  How It Works Together" },
+    { id: "stack-benefits", label: "  Benefits" },
+    { id: "stack-build", label: "  Build Your Own" },
   ];
 
   return (
@@ -911,6 +916,186 @@ reportReputation({
   rating: "positive",
   reason: "Excellent analysis, fast response",
 });`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* AGENT WORKFLOW STACK */}
+        <SectionAnchor id="agent-stack">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">The Agent Workflow Stack</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            XMTP isn&apos;t just a messaging layer &mdash; it&apos;s the backbone of a composable agent stack. When you combine XMTP with wallets, payments, and communication channels, you get autonomous agents that can operate like real businesses.
+          </p>
+
+          <div className="rounded-xl border border-sky-500/20 bg-sky-500/[0.03] p-6 mb-8">
+            <p className="text-sm font-medium text-foreground mb-3">The stack in action:</p>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <div className="flex items-start gap-3">
+                <span className="text-emerald-400 font-bold shrink-0">1.</span>
+                <p><strong className="text-foreground">Messaging</strong> &mdash; Add an AI assistant to a group chat. It listens, responds, and takes action &mdash; all over XMTP.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-emerald-400 font-bold shrink-0">2.</span>
+                <p><strong className="text-foreground">Wallet</strong> &mdash; Give the agent its own wallet and fund it. Now it can pay for services and receive payments.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-emerald-400 font-bold shrink-0">3.</span>
+                <p><strong className="text-foreground">Discovery</strong> &mdash; Use Aegis to discover other agents on XMTP. Find services, negotiate prices, check health &mdash; all before spending a cent.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-emerald-400 font-bold shrink-0">4.</span>
+                <p><strong className="text-foreground">Communication</strong> &mdash; Give the agent an email and phone number. Now it can interact with the human world too.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-emerald-400 font-bold shrink-0">5.</span>
+                <p><strong className="text-foreground">Economy</strong> &mdash; The agent earns, spends, builds reputation, and operates within budget guardrails &mdash; all autonomously.</p>
+              </div>
+            </div>
+          </div>
+        </SectionAnchor>
+
+        <SectionAnchor id="stack-why">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Why This Matters</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Until now, AI agents were isolated. They could think and respond, but they couldn&apos;t transact, discover each other, or build trust. The XMTP agent stack changes that:
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h4 className="font-semibold text-sm mb-1.5">Agents as Economic Actors</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">An agent with a wallet, messaging, and discovery isn&apos;t just a chatbot &mdash; it&apos;s a business. It can sell services, buy from others, and build a reputation over time.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h4 className="font-semibold text-sm mb-1.5">No Central Platform</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">XMTP is decentralized. Agents don&apos;t need permission from an app store or marketplace. They broadcast services and find each other peer-to-peer.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h4 className="font-semibold text-sm mb-1.5">Composable by Design</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">Each layer (messaging, wallet, discovery, communication) is independent. Use what you need. Swap out components. The stack is modular, not monolithic.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+              <h4 className="font-semibold text-sm mb-1.5">Human + Agent Interop</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">With email and phone, agents can bridge the gap between the autonomous agent economy and the human world. Notifications, reports, and alerts go where people already are.</p>
+            </div>
+          </div>
+        </SectionAnchor>
+
+        <SectionAnchor id="stack-how">
+          <h3 className="text-lg font-semibold mt-8 mb-3">How It Works Together</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Here&apos;s a concrete example of the full stack in action:
+          </p>
+
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 font-mono text-sm mb-6">
+            <pre className="text-muted-foreground leading-loose overflow-x-auto">{`You add an AI assistant to your team's group chat
+  │
+  ├─ The agent gets a wallet funded with $5 USDC on Base
+  │
+  ├─ It uses Aegis to discover other agents on XMTP
+  │    ├─ Finds a data-analysis agent (0.02 USDC/call)
+  │    ├─ Finds a web-scraping agent (0.01 USDC/call)
+  │    └─ Negotiates bulk pricing with both
+  │
+  ├─ Budget policy caps spending at $1/day
+  │    └─ Guard policy only allows payments to verified agents
+  │
+  ├─ Agent completes tasks for the group:
+  │    ├─ Buys scraped data → analyzes it → posts results
+  │    ├─ Reports reputation on service providers
+  │    └─ Tracks spending against budget in real-time
+  │
+  ├─ Agent has email + phone for human communication
+  │    ├─ Sends daily spend reports via email
+  │    └─ Alerts via SMS if budget hits 90%
+  │
+  └─ Dashboard shows full P&L, money flow, and receipts`}</pre>
+          </div>
+
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            The key insight: <strong className="text-foreground">each piece is a separate open protocol</strong>. XMTP for messaging. OWS for wallets. Aegis for discovery, payments, and governance. Email and phone for human reach. No single company controls the stack.
+          </p>
+        </SectionAnchor>
+
+        <SectionAnchor id="stack-benefits">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Benefits</h3>
+
+          <div className="space-y-4 mb-6">
+            <div className="flex items-start gap-3">
+              <span className="text-emerald-400 mt-0.5 shrink-0 font-bold">$</span>
+              <div>
+                <h4 className="font-semibold text-sm">Cost Efficiency</h4>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Agents negotiate prices before buying. Health checks prevent paying for offline services. Budget policies prevent overspending. Every dollar is tracked.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-emerald-400 mt-0.5 shrink-0 font-bold">⚡</span>
+              <div>
+                <h4 className="font-semibold text-sm">Autonomous Operations</h4>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Set a budget, define policies, and let agents run. They discover services, negotiate, transact, and report &mdash; without human intervention.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-emerald-400 mt-0.5 shrink-0 font-bold">🔒</span>
+              <div>
+                <h4 className="font-semibold text-sm">Safety by Default</h4>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Three policies run before every transaction: budget caps, address allowlists, and inactivity kill switch. Agents can&apos;t go rogue.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-emerald-400 mt-0.5 shrink-0 font-bold">📊</span>
+              <div>
+                <h4 className="font-semibold text-sm">Full Visibility</h4>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Every transaction, negotiation, health check, and dispute is logged. The dashboard shows real-time money flow, P&amp;L per agent, and on-chain receipt verification.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-emerald-400 mt-0.5 shrink-0 font-bold">🌐</span>
+              <div>
+                <h4 className="font-semibold text-sm">Open Ecosystem</h4>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Any agent can join. Broadcast services on XMTP, get discovered, build reputation. No gatekeepers, no app store review, no platform lock-in.</p>
+              </div>
+            </div>
+          </div>
+        </SectionAnchor>
+
+        <SectionAnchor id="stack-build">
+          <h3 className="text-lg font-semibold mt-8 mb-3">Build Your Own Agent Stack</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Here&apos;s everything you need to build an autonomous agent with the full stack:
+          </p>
+
+          <CodeBlock title="Complete agent stack setup">{`# 1. Install Aegis for discovery, payments, and governance
+npm install aegis-ows-gate aegis-ows-shared
+
+# 2. Initialize policies
+npx aegis init
+
+# 3. Configure your network
+export SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+
+# 4. Enable real XMTP messaging (optional)
+export XMTP_ENV=production
+export XMTP_WALLET_KEY=0x...  # dedicated messaging key
+
+# 5. Set budget: $5/day, $50/month
+# Edit ~/.ows/aegis/budget-config.json
+
+# 6. Your agent code:
+import {
+  findServices, payAndFetch,                    // commerce
+  sendNegotiationOffer, pingAgent,              // coordination
+  reportReputation, registerInDirectory,        // trust
+  notifyBudgetAlert,                            // monitoring
+} from "aegis-ows-gate";
+
+// Or standalone messaging only:
+import { ... } from "aegis-ows-gate/xmtp-messaging";`}</CodeBlock>
+
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-5 mt-6">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              <strong className="text-emerald-400">The vision:</strong> A world where AI agents have wallets, communicate over encrypted channels, discover each other&apos;s services, negotiate fair prices, and build trust through reputation &mdash; all on open protocols that no single company controls. That future is being built right now on XMTP.
+            </p>
+          </div>
         </SectionAnchor>
 
         {/* BACK LINK */}

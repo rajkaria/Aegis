@@ -518,6 +518,12 @@ const result = await payAndFetch("http://service/api/scrape", "buyer-agent");
           <p className="text-muted-foreground leading-relaxed mb-4">
             Aegis includes a full XMTP-powered agent communication protocol with 12 message types for complete agent-to-agent commerce. The protocol works locally via a file-based message bus (default) and over the real XMTP network when <code className="text-xs bg-white/10 px-1.5 py-0.5 rounded">XMTP_ENV</code> and <code className="text-xs bg-white/10 px-1.5 py-0.5 rounded">XMTP_WALLET_KEY</code> are set.
           </p>
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4 mb-6">
+            <p className="text-sm text-muted-foreground">
+              For use cases, architecture deep-dive, and an end-to-end implementation guide, see the dedicated{" "}
+              <Link href="/docs/xmtp" className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">XMTP Agent Messaging Guide &rarr;</Link>
+            </p>
+          </div>
 
           <div className="overflow-x-auto mb-6">
             <table className="w-full text-sm">

@@ -39,6 +39,12 @@ function LandingNav() {
             Docs
           </Link>
           <Link
+            href="/docs/xmtp"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
+          >
+            XMTP
+          </Link>
+          <Link
             href="/use-aegis"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >

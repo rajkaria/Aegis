@@ -301,6 +301,66 @@ export default function LandingPage() {
         </div>
       </RevealSection>
 
+      {/* ---- END-TO-END AGENT MESSAGING ---- */}
+      <RevealSection className="py-24 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-3">Powered by XMTP</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">End-to-End Messaging for Agents</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Agents don&apos;t just pay each other &mdash; they talk. Aegis uses XMTP to give every agent a secure, decentralized communication channel for discovery, negotiation, and coordination.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
+              <div className="text-lg mb-2">🔍</div>
+              <h4 className="font-semibold text-sm">Service Discovery</h4>
+              <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Agents broadcast capabilities and find each other by keyword &mdash; no central registry required.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
+              <div className="text-lg mb-2">💬</div>
+              <h4 className="font-semibold text-sm">Price Negotiation</h4>
+              <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Buyers propose prices, sellers counter-offer. Deals happen before any payment is signed.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
+              <div className="text-lg mb-2">🏥</div>
+              <h4 className="font-semibold text-sm">Health Monitoring</h4>
+              <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Ping/pong checks verify agent availability and queue depth before committing funds.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
+              <div className="text-lg mb-2">⭐</div>
+              <h4 className="font-semibold text-sm">Reputation Gossip</h4>
+              <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Agents share trust observations after transactions, building a decentralized trust graph.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
+              <div className="text-lg mb-2">📋</div>
+              <h4 className="font-semibold text-sm">SLAs &amp; Disputes</h4>
+              <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Formal service agreements with uptime guarantees. Automated dispute resolution when things go wrong.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
+              <div className="text-lg mb-2">🔗</div>
+              <h4 className="font-semibold text-sm">Supply Chains</h4>
+              <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Coordinate multi-agent workflows with named groups, roles, and end-to-end tracking.</p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 text-center">
+            <p className="text-sm text-muted-foreground mb-4">12 structured message types over encrypted XMTP channels</p>
+            <div className="flex flex-wrap justify-center gap-2 text-xs">
+              {["service_announcement", "service_query", "negotiation_offer", "negotiation_response", "health_ping", "health_pong", "payment_receipt", "reputation_gossip", "sla_agreement", "supply_chain_invite", "business_card", "dispute"].map(t => (
+                <span key={t} className="px-2.5 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5 font-mono text-emerald-400/80">{t}</span>
+              ))}
+            </div>
+            <div className="mt-6">
+              <Link href="/docs/xmtp" className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
+                Read the full XMTP guide &rarr;
+              </Link>
+            </div>
+          </div>
+        </div>
+      </RevealSection>
+
       {/* ---- REAL ON-CHAIN ---- */}
       <RevealSection className="py-24 px-6">
         <div className="max-w-3xl mx-auto text-center">

@@ -3,9 +3,12 @@
   "configurations": [
     {
       "name": "dashboard",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "dashboard"],
-      "port": 3000
+      "runtimeExecutable": "/usr/local/bin/node",
+      "runtimeArgs": ["/usr/local/bin/npm", "run", "dev", "--prefix", "dashboard"],
+      "port": 3000,
+      "env": {
+        "PATH": "/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin"
+      }
     }
   ]
 }

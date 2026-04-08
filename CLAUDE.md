@@ -30,42 +30,53 @@ When adding a new feature, component, API route, CLI command, or integration to 
 
 All data in `~/.ows/aegis/*.json`. On Vercel, bundled seed data from `dashboard/src/data/` is used.
 
-## Session Context (Last updated: 2026-04-07)
+## Session Context (Last updated: 2026-04-08)
 
 ### Current State
-- **Hackathon submission complete** — Aegis is fully built and submitted for the OWS Hackathon
-- **Vercel deployed** — Dashboard auto-deploys from `main` branch (root dir set to `dashboard`)
-- **npm published** — `aegis-ows-gate@0.3.0` and `aegis-ows-shared@0.2.0` on npm (no scope prefix)
-- **On-chain** — 7 verified Solana devnet transactions, receipt anchoring via Memo program
-- **XMTP protocol** — 15 message types, 12 fully tested; file-based + live transport (auto-select)
-- **All tests passing** — 50/50 dashboard unit tests, 10/10 XMTP integration tests, 0 TS errors across shared/gate/mcp-server
+- **Mainnet-ready** — Solana payments now use `SOLANA_RPC_URL` env var (no hardcoded devnet)
+- **XMTP standalone** — `aegis-ows-gate/xmtp-messaging` subpath export for messaging-only usage (no Express/Solana/ethers deps)
+- **Dedicated XMTP docs page** at `/docs/xmtp` with use cases, architecture, implementation guide, standalone section, and Agent Workflow Stack
+- **Landing page improved** — animated stat counters, no bullet points on feature cards, XMTP message ticker scrolls horizontally, XMTP/Roadmap moved from nav to docs
+- **Vercel deployed** — Dashboard auto-deploys from `main` branch
+- **npm published** — `aegis-ows-gate@0.3.0` and `aegis-ows-shared@0.2.0` on npm
 
 ### Key Packages
-- `packages/shared/src/messages.ts` — 15 XMTP message type interfaces + file transport + query helpers
-- `packages/gate/src/xmtp-transport.ts` — FileTransport (default) + LiveXMTPTransport (real XMTP via @xmtp/agent-sdk)
-- `packages/gate/src/` — agent-identity, xmtp-directory, xmtp-disputes, xmtp-webhooks, xmtp-protocol
-- `packages/integrations/src/stellar.ts` — Stellar Horizon API integration
-- `packages/mcp-server/src/index.ts` — 10+ MCP tools for agent economy
-- `dashboard/` — 22 components, 9 pages, 17 API routes
+- `packages/gate/src/xmtp-messaging.ts` — NEW standalone entry point for messaging-only import
+- `packages/gate/src/agent-identity.ts` — Decoupled from ledger; `buildAgentIdentity()` accepts optional `ledgerData`
+- `packages/gate/src/xmtp-directory.ts` — Decoupled from `@aegis-ows/shared` hard imports; uses dynamic require with fallback
+- `packages/gate/src/solana-pay.ts` — Uses `getSolanaRpcUrl()` reading `SOLANA_RPC_URL` env var
+- `packages/gate/src/receipt-anchor.ts` — Same env var pattern
+- `packages/gate/package.json` — Added `exports` field with `./xmtp-messaging` subpath
+- `dashboard/src/app/(landing)/docs/xmtp/page.tsx` — Full XMTP docs page (use cases, architecture, standalone, Agent Workflow Stack)
 
 ### Recent Changes (latest commits)
-- `f4c73fe` — Real XMTP transport, agent identity, business cards, disputes, directory, notifications (12 message types)
-- `87e9d3a` — Full XMTP agent protocol (8 message types for negotiation, health, receipts, reputation, SLAs, supply chains)
-- `0dab2ba` — Stellar blockchain support (Horizon balance queries, tx verification, multi-chain display)
+- `e9370a1` — Agent Workflow Stack section in XMTP docs (composable agent economy vision)
+- `4612342` — Mainnet-ready Solana payments + Production Deployment docs section
+- `7ec8ed9` — Standalone XMTP messaging export + landing page improvements (counters, ticker, nav cleanup)
+- `f93ba88` — Dedicated XMTP docs page + agent messaging section on landing page
 
 ### Key Decisions
-- Published npm without `@aegis-ows/` scope (scope didn't exist on npm) — used `aegis-ows-gate` and `aegis-ows-shared`
-- Dashboard types inlined in `src/lib/types.ts` for standalone Vercel deploy (no monorepo dependency)
-- XMTP transport auto-selects: LiveXMTPTransport when `XMTP_ENV` + `XMTP_WALLET_KEY` env vars set, FileTransport otherwise
-- Solana payments use OWS SDK `signTransaction` in-process (avoids blockhash race from CLI shell-out)
-- Input validation runs on raw input BEFORE sanitization (prevents bypass like `test;rm -rf /` → `testrm-rf`)
-- SLAAgreement TypeScript cast uses double-cast `(m as unknown as Record<string, unknown>)` due to nested `terms` object
+- **SOLANA_RPC_URL has no default** — forces explicit network choice for safety (user chose env-var driven over mainnet default)
+- **XMTP standalone via subpath export** — `aegis-ows-gate/xmtp-messaging` instead of separate npm package (simpler, one install)
+- **agent-identity decoupled** — `buildAgentIdentity()` works with zero payment data; optional `ledgerData` param enriches it; `buildAgentIdentityFromLedger()` for backwards compat
+- **xmtp-directory uses dynamic require** — `require("@aegis-ows/shared")` in try/catch so it works without shared package
+- **Nav simplified** — Removed XMTP and Roadmap links from top nav; both accessible from docs page instead
+- XMTP founder (Shane Mac) tweeted about needing "WhatsApp for agents on XMTP" — Aegis XMTP build was inspired by this
 
 ### Next Steps
-- Test real XMTP transport by setting `XMTP_WALLET_KEY` env var
-- Record updated demo video showing 12 message types
-- Update hackathon submission with latest XMTP protocol details
-- Consider adding more partner integrations or polishing existing ones
+- Deploy agents on cloud (Vercel/Railway) with real mainnet wallet and $50 budget for live demo
+- Republish `aegis-ows-gate` to npm with the new `exports` field and standalone entry point
+- Test real XMTP transport with `XMTP_WALLET_KEY` on production network
+- Record demo video showing the Agent Workflow Stack in action
+- Tweet the Agent Workflow Stack docs link as a quote tweet to Shane Mac
 
 ### Partner Integrations (9 total)
 Solana, Stellar, Ripple XRPL, Zerion, Uniblock, Allium, MoonPay, XMTP, OWS
+
+### Previous Session Notes (2026-04-07)
+- Hackathon submission completed
+- npm published without `@aegis-ows/` scope — used `aegis-ows-gate` and `aegis-ows-shared`
+- Dashboard types inlined in `src/lib/types.ts` for standalone Vercel deploy
+- XMTP transport auto-selects: LiveXMTPTransport when env vars set, FileTransport otherwise
+- Solana payments use OWS SDK `signTransaction` in-process (avoids blockhash race)
+- 50/50 dashboard tests, 10/10 XMTP tests passing, 0 TS errors

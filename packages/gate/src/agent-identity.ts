@@ -1,4 +1,3 @@
-import { readEarningsLedger, readLedger, computeReputation } from "@aegis-ows/shared";
 import { getXMTPAddress } from "./xmtp-transport.js";
 
 export interface AgentIdentity {
@@ -35,13 +34,29 @@ export interface AgentBusinessCard {
   signature?: string;
 }
 
-export function buildAgentIdentity(agentId: string, walletAddresses?: Record<string, string>): AgentIdentity {
-  const earnings = readEarningsLedger();
-  const spending = readLedger();
+/** Optional ledger data — pass these to enrich identity with payment history */
+export interface AgentLedgerData {
+  earnings?: Array<{ agentId: string; endpoint: string; amount: string; token: string; timestamp: string }>;
+  spending?: Array<{ apiKeyId: string; amount: string; timestamp: string }>;
+  reputation?: { score: number; level: string; totalTransactions: number };
+}
+
+/**
+ * Build an agent identity profile.
+ * Works standalone with zero dependencies — pass optional ledgerData to enrich with payment history.
+ * When used with the full Aegis gate, ledger data is loaded automatically.
+ */
+export function buildAgentIdentity(
+  agentId: string,
+  walletAddresses?: Record<string, string>,
+  ledgerData?: AgentLedgerData,
+): AgentIdentity {
+  const earningsEntries = ledgerData?.earnings ?? [];
+  const spendingEntries = ledgerData?.spending ?? [];
 
   // Get services this agent sells
   const serviceMap = new Map<string, { price: string; token: string; count: number }>();
-  for (const e of earnings.entries.filter(e => e.agentId === agentId)) {
+  for (const e of earningsEntries.filter(e => e.agentId === agentId)) {
     if (!serviceMap.has(e.endpoint)) {
       serviceMap.set(e.endpoint, { price: e.amount, token: e.token, count: 0 });
     }
@@ -55,20 +70,16 @@ export function buildAgentIdentity(agentId: string, walletAddresses?: Record<str
     description: `${endpoint} (${data.count} calls served)`,
   }));
 
-  // Compute reputation
-  let reputation = { score: 0, level: "new" as string, totalTransactions: 0 };
-  try {
-    const rep = computeReputation(agentId);
-    reputation = { score: rep.score, level: rep.level, totalTransactions: rep.totalTransactions };
-  } catch { /* no data yet */ }
+  // Use provided reputation or default
+  const reputation = ledgerData?.reputation ?? { score: 0, level: "new", totalTransactions: 0 };
 
-  // Compute stats
-  const rev = earnings.entries.filter(e => e.agentId === agentId).reduce((s, e) => s + parseFloat(e.amount), 0);
-  const spend = spending.entries.filter(e => e.apiKeyId === agentId).reduce((s, e) => s + parseFloat(e.amount), 0);
+  // Compute stats from ledger data
+  const rev = earningsEntries.filter(e => e.agentId === agentId).reduce((s, e) => s + parseFloat(e.amount), 0);
+  const spend = spendingEntries.filter(e => e.apiKeyId === agentId).reduce((s, e) => s + parseFloat(e.amount), 0);
 
   const allTimestamps = [
-    ...earnings.entries.filter(e => e.agentId === agentId).map(e => e.timestamp),
-    ...spending.entries.filter(e => e.apiKeyId === agentId).map(e => e.timestamp),
+    ...earningsEntries.filter(e => e.agentId === agentId).map(e => e.timestamp),
+    ...spendingEntries.filter(e => e.apiKeyId === agentId).map(e => e.timestamp),
   ].sort();
 
   return {
@@ -86,10 +97,39 @@ export function buildAgentIdentity(agentId: string, walletAddresses?: Record<str
   };
 }
 
-export function createBusinessCard(agentId: string, walletAddresses?: Record<string, string>): AgentBusinessCard {
+/**
+ * Build identity with automatic ledger loading (requires full Aegis installation).
+ * Falls back gracefully if ledger files don't exist.
+ */
+export function buildAgentIdentityFromLedger(agentId: string, walletAddresses?: Record<string, string>): AgentIdentity {
+  try {
+    const { readEarningsLedger, readLedger, computeReputation } = require("@aegis-ows/shared");
+    const earnings = readEarningsLedger();
+    const spending = readLedger();
+    let reputation: { score: number; level: string; totalTransactions: number } | undefined;
+    try {
+      reputation = computeReputation(agentId);
+    } catch { /* no data yet */ }
+
+    return buildAgentIdentity(agentId, walletAddresses, {
+      earnings: earnings.entries,
+      spending: spending.entries,
+      reputation,
+    });
+  } catch {
+    // Shared package not available or no ledger data — return empty identity
+    return buildAgentIdentity(agentId, walletAddresses);
+  }
+}
+
+export function createBusinessCard(
+  agentId: string,
+  walletAddresses?: Record<string, string>,
+  ledgerData?: AgentLedgerData,
+): AgentBusinessCard {
   return {
     type: "business_card",
-    identity: buildAgentIdentity(agentId, walletAddresses),
+    identity: buildAgentIdentity(agentId, walletAddresses, ledgerData),
     timestamp: new Date().toISOString(),
   };
 }

@@ -41,7 +41,7 @@ export { findServices, type DiscoveredService } from "./discover.js";
 export { verifySettlement } from "./verify-settlement.js";
 export * from "./xmtp-protocol.js";
 export { getTransport, isXMTPLive, getXMTPAddress } from "./xmtp-transport.js";
-export { buildAgentIdentity, createBusinessCard, type AgentIdentity, type AgentBusinessCard } from "./agent-identity.js";
+export { buildAgentIdentity, buildAgentIdentityFromLedger, createBusinessCard, type AgentIdentity, type AgentBusinessCard, type AgentLedgerData } from "./agent-identity.js";
 export { registerInDirectory, searchDirectory, listDirectory, getDirectorySize } from "./xmtp-directory.js";
 export { openDispute, respondToDispute, type DisputeParams, type DisputeResponseParams } from "./xmtp-disputes.js";
 export { notifyViaXMTP, notifyPolicyBlock, notifyBudgetAlert, notifyDeadswitchWarning, type XMTPNotification } from "./xmtp-webhooks.js";

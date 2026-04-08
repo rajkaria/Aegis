@@ -5,6 +5,16 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./xmtp-messaging": {
+      "import": "./dist/xmtp-messaging.js",
+      "types": "./dist/xmtp-messaging.d.ts"
+    }
+  },
   "bin": {
     "aegis-gate": "dist/index.js"
   },
@@ -21,7 +31,9 @@
     "ows",
     "agents",
     "commerce",
-    "solana"
+    "solana",
+    "xmtp",
+    "agent-messaging"
   ],
   "author": "Raj Karia",
   "license": "MIT",

@@ -98,6 +98,8 @@ function TableOfContents() {
     { id: "agent-reputation", label: "Agent Reputation" },
     { id: "agent-templates", label: "Agent Templates" },
     { id: "fleet-manager", label: "Fleet Manager" },
+    { id: "xmtp-guide", label: "XMTP Agent Messaging" },
+    { id: "roadmap-link", label: "Roadmap" },
   ];
 
   return (
@@ -787,6 +789,13 @@ console.log(isXMTPLive()); // true if XMTP_ENV + XMTP_WALLET_KEY are set
 
 // Get the agent's XMTP address (if connected)
 console.log(getXMTPAddress()); // "0x..." or null`}</CodeBlock>
+
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4 mt-6">
+            <p className="text-sm text-muted-foreground">
+              <strong className="text-emerald-400">Standalone:</strong> Use XMTP messaging without the x402 payment stack. Import from <code className="text-xs bg-white/10 px-1.5 py-0.5 rounded">aegis-ows-gate/xmtp-messaging</code> for messaging-only functions with zero Express/Solana/ethers dependencies.{" "}
+              <Link href="/docs/xmtp#standalone" className="text-emerald-400 hover:text-emerald-300 transition-colors">Learn more &rarr;</Link>
+            </p>
+          </div>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />
@@ -1695,6 +1704,32 @@ aegisGate({
           <p className="text-muted-foreground text-sm">
             Fleet Manager is available in the Aegis Nexus dashboard and updates automatically as new transactions arrive. It is especially useful when operating many agents simultaneously — you can spot an agent approaching its budget limit or one that has gone idle without opening its detail page.
           </p>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* XMTP Guide Link */}
+        <SectionAnchor id="xmtp-guide">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">XMTP Agent Messaging</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Deep-dive into how Aegis uses XMTP for end-to-end agent communication. Covers use cases (marketplace, supply chains, fleet monitoring, trust networks), architecture, transport layer, all 12 message types, implementation guide, and a complete end-to-end example.
+          </p>
+          <Link href="/docs/xmtp" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-sm text-emerald-400 hover:bg-emerald-500/10 transition-colors">
+            Read the XMTP Guide &rarr;
+          </Link>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Roadmap Link */}
+        <SectionAnchor id="roadmap-link">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Roadmap</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            See the Aegis ecosystem vision, partner deepening plans, and prize allocation strategy for the OWS Hackathon.
+          </p>
+          <Link href="/roadmap" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-sky-500/20 bg-sky-500/5 text-sm text-sky-400 hover:bg-sky-500/10 transition-colors">
+            View Roadmap &rarr;
+          </Link>
         </SectionAnchor>
 
         {/* Footer */}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -39,7 +39,7 @@ function DotGrid() {
   );
 }
 
-function FeatureCard({ icon, title, description, details }: { icon: React.ReactNode; title: string; description: string; details?: string[] }) {
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
     <div className="group relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-all duration-300 hover:scale-[1.02] hover:border-white/20 hover:shadow-[0_0_40px_-12px_rgba(52,211,153,0.15)]">
       <div className="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-sky-500/20 border border-white/10">
@@ -47,24 +47,64 @@ function FeatureCard({ icon, title, description, details }: { icon: React.ReactN
       </div>
       <h3 className="text-xl font-bold mb-2">{title}</h3>
       <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-      {details && (
-        <ul className="mt-4 space-y-1.5">
-          {details.map((d, i) => (
-            <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground/80">
-              <span className="w-1 h-1 rounded-full bg-emerald-400/60 mt-1.5 shrink-0" />
-              {d}
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
 
-function StatPill({ value, label }: { value: string; label: string }) {
+function useCountUp(target: number, duration = 1500) {
+  const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
+          const computed = window.getComputedStyle(el);
+          if (parseFloat(computed.opacity) > 0.5) {
+            observer.unobserve(el);
+            setStarted(true);
+          }
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    const interval = setInterval(() => {
+      if (!el) return;
+      const computed = window.getComputedStyle(el);
+      if (parseFloat(computed.opacity) > 0.5 && el.getBoundingClientRect().top < window.innerHeight) {
+        clearInterval(interval);
+        setStarted(true);
+      }
+    }, 200);
+    return () => { observer.disconnect(); clearInterval(interval); };
+  }, []);
+
+  useEffect(() => {
+    if (!started) return;
+    const start = performance.now();
+    const step = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [started, target, duration]);
+
+  return { count, ref };
+}
+
+function StatPill({ value, label, animate }: { value: string; label: string; animate?: number }) {
+  const { count, ref } = useCountUp(animate ?? 0);
   return (
-    <div className="text-center px-6">
-      <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-sky-400 bg-clip-text text-transparent">{value}</div>
+    <div className="text-center px-6" ref={animate !== undefined ? ref : undefined}>
+      <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-sky-400 bg-clip-text text-transparent">
+        {animate !== undefined ? count : value}
+      </div>
       <div className="text-xs text-muted-foreground mt-1">{label}</div>
     </div>
   );
@@ -112,9 +152,9 @@ export default function LandingPage() {
       <RevealSection className="pb-20 px-6">
         <div className="max-w-3xl mx-auto flex flex-wrap justify-center gap-8 sm:gap-12 py-8 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
           <StatPill value="Unlimited" label="Agents & Wallets" />
-          <StatPill value="8" label="Chains Supported" />
-          <StatPill value="3" label="Built-in Policies" />
-          <StatPill value="7" label="On-Chain Transactions" />
+          <StatPill value="8" label="Chains Supported" animate={8} />
+          <StatPill value="3" label="Built-in Policies" animate={3} />
+          <StatPill value="7" label="On-Chain Transactions" animate={7} />
         </div>
       </RevealSection>
 
@@ -132,68 +172,32 @@ export default function LandingPage() {
             <FeatureCard
               icon={<svg className="w-6 h-6 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>}
               title="Monetize Any API"
-              description="One line of Express middleware turns any endpoint into a paid x402 service. Published on npm — install and start earning in 60 seconds."
-              details={[
-                "npm install aegis-ows-gate",
-                "Automatic 402 payment challenge-response",
-                "EIP-712 signed payment authorization",
-                "Revenue tracking per endpoint",
-              ]}
+              description="One line of Express middleware turns any endpoint into a paid x402 service. EIP-712 signed payments with automatic revenue tracking."
             />
             <FeatureCard
               icon={<svg className="w-6 h-6 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="M9 12l2 2 4-4" /></svg>}
               title="Policy Guardrails"
-              description="Three OWS-native policies that evaluate every transaction before it's signed. Fail-closed — if a policy says no, the payment is blocked."
-              details={[
-                "aegis-budget: daily/weekly/monthly spending caps per chain and token",
-                "aegis-guard: allowlist/blocklist for contract and wallet addresses",
-                "aegis-deadswitch: auto-revoke keys after agent inactivity",
-                "Create custom policies with any script or binary",
-              ]}
+              description="Budget caps, address allowlists, and a dead man's switch. Three fail-closed policies that evaluate every transaction before it's signed."
             />
             <FeatureCard
               icon={<svg className="w-6 h-6 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><circle cx="5" cy="6" r="2" /><circle cx="19" cy="6" r="2" /><circle cx="5" cy="18" r="2" /><circle cx="19" cy="18" r="2" /><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3" /></svg>}
               title="Economy Dashboard"
-              description="Aegis Nexus shows the full picture — money flowing between agents, per-agent profit and loss, budget consumption, and policy decisions in real-time."
-              details={[
-                "Money flow visualization across all agents",
-                "AI-powered economy insights and risk alerts",
-                "Interactive policy editor — edit configs from the browser",
-                "On-chain receipt verification via Solana Explorer",
-              ]}
+              description="Money flow visualization, per-agent P&L, AI-powered insights, interactive policy editor, and on-chain receipt verification in real-time."
             />
             <FeatureCard
               icon={<svg className="w-6 h-6 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>}
-              title="Agent Communication Protocol"
-              description="12 message types for agent-to-agent commerce. Discovery, negotiation, health checks, receipts, reputation, SLAs, supply chain coordination, identity cards, dispute resolution, and notifications — all over XMTP."
-              details={[
-                "Discover services via keyword search",
-                "Negotiate prices before committing",
-                "Health ping/pong for availability",
-                "Reputation gossip for trust scoring",
-              ]}
+              title="Agent Communication"
+              description="12 structured XMTP message types for discovery, negotiation, health checks, receipts, reputation, SLAs, disputes, and supply chain coordination."
             />
             <FeatureCard
               icon={<svg className="w-6 h-6 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>}
-              title="Deploy Autonomous Agents"
-              description="Agents build trust through a reputation system. Successful payments increase scores, policy violations decrease them. Ranked from New to Elite."
-              details={[
-                "0-100 reputation score per agent",
-                "Levels: New → Trusted → Verified → Elite",
-                "Based on payment history and policy compliance",
-                "Fleet manager shows all agents at a glance",
-              ]}
+              title="Reputation & Trust"
+              description="0-100 reputation scores per agent. Levels from New to Elite based on payment history, policy compliance, and peer gossip."
             />
             <FeatureCard
               icon={<svg className="w-6 h-6 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></svg>}
               title="Full Control Panel"
-              description="Create wallets, register policies, fund agents, and send real on-chain payments — all from the browser. Plus a CLI for terminal workflows."
-              details={[
-                "Create unlimited OWS wallets with multi-chain addresses",
-                "Register custom policies with any executable",
-                "Send real SOL payments on Solana devnet",
-                "MCP server for Claude Code and Cursor integration",
-              ]}
+              description="Create wallets, register policies, fund agents, and send real on-chain payments from the browser. CLI and MCP server included."
             />
           </div>
         </div>
@@ -347,11 +351,22 @@ export default function LandingPage() {
 
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 text-center">
             <p className="text-sm text-muted-foreground mb-4">12 structured message types over encrypted XMTP channels</p>
-            <div className="flex flex-wrap justify-center gap-2 text-xs">
-              {["service_announcement", "service_query", "negotiation_offer", "negotiation_response", "health_ping", "health_pong", "payment_receipt", "reputation_gossip", "sla_agreement", "supply_chain_invite", "business_card", "dispute"].map(t => (
-                <span key={t} className="px-2.5 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5 font-mono text-emerald-400/80">{t}</span>
-              ))}
+            <div className="relative overflow-hidden mask-gradient">
+              <div className="flex gap-3 text-xs animate-ticker whitespace-nowrap">
+                {[...["service_announcement", "service_query", "negotiation_offer", "negotiation_response", "health_ping", "health_pong", "payment_receipt", "reputation_gossip", "sla_agreement", "supply_chain_invite", "business_card", "dispute"], ...["service_announcement", "service_query", "negotiation_offer", "negotiation_response", "health_ping", "health_pong", "payment_receipt", "reputation_gossip", "sla_agreement", "supply_chain_invite", "business_card", "dispute"]].map((t, i) => (
+                  <span key={`${t}-${i}`} className="px-2.5 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5 font-mono text-emerald-400/80 shrink-0">{t}</span>
+                ))}
+              </div>
             </div>
+            <style>{`
+              @keyframes ticker {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+              }
+              .animate-ticker { animation: ticker 30s linear infinite; }
+              .animate-ticker:hover { animation-play-state: paused; }
+              .mask-gradient { mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent); }
+            `}</style>
             <div className="mt-6">
               <Link href="/docs/xmtp" className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
                 Read the full XMTP guide &rarr;

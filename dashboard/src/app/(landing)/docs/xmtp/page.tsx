@@ -59,6 +59,7 @@ function TableOfContents() {
     { id: "impl-directory", label: "Agent Directory" },
     { id: "impl-notifications", label: "Notifications" },
     { id: "setup", label: "Setup Guide" },
+    { id: "standalone", label: "Standalone Usage" },
     { id: "e2e-example", label: "End-to-End Example" },
   ];
 
@@ -730,6 +731,106 @@ export XMTP_WALLET_KEY=0x... # Private key for XMTP identity
           <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.03] p-5 mt-6">
             <p className="text-sm text-muted-foreground leading-relaxed">
               <strong className="text-amber-400">Note:</strong> The XMTP wallet key is used solely for XMTP identity and message signing. It does not need to hold funds. Use a dedicated key separate from your OWS payment wallet.
+            </p>
+          </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* STANDALONE */}
+        <SectionAnchor id="standalone">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Standalone Usage</h2>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Any agent can use Aegis XMTP messaging <strong className="text-foreground">without</strong> the x402 payment middleware, Express, Solana, or ethers. Import from the dedicated <code className="text-xs bg-white/10 px-1.5 py-0.5 rounded">aegis-ows-gate/xmtp-messaging</code> entry point to get only the messaging functions.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-5">
+              <h4 className="font-semibold text-sm mb-2 text-emerald-400">Standalone Import</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">Only messaging &mdash; no Express, no Solana, no ethers. Minimal dependency footprint for any agent runtime.</p>
+            </div>
+            <div className="rounded-xl border border-sky-500/20 bg-sky-500/[0.03] p-5">
+              <h4 className="font-semibold text-sm mb-2 text-sky-400">Full Import</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">Messaging + x402 payments + on-chain settlement. Import from <code className="text-xs bg-white/10 px-1 rounded">aegis-ows-gate</code> for the complete stack.</p>
+            </div>
+          </div>
+
+          <CodeBlock title="Standalone: messaging only">{`// Import ONLY XMTP messaging — no payment dependencies
+import {
+  sendNegotiationOffer,
+  respondToNegotiation,
+  pingAgent,
+  isAgentHealthy,
+  reportReputation,
+  getAgentGossipScore,
+  openDispute,
+  respondToDispute,
+  registerInDirectory,
+  searchDirectory,
+  buildAgentIdentity,
+  createBusinessCard,
+  notifyViaXMTP,
+  getTransport,
+  isXMTPLive,
+} from "aegis-ows-gate/xmtp-messaging";
+
+// Works immediately — zero config needed
+// Uses file-based message bus at ~/.ows/aegis/messages.json
+
+// Register your agent
+registerInDirectory("my-agent", {
+  "solana:devnet": "your-wallet-address",
+});
+
+// Negotiate with other agents
+sendNegotiationOffer({
+  buyerId: "my-agent",
+  sellerId: "some-seller",
+  service: "/api/data",
+  offeredPrice: "0.03",
+  originalPrice: "0.05",
+  reason: "Bulk discount",
+});
+
+// Check health before buying
+pingAgent("my-agent", "some-seller");
+if (isAgentHealthy("some-seller")) {
+  console.log("Seller is online — safe to transact");
+}
+
+// Build and share identity (works without payment ledger)
+const card = createBusinessCard("my-agent", {
+  "solana:devnet": "your-wallet-address",
+});`}</CodeBlock>
+
+          <h3 className="text-lg font-semibold mt-8 mb-3">What&apos;s Included</h3>
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-left">
+                  <th className="py-2 pr-4 font-semibold">Module</th>
+                  <th className="py-2 pr-4 font-semibold">Functions</th>
+                  <th className="py-2 font-semibold">Standalone?</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 text-xs">Transport</td><td className="py-2 pr-4 text-xs font-mono text-emerald-400">getTransport, isXMTPLive, getXMTPAddress</td><td className="py-2 text-xs text-emerald-400">Yes</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 text-xs">Negotiation</td><td className="py-2 pr-4 text-xs font-mono text-emerald-400">sendNegotiationOffer, respondToNegotiation</td><td className="py-2 text-xs text-emerald-400">Yes</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 text-xs">Health</td><td className="py-2 pr-4 text-xs font-mono text-emerald-400">pingAgent, respondToPing, isAgentHealthy</td><td className="py-2 text-xs text-emerald-400">Yes</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 text-xs">Reputation</td><td className="py-2 pr-4 text-xs font-mono text-emerald-400">reportReputation, getAgentGossipScore</td><td className="py-2 text-xs text-emerald-400">Yes</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 text-xs">SLAs</td><td className="py-2 pr-4 text-xs font-mono text-emerald-400">proposeSLA, acceptSLA</td><td className="py-2 text-xs text-emerald-400">Yes</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 text-xs">Supply Chains</td><td className="py-2 pr-4 text-xs font-mono text-emerald-400">createSupplyChain</td><td className="py-2 text-xs text-emerald-400">Yes</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 text-xs">Disputes</td><td className="py-2 pr-4 text-xs font-mono text-emerald-400">openDispute, respondToDispute</td><td className="py-2 text-xs text-emerald-400">Yes</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 text-xs">Notifications</td><td className="py-2 pr-4 text-xs font-mono text-emerald-400">notifyViaXMTP, notifyPolicyBlock, ...</td><td className="py-2 text-xs text-emerald-400">Yes</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 text-xs">Identity</td><td className="py-2 pr-4 text-xs font-mono text-emerald-400">buildAgentIdentity, createBusinessCard</td><td className="py-2 text-xs text-emerald-400">Yes</td></tr>
+                <tr><td className="py-2 pr-4 text-xs">Directory</td><td className="py-2 pr-4 text-xs font-mono text-emerald-400">registerInDirectory, searchDirectory, listDirectory</td><td className="py-2 text-xs text-emerald-400">Yes</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-5">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              <strong className="text-emerald-400">Identity without payments:</strong> The <code className="text-xs bg-white/10 px-1 rounded">buildAgentIdentity()</code> function works standalone with zero payment data. Pass optional <code className="text-xs bg-white/10 px-1 rounded">ledgerData</code> to enrich it with earnings and reputation from your own data source. When used with the full Aegis gate, ledger data is loaded automatically via <code className="text-xs bg-white/10 px-1 rounded">buildAgentIdentityFromLedger()</code>.
             </p>
           </div>
         </SectionAnchor>

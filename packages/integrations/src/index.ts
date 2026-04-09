@@ -56,3 +56,15 @@ export async function getAllBalances(addresses: {
 
   return Array.from(seen.values());
 }
+
+// Multi-chain payment gateway
+export { PaymentRouter, getPaymentRouter } from "./payments/router.js";
+export { EVMAdapter } from "./payments/evm/adapter.js";
+export { StellarAdapter } from "./payments/stellar/adapter.js";
+export { SolanaAdapter } from "./payments/solana/adapter.js";
+export type { ChainAdapter, PaymentParams, PaymentResult, FeeEstimate, ReceiptData, ChainConfig, TokenInfo } from "./payments/types.js";
+export { EVM_CHAINS, getChainConfig, isEvmChain, getExplorerTxUrl } from "./payments/evm/chains.js";
+export { TOKEN_REGISTRY, resolveToken } from "./payments/evm/tokens.js";
+export { estimatePaymentFees, compareFeesAcrossChains } from "./payments/evm/gas.js";
+export { resolveENS, reverseResolveENS } from "./payments/evm/ens.js";
+export { contractRead, encodeContractWrite } from "./payments/evm/contracts.js";

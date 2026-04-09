@@ -117,6 +117,7 @@ export interface AegisGateOptions {
   agentId: string;
   walletAddress?: string;
   network?: string;      // default "eip155:1"
+  acceptedChains?: string[];  // NEW: chains this gate accepts payment on
   description?: string;
   verify?: boolean;      // If true, verify the payment tx landed on-chain before granting access
 }
@@ -158,6 +159,7 @@ export function aegisGate(options: AegisGateOptions) {
         token,
         // extended fields for backward compat
         network,
+        acceptedChains: options.acceptedChains ?? [network],
         resource: req.path,
         agentId: options.agentId,
         description: options.description,
@@ -173,7 +175,10 @@ export function aegisGate(options: AegisGateOptions) {
         deadline?: number;
         signatureType?: string;
         nonce?: number;
+        chain?: string;  // which chain was payment made on
       };
+
+      const paymentChain = payment.chain ?? network;
 
       // Verify deadline for EIP-712 signed payments
       if (payment.deadline) {
@@ -254,7 +259,7 @@ export function aegisGate(options: AegisGateOptions) {
       if (options.verify && payment.txHash && payment.txHash.length > 20 && !payment.txHash.startsWith("mock")) {
         try {
           const { verifySettlement } = await import("./verify-settlement.js");
-          const verified = await verifySettlement(payment.txHash, network);
+          const verified = await verifySettlement(payment.txHash, paymentChain);
           if (verified === false) {
             res.status(402).json({ error: "Payment not confirmed on-chain", txHash: payment.txHash });
             return;
@@ -406,6 +411,7 @@ export async function payAndFetch(url: string, callerAgentId: string): Promise<u
         timestamp: paymentTimestamp,
         deadline,
         signatureType: "eip712",
+        chain: details.network ?? "eip155:1",
       }),
     },
   });

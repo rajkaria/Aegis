@@ -42,6 +42,11 @@ function TableOfContents() {
     { id: "aegis-usage", label: "What Aegis Uses Stellar For" },
     { id: "use-cases", label: "Use Cases" },
     { id: "architecture", label: "Architecture" },
+    { id: "native-payments", label: "Native Payments" },
+    { id: "account-creation", label: "Account Creation" },
+    { id: "receipt-anchoring", label: "Receipt Anchoring" },
+    { id: "cross-border", label: "Cross-Border Payments" },
+    { id: "federation", label: "Federation" },
     { id: "balances", label: "Balance Monitoring" },
     { id: "verification", label: "Transaction Verification" },
     { id: "testnet", label: "Testnet Funding" },
@@ -157,6 +162,168 @@ Stellar Network (Testnet or Pubnet)`}</CodeBlock>
           <p className="text-sm text-muted-foreground mt-4">
             All Stellar queries go through the public Horizon API &mdash; no API keys required. The SDK handles REST calls, response parsing, and error handling.
           </p>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Native Payments */}
+        <SectionAnchor id="native-payments">
+          <h2 className="text-2xl font-bold mb-4">Native Payments</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Send XLM and USDC between agent wallets via <code className="text-emerald-400">sendStellarPayment()</code>. Near-zero fees (~$0.00001) and 3-5 second finality make Stellar ideal for high-frequency agent-to-agent payments.
+          </p>
+          <CodeBlock title="Send XLM or USDC">{`import { sendStellarPayment } from "@aegis-ows/integrations";
+
+// Send XLM
+const result = await sendStellarPayment({
+  from: "GBZX...",
+  to: "GDEST...",
+  amount: "10.5",
+  asset: "XLM",
+  secretKey: process.env.STELLAR_SECRET_KEY,
+  testnet: true,
+});
+
+// Send USDC on Stellar
+const result = await sendStellarPayment({
+  from: "GBZX...",
+  to: "GDEST...",
+  amount: "5.00",
+  asset: "USDC",
+  assetIssuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+  secretKey: process.env.STELLAR_SECRET_KEY,
+  testnet: false,   // mainnet
+});
+
+// result.txHash — Stellar transaction hash
+// result.ledger  — ledger sequence number
+// result.fee     — fee in XLM (tiny!)`}</CodeBlock>
+          <div className="mt-4 rounded-xl border border-sky-500/20 bg-sky-500/5 p-4">
+            <p className="text-sm text-sky-400 font-semibold mb-1">~$0.00001 per transaction</p>
+            <p className="text-sm text-muted-foreground">
+              Stellar&apos;s base fee is 100 stroops (0.00001 XLM). At current XLM prices this is a fraction of a cent &mdash; making Stellar the cheapest option for high-volume agent payments.
+            </p>
+          </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Account Creation */}
+        <SectionAnchor id="account-creation">
+          <h2 className="text-2xl font-bold mb-4">Account Creation</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Stellar accounts require a minimum balance of 1 XLM to exist. <code className="text-emerald-400">sendStellarPayment()</code> automatically handles account creation when sending to a new address by using a <code className="text-emerald-400">createAccount</code> operation instead of a <code className="text-emerald-400">payment</code> operation.
+          </p>
+          <CodeBlock title="Auto account creation">{`import { sendStellarPayment } from "@aegis-ows/integrations";
+
+// Sending to a new account? No extra code needed.
+// sendStellarPayment detects non-existent accounts and
+// uses createAccount operation automatically.
+const result = await sendStellarPayment({
+  from: "GBZX...",
+  to: "GNEWACCOUNT...",   // brand new address
+  amount: "2.0",          // must be >= 1 XLM to create account
+  asset: "XLM",
+  secretKey: process.env.STELLAR_SECRET_KEY,
+  testnet: true,
+});
+// Account created + funded in one transaction`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Receipt Anchoring */}
+        <SectionAnchor id="receipt-anchoring">
+          <h2 className="text-2xl font-bold mb-4">Receipt Anchoring</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Stellar transactions support a <code className="text-emerald-400">Memo</code> field (up to 28 bytes). Aegis uses this to embed receipt hashes directly in the payment transaction &mdash; zero additional cost.
+          </p>
+          <CodeBlock title="Payment with receipt memo">{`import { sendStellarPayment } from "@aegis-ows/integrations";
+
+// Receipt hash is included as memo — no extra transaction needed
+const result = await sendStellarPayment({
+  from: "GBZX...",
+  to: "GDEST...",
+  amount: "5.00",
+  asset: "USDC",
+  assetIssuer: "GA5ZSEJYB37J...",
+  memo: "AEGIS_RECEIPT:sha256:abc123",  // embedded in tx memo
+  secretKey: process.env.STELLAR_SECRET_KEY,
+});
+
+// result.txHash links directly to the payment + proof
+// No separate anchoring transaction required
+// Verifiable on Stellar Expert: stellarexpert.com`}</CodeBlock>
+          <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+            <p className="text-sm text-emerald-400 font-semibold mb-1">Free receipt anchoring</p>
+            <p className="text-sm text-muted-foreground">
+              Unlike Solana (which needs a separate memo transaction), Stellar&apos;s Memo field lets you include receipt proof in the same payment transaction &mdash; same fee, same hash, one transaction.
+            </p>
+          </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Cross-Border Payments */}
+        <SectionAnchor id="cross-border">
+          <h2 className="text-2xl font-bold mb-4">Cross-Border Payments</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Stellar&apos;s built-in DEX and path payments allow agents to send one currency and have the recipient receive another &mdash; bridging via XLM automatically. Near-zero fees and 5-second finality make this viable for real-time agent payments.
+          </p>
+          <CodeBlock title="Path payment (cross-currency)">{`import { sendStellarPathPayment } from "@aegis-ows/integrations";
+
+// Agent pays in USDC, recipient receives EUR
+const result = await sendStellarPathPayment({
+  from: "GBZX...",
+  to: "GDEST_EU...",
+  sendAsset: "USDC",
+  receiveAsset: "EUR",
+  receiveAmount: "4.50",     // recipient gets exactly 4.50 EUR
+  maxSendAmount: "5.10",     // slippage tolerance
+  secretKey: process.env.STELLAR_SECRET_KEY,
+});
+// Stellar DEX finds the best path: USDC → XLM → EUR
+// Completes in ~5 seconds`}</CodeBlock>
+          <div className="mt-4 grid sm:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <h4 className="font-semibold text-sm mb-1">5-second finality</h4>
+              <p className="text-xs text-muted-foreground">Stellar Consensus Protocol settles in a single ledger close — no waiting for block confirmations.</p>
+            </div>
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <h4 className="font-semibold text-sm mb-1">Built-in liquidity</h4>
+              <p className="text-xs text-muted-foreground">Stellar&apos;s on-ledger DEX provides immediate liquidity for XLM ↔ USDC ↔ EUR and other major pairs.</p>
+            </div>
+          </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Federation */}
+        <SectionAnchor id="federation">
+          <h2 className="text-2xl font-bold mb-4">Federation</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Stellar Federation resolves human-readable addresses like <code className="text-emerald-400">agent*yourdomain.com</code> to Stellar account IDs. Agents can advertise themselves with a memorable address instead of a raw <code className="text-emerald-400">G...</code> key.
+          </p>
+          <CodeBlock title="Resolve a federation address">{`import { resolveStellarFederation } from "@aegis-ows/integrations";
+
+// Resolve agent*domain.com to a Stellar account ID
+const address = await resolveStellarFederation("analyst*aegis.xyz");
+// "GBZX4CUNMHBZPQQ4PPKWKBUMSFXQ2SHMJJNCFNMSCZMYOQHAFBHZSPQ"
+
+// Use directly in a payment
+await sendStellarPayment({
+  from: "GBZX...",
+  to: await resolveStellarFederation("analyst*aegis.xyz"),
+  amount: "1.00",
+  asset: "USDC",
+  assetIssuer: "GA5ZSEJYB37J...",
+  secretKey: process.env.STELLAR_SECRET_KEY,
+});`}</CodeBlock>
+          <div className="mt-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+            <p className="text-sm text-muted-foreground">
+              To publish your own federation address, add a <code className="text-emerald-400">stellar.toml</code> file at <code className="text-emerald-400">https://yourdomain.com/.well-known/stellar.toml</code> with a <code className="text-emerald-400">FEDERATION_SERVER</code> entry.
+            </p>
+          </div>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />
@@ -320,6 +487,9 @@ const confirmed = await verifySettlement(
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.06]">
+                <tr><td className="p-3 font-mono text-xs text-emerald-400">sendStellarPayment</td><td className="p-3 text-muted-foreground text-xs">from, to, amount, asset, secretKey, memo?, testnet?</td><td className="p-3 text-muted-foreground text-xs">&#123; txHash, ledger, fee &#125;</td></tr>
+                <tr><td className="p-3 font-mono text-xs text-emerald-400">sendStellarPathPayment</td><td className="p-3 text-muted-foreground text-xs">from, to, sendAsset, receiveAsset, receiveAmount, maxSend, secretKey</td><td className="p-3 text-muted-foreground text-xs">&#123; txHash, ledger &#125;</td></tr>
+                <tr><td className="p-3 font-mono text-xs text-emerald-400">resolveStellarFederation</td><td className="p-3 text-muted-foreground text-xs">address (user*domain.com)</td><td className="p-3 text-muted-foreground text-xs">string (account ID)</td></tr>
                 <tr><td className="p-3 font-mono text-xs text-emerald-400">getStellarBalances</td><td className="p-3 text-muted-foreground text-xs">accountId, testnet?</td><td className="p-3 text-muted-foreground text-xs">ChainBalance[]</td></tr>
                 <tr><td className="p-3 font-mono text-xs text-emerald-400">verifyStellarTransaction</td><td className="p-3 text-muted-foreground text-xs">txHash, testnet?</td><td className="p-3 text-muted-foreground text-xs">TxVerification</td></tr>
                 <tr><td className="p-3 font-mono text-xs text-emerald-400">fundStellarTestnet</td><td className="p-3 text-muted-foreground text-xs">accountId</td><td className="p-3 text-muted-foreground text-xs">boolean</td></tr>

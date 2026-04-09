@@ -986,7 +986,7 @@ npx tsx run-economy.ts # Start all 3 agents + run transactions`}</CodeBlock>
         <SectionAnchor id="integrations">
           <h2 className="text-2xl font-bold tracking-tight mb-4">Integrations</h2>
           <p className="text-muted-foreground leading-relaxed mb-6">
-            Aegis integrates with 9 partner protocols. Each has a dedicated docs page with use cases, code examples, setup guides, and hackathon ideas.
+            Aegis integrates with 10 partner protocols. Each has a dedicated docs page with use cases, code examples, setup guides, and hackathon ideas.
           </p>
 
           {/* Payments & Signing */}
@@ -1005,7 +1005,7 @@ npx tsx run-economy.ts # Start all 3 agents + run transactions`}</CodeBlock>
                 <span className="w-2 h-2 rounded-full bg-sky-500" />
                 <h4 className="font-semibold text-sm">Stellar</h4>
               </div>
-              <p className="text-xs text-muted-foreground mb-3">Cross-border payments, Horizon API, multi-currency trust lines</p>
+              <p className="text-xs text-muted-foreground mb-3">Native XLM/USDC payments, cross-border path payments, receipt anchoring, federation</p>
               <span className="text-xs text-sky-400 group-hover:underline">View docs &rarr;</span>
             </Link>
             <Link href="/docs/ripple" className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 hover:bg-white/[0.04] hover:border-blue-500/20 transition-all group">
@@ -1015,6 +1015,14 @@ npx tsx run-economy.ts # Start all 3 agents + run transactions`}</CodeBlock>
               </div>
               <p className="text-xs text-muted-foreground mb-3">XRP balances, trust line tokens, WebSocket real-time queries</p>
               <span className="text-xs text-blue-400 group-hover:underline">View docs &rarr;</span>
+            </Link>
+            <Link href="/docs/evm" className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 hover:bg-white/[0.04] hover:border-indigo-500/20 transition-all group">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                <h4 className="font-semibold text-sm">EVM Chains</h4>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">Native payments on Ethereum, Base, Polygon, Arbitrum, Optimism with auto-chain selection</p>
+              <span className="text-xs text-indigo-400 group-hover:underline">View docs &rarr;</span>
             </Link>
           </div>
 

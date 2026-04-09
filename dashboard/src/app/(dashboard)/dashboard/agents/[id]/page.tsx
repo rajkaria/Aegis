@@ -5,6 +5,9 @@ import { WalletBalance } from "@/components/wallet-balance";
 import { ReputationBadge } from "@/components/reputation-badge";
 import { MoonPayFundWidget } from "@/components/moonpay-fund-widget";
 import { MoonPaySellWidget } from "@/components/moonpay-sell-widget";
+import { MultiChainPaymentWidget } from "@/components/multi-chain-payment";
+import { FeeComparisonCard } from "@/components/fee-comparison-card";
+import { UnifiedTxHistory } from "@/components/unified-tx-history";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -100,6 +103,15 @@ export default async function AgentDetailPage({
 
       {/* Off-Ramp: Withdraw Profits (only shows when profitable) */}
       <MoonPaySellWidget agentId={id} profitLoss={profile.profitLoss} />
+
+      {/* Multi-Chain Payments */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <MultiChainPaymentWidget agentId={id} />
+        <FeeComparisonCard />
+      </div>
+
+      {/* Cross-Chain Transaction History */}
+      <UnifiedTxHistory agentId={id} />
 
       {/* Revenue + Spending breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

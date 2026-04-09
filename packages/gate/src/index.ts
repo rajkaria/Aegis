@@ -45,6 +45,7 @@ export { buildAgentIdentity, buildAgentIdentityFromLedger, createBusinessCard, t
 export { registerInDirectory, searchDirectory, listDirectory, getDirectorySize } from "./xmtp-directory.js";
 export { openDispute, respondToDispute, type DisputeParams, type DisputeResponseParams } from "./xmtp-disputes.js";
 export { notifyViaXMTP, notifyPolicyBlock, notifyBudgetAlert, notifyDeadswitchWarning, type XMTPNotification } from "./xmtp-webhooks.js";
+export { initOWSWallets, getSolanaKeypair, getEVMAccount, getSolanaAddress, getEVMAddress } from "./ows-wallet-provider.js";
 
 // Rate limiter — max 100 requests per minute per IP
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();

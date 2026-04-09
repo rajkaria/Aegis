@@ -1083,6 +1083,29 @@ npx tsx run-economy.ts # Start all 3 agents + run transactions`}</CodeBlock>
               <span className="text-xs text-purple-400 group-hover:underline">View docs &rarr;</span>
             </Link>
           </div>
+
+          {/* Guides */}
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Guides</h3>
+          <div className="grid sm:grid-cols-3 gap-3 mb-8">
+            <Link href="/docs/live-run" className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 hover:bg-white/[0.04] hover:border-emerald-500/20 transition-all group">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h4 className="font-semibold text-sm">$50 Live Run</h4>
+                <Badge variant="outline" className="text-[10px] border-emerald-500/30 text-emerald-400 ml-auto">Live</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">We deployed 3 AI agents with $50 real mainnet money. Real tx hashes, real P&amp;L, real chaos.</p>
+              <span className="text-xs text-emerald-400 group-hover:underline">View docs &rarr;</span>
+            </Link>
+            <Link href="/docs/interop" className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 hover:bg-white/[0.04] hover:border-cyan-500/20 transition-all group">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full bg-cyan-500" />
+                <h4 className="font-semibold text-sm">Open Agent Interop</h4>
+                <Badge variant="outline" className="text-[10px] border-cyan-500/30 text-cyan-400 ml-auto">Open</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">Any HTTP agent can call Aegis endpoints. No SDK required. x402 protocol, 3 integration tiers.</p>
+              <span className="text-xs text-cyan-400 group-hover:underline">View docs &rarr;</span>
+            </Link>
+          </div>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />

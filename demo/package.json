@@ -12,14 +12,15 @@
     "autonomous": "tsx agents/autonomous-buyer.ts"
   },
   "dependencies": {
-    "@aegis-ows/shared": "file:../packages/shared",
     "@aegis-ows/gate": "file:../packages/gate",
+    "@aegis-ows/shared": "file:../packages/shared",
+    "@anthropic-ai/sdk": "^0.86.1",
     "express": "^5.0.0"
   },
   "devDependencies": {
-    "tsx": "^4.19.0",
     "@types/express": "^5.0.0",
     "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
     "typescript": "^5.7.0"
   }
 }

@@ -3,13 +3,39 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { UserMenu } from "@/components/user-menu";
 
 const links = [
   { href: "/dashboard", label: "Economy", icon: FlowIcon },
   { href: "/dashboard/agents", label: "Agents", icon: UsersIcon },
+  { href: "/dashboard/wallets", label: "Wallets", icon: WalletIcon },
   { href: "/dashboard/policies", label: "Policies", icon: ShieldIcon },
   { href: "/dashboard/manage", label: "Manage", icon: WrenchIcon },
 ];
+
+export interface NavUser {
+  displayName: string | null;
+  email: string;
+  avatarUrl: string | null;
+}
+
+function WalletIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+      <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+      <path d="M18 12a2 2 0 0 0 0 4h4v-4z" />
+    </svg>
+  );
+}
 
 function FlowIcon({ className }: { className?: string }) {
   return (
@@ -117,7 +143,7 @@ function DownloadIcon({ className }: { className?: string }) {
   );
 }
 
-export function Nav() {
+export function Nav({ user }: { user?: NavUser | null }) {
   const pathname = usePathname();
 
   return (
@@ -223,6 +249,24 @@ export function Nav() {
           <DownloadIcon className="h-3.5 w-3.5 group-hover:text-emerald-400 transition-colors" />
           Export CSV
         </a>
+      </div>
+
+      {/* User menu or sign in prompt */}
+      <div className="px-4 py-3 border-t border-white/[0.05]">
+        {user ? (
+          <UserMenu
+            displayName={user.displayName}
+            email={user.email}
+            avatarUrl={user.avatarUrl}
+          />
+        ) : (
+          <Link
+            href="/login"
+            className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium hover:bg-white/10 transition-colors"
+          >
+            Sign in for your own dashboard
+          </Link>
+        )}
       </div>
     </aside>
   );

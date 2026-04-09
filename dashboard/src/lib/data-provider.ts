@@ -92,3 +92,38 @@ export function readMessages(): MessageBus {
   if (isLocal()) return readLocal("messages.json", { messages: [] });
   return bundledMessages as MessageBus;
 }
+
+// ---------------------------------------------------------------------------
+// Live metrics from Railway agents (optional)
+// ---------------------------------------------------------------------------
+
+export interface LiveAgentMetrics {
+  agent: string;
+  earned: number;
+  calls: number;
+  netMargin: number;
+  solanaAddress: string;
+  evmAddress: string;
+  txHistory: Array<{ timestamp: string; amount: number; txHash: string; topic?: string }>;
+}
+
+/**
+ * Fetch live metrics from a deployed Railway agent.
+ * Set METRICS_URL to the agent's public Railway URL.
+ * Falls back to null if not set or unreachable.
+ */
+export async function readLiveMetrics(): Promise<LiveAgentMetrics | null> {
+  const metricsUrl = process.env.METRICS_URL;
+  if (!metricsUrl) return null;
+
+  try {
+    const res = await fetch(`${metricsUrl}/metrics`, {
+      signal: AbortSignal.timeout(5000),
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) return null;
+    return await res.json() as LiveAgentMetrics;
+  } catch {
+    return null;
+  }
+}

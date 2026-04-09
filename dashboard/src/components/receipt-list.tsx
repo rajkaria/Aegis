@@ -22,8 +22,10 @@ export function ReceiptList() {
 
   useEffect(() => {
     fetch("/api/receipts")
-      .then(r => r.json())
-      .then((data: { receipts: Receipt[] }) => setReceipts(data.receipts))
+      .then(r => r.ok ? r.json() : null)
+      .then((data: { receipts: Receipt[] } | null) => {
+        if (data?.receipts) setReceipts(data.receipts);
+      })
       .catch(() => {});
   }, []);
 

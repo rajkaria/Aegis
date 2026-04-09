@@ -12,6 +12,11 @@ const PUBLIC_PREFIXES = [
   "/api/moonpay/config",
   "/api/moonpay/currencies",
   "/api/moonpay/availability",
+  "/api/receipts",        // demo receipts, no user data
+  "/api/simulate",        // economy simulation
+  "/api/economy",         // read-only economy overview
+  "/api/analytics",       // read-only analytics
+  "/api/payments/chains", // chain list, no user data
 ];
 
 function isPublicRoute(pathname: string): boolean {

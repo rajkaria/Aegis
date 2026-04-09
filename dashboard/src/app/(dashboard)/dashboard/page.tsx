@@ -1,4 +1,5 @@
 import { getEconomyOverview } from "@/lib/aegis-data";
+import { readAllLiveMetrics, type LiveAgentMetrics } from "@/lib/data-provider";
 import { StatCard } from "@/components/stat-card";
 import { MoneyFlow } from "@/components/sankey-chart";
 import { AgentPnlTable } from "@/components/agent-pnl-table";
@@ -15,7 +16,22 @@ import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 
-function DemoBanner() {
+function DemoBanner({ hasLive }: { hasLive: boolean }) {
+  if (hasLive) {
+    return (
+      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 flex items-start gap-3">
+        <div className="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-emerald-300">Live Railway agents connected</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            The agents below are running on Railway mainnet. Metrics refresh on every page load. Economy simulation below uses devnet seed data.
+          </p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-4 flex items-start gap-3">
       <div className="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-sky-500/10 flex items-center justify-center">
@@ -32,8 +48,72 @@ function DemoBanner() {
   );
 }
 
-export default function EconomyPage() {
-  const data = getEconomyOverview();
+function LiveAgentCard({ m }: { m: LiveAgentMetrics }) {
+  const net = m.earned - (m.costs ?? 0);
+  const recentTx = m.txHistory.slice(-5).reverse();
+  return (
+    <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="font-medium text-sm">{m.agent}</span>
+          <Badge variant="outline" className="text-[9px]">Railway</Badge>
+        </div>
+        <span className={`text-xs font-mono font-semibold ${net >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+          {net >= 0 ? "+" : ""}${net.toFixed(4)} net
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-2 text-xs">
+        <div>
+          <p className="text-muted-foreground">Earned</p>
+          <p className="font-mono font-medium">${m.earned.toFixed(4)}</p>
+        </div>
+        {m.costs !== undefined && (
+          <div>
+            <p className="text-muted-foreground">Costs</p>
+            <p className="font-mono font-medium">${m.costs.toFixed(4)}</p>
+          </div>
+        )}
+        <div>
+          <p className="text-muted-foreground">Calls</p>
+          <p className="font-mono font-medium">{m.calls}</p>
+        </div>
+      </div>
+      {recentTx.length > 0 && (
+        <div className="space-y-1">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Recent transactions</p>
+          {recentTx.map((tx, i) => {
+            const amt = tx.net ?? tx.amount ?? 0;
+            return (
+              <div key={i} className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground truncate max-w-[60%]">
+                  {tx.topic ?? "payment"}
+                </span>
+                <span className={`font-mono ${amt >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                  {amt >= 0 ? "+" : ""}${Math.abs(amt).toFixed(4)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <div className="pt-1 border-t border-white/[0.04] space-y-1">
+        <p className="text-[10px] text-muted-foreground">
+          SOL: <span className="font-mono">{m.solanaAddress.slice(0, 8)}…{m.solanaAddress.slice(-6)}</span>
+        </p>
+        <p className="text-[10px] text-muted-foreground">
+          EVM: <span className="font-mono">{m.evmAddress.slice(0, 8)}…{m.evmAddress.slice(-6)}</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default async function EconomyPage() {
+  const [data, liveAgents] = await Promise.all([
+    Promise.resolve(getEconomyOverview()),
+    readAllLiveMetrics(),
+  ]);
 
   // Build flow nodes and links for the visualization
   const flowNodes = data.profiles.map((p) => ({
@@ -64,8 +144,23 @@ export default function EconomyPage() {
         </div>
       </div>
 
-      {/* Demo Banner */}
-      {process.env.VERCEL && <DemoBanner />}
+      {/* Banner */}
+      {process.env.VERCEL && <DemoBanner hasLive={liveAgents.length > 0} />}
+
+      {/* Live Railway Agents */}
+      {liveAgents.length > 0 && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-base">Live Railway Agents</CardTitle>
+            <span className="text-[10px] text-muted-foreground">real-time — refreshes on load</span>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {liveAgents.map(m => <LiveAgentCard key={m.agent} m={m} />)}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

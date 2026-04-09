@@ -100,30 +100,55 @@ export function readMessages(): MessageBus {
 export interface LiveAgentMetrics {
   agent: string;
   earned: number;
+  costs?: number;
   calls: number;
   netMargin: number;
   solanaAddress: string;
   evmAddress: string;
-  txHistory: Array<{ timestamp: string; amount: number; txHash: string; topic?: string }>;
+  txHistory: Array<{ timestamp: string; amount: number; txHash: string; topic?: string; revenue?: number; cost?: number; net?: number }>;
+  reachable: boolean;
+}
+
+async function fetchAgentMetrics(url: string): Promise<LiveAgentMetrics | null> {
+  try {
+    const res = await fetch(`${url}/metrics`, {
+      signal: AbortSignal.timeout(5000),
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as Omit<LiveAgentMetrics, "reachable">;
+    return { ...data, reachable: true };
+  } catch {
+    return null;
+  }
 }
 
 /**
- * Fetch live metrics from a deployed Railway agent.
+ * Fetch live metrics from a single deployed Railway agent.
  * Set METRICS_URL to the agent's public Railway URL.
  * Falls back to null if not set or unreachable.
  */
 export async function readLiveMetrics(): Promise<LiveAgentMetrics | null> {
   const metricsUrl = process.env.METRICS_URL;
   if (!metricsUrl) return null;
+  return fetchAgentMetrics(metricsUrl);
+}
 
-  try {
-    const res = await fetch(`${metricsUrl}/metrics`, {
-      signal: AbortSignal.timeout(5000),
-      headers: { Accept: "application/json" },
-    });
-    if (!res.ok) return null;
-    return await res.json() as LiveAgentMetrics;
-  } catch {
-    return null;
-  }
+/**
+ * Fetch live metrics from all configured Railway agents.
+ * Uses ANALYST_URL (or METRICS_URL fallback) and DATA_MINER_URL env vars.
+ */
+export async function readAllLiveMetrics(): Promise<LiveAgentMetrics[]> {
+  const agentUrls = [
+    process.env.ANALYST_URL ?? process.env.METRICS_URL,
+    process.env.DATA_MINER_URL,
+  ].filter(Boolean) as string[];
+
+  if (agentUrls.length === 0) return [];
+
+  const results = await Promise.allSettled(agentUrls.map(fetchAgentMetrics));
+  return results
+    .filter((r): r is PromiseFulfilledResult<LiveAgentMetrics> => r.status === "fulfilled" && r.value !== null)
+    .map(r => r.value);
 }

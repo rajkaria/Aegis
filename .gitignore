@@ -5,3 +5,6 @@ dist/
 .env
 .env.local
 *.tsbuildinfo
+
+# Internal docs (not for public repo)
+docs/future/

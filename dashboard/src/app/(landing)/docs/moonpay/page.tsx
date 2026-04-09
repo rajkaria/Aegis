@@ -45,9 +45,15 @@ function TableOfContents() {
     { id: "overview", label: "Why MoonPay for Agents?" },
     { id: "aegis-usage", label: "What Aegis Uses MoonPay For" },
     { id: "use-cases", label: "Use Cases" },
-    { id: "funding", label: "Funding Options" },
+    { id: "embedded-widget", label: "Embedded On-Ramp Widget" },
+    { id: "off-ramp", label: "Off-Ramp (Cash Out)" },
+    { id: "swap", label: "Token Swaps" },
+    { id: "tx-tracking", label: "Transaction Tracking" },
+    { id: "webhooks", label: "Webhooks" },
+    { id: "currencies-api", label: "Currencies API" },
+    { id: "geo-check", label: "Geo Availability" },
+    { id: "funding", label: "URL Generation" },
     { id: "cli", label: "CLI Integration" },
-    { id: "widget", label: "Web Widget" },
     { id: "flow", label: "Funding Flow" },
     { id: "setup", label: "Setup Guide" },
     { id: "hackathon", label: "Hackathon Ideas" },
@@ -135,8 +141,176 @@ export default function MoonPayDocsPage() {
 
         <hr className="border-white/[0.06] my-12" />
 
+        {/* Embedded Widget */}
+        <SectionAnchor id="embedded-widget">
+          <h2 className="text-2xl font-bold mb-4">Embedded On-Ramp Widget</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            When <code className="text-emerald-400">MOONPAY_SECRET_KEY</code> is configured, the buy widget opens inline in the Aegis dashboard &mdash; operators never leave the app. Without it, falls back to opening MoonPay in a new tab.
+          </p>
+          <CodeBlock title="Generate a signed buy widget URL">{`import { getMoonPayBuyUrl } from "@aegis-ows/integrations";
+
+const url = getMoonPayBuyUrl({
+  walletAddress: "2G55SdspdgSLcrXm3ZcfSHuDhvuhXtQLWqf1zVbAYCcq",
+  currencyCode: "sol",           // "sol", "usdc", "eth"
+  baseCurrencyCode: "usd",       // Fiat currency
+  baseCurrencyAmount: "50",      // Pre-fill $50
+  externalTransactionId: "aegis-data-miner-1234",
+});
+
+// With secret key: URL is HMAC-signed for embedded iframe mode
+// Without: plain URL opens in new tab`}</CodeBlock>
+          <CodeBlock title="Dashboard API route">{`// POST /api/moonpay/sign
+const res = await fetch("/api/moonpay/sign", {
+  method: "POST",
+  body: JSON.stringify({
+    walletAddress: agentId,
+    currencyCode: "usdc",
+    externalTransactionId: \`aegis-\${agentId}-\${Date.now()}\`,
+  }),
+});
+const { url } = await res.json();
+// url is ready for iframe src or window.open()`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Off-Ramp */}
+        <SectionAnchor id="off-ramp">
+          <h2 className="text-2xl font-bold mb-4">Off-Ramp (Cash Out Profits)</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Agents that earn more than they spend can cash out to the operator&apos;s bank account. The &ldquo;Withdraw Profits&rdquo; card only appears when an agent has positive P&amp;L.
+          </p>
+          <CodeBlock title="Generate a sell widget URL">{`import { getMoonPaySellUrl } from "@aegis-ows/integrations";
+
+const url = getMoonPaySellUrl({
+  walletAddress: "2G55Sds...",
+  currencyCode: "usdc",          // Crypto to sell
+  baseCurrencyCode: "usd",       // Fiat to receive
+  quoteCurrencyAmount: "100",    // Amount of crypto to sell
+  externalTransactionId: "aegis-sell-analyst-5678",
+});
+// Opens MoonPay sell flow → crypto leaves wallet → fiat hits bank`}</CodeBlock>
+          <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+            <p className="text-sm text-emerald-400 font-semibold mb-1">Revenue isn&apos;t trapped in crypto</p>
+            <p className="text-sm text-muted-foreground">
+              Off-ramping makes agent economies feel like a real business. Operators can withdraw profits to their bank without touching an exchange.
+            </p>
+          </div>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Swap */}
+        <SectionAnchor id="swap">
+          <h2 className="text-2xl font-bold mb-4">Token Swaps</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Agent holds SOL but needs to pay in USDC? Swap in-flow via MoonPay &mdash; no DEX interaction needed.
+          </p>
+          <CodeBlock title="Generate a swap URL">{`import { getMoonPaySwapUrl } from "@aegis-ows/integrations";
+
+const url = getMoonPaySwapUrl({
+  walletAddress: "2G55Sds...",
+  fromCurrencyCode: "sol",
+  toCurrencyCode: "usdc",
+});
+// Opens MoonPay swap widget`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Transaction Tracking */}
+        <SectionAnchor id="tx-tracking">
+          <h2 className="text-2xl font-bold mb-4">Transaction Tracking</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Track buy/sell/swap transactions in real-time. Requires <code className="text-emerald-400">MOONPAY_SECRET_KEY</code>.
+          </p>
+          <CodeBlock title="Query transaction status">{`import { getMoonPayTransaction } from "@aegis-ows/integrations";
+
+const tx = await getMoonPayTransaction("aegis-data-miner-1234");
+// Returns:
+// {
+//   id: "tx_abc...",
+//   status: "completed",        // waitingPayment | pending | completed | failed
+//   cryptoAmount: "0.5",
+//   baseCurrencyAmount: "50",
+//   baseCurrency: "usd",
+//   currency: "sol",
+//   walletAddress: "2G55Sds...",
+//   createdAt: "2024-01-15T10:30:00Z"
+// }`}</CodeBlock>
+          <CodeBlock title="Dashboard API">{`// GET /api/moonpay/transactions?externalId=aegis-data-miner-1234
+// Returns MoonPayTransaction object
+// Status polling: dashboard component polls every 10s until terminal state`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Webhooks */}
+        <SectionAnchor id="webhooks">
+          <h2 className="text-2xl font-bold mb-4">Webhooks</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            MoonPay sends real-time webhook events when transactions complete. Aegis validates the signature and logs to the agent activity feed.
+          </p>
+          <CodeBlock title="Webhook handler">{`// POST /api/moonpay/webhook
+// Headers: moonpay-signature-v2: <HMAC-SHA256 signature>
+
+// Events handled:
+// transaction_completed → log success, trigger balance refresh
+// transaction_failed    → log failure, notify operator
+// transaction_updated   → log status change
+
+// Signature validated using MOONPAY_WEBHOOK_KEY
+// Invalid signatures return 401`}</CodeBlock>
+          <CodeBlock title="Webhook validation">{`import { validateMoonPayWebhook } from "@aegis-ows/integrations";
+
+const payload = validateMoonPayWebhook(rawBody, signatureHeader);
+if (!payload) {
+  // Invalid signature — reject
+}
+// payload.type: "transaction_completed" | "transaction_failed" | ...
+// payload.data: transaction details`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Currencies API */}
+        <SectionAnchor id="currencies-api">
+          <h2 className="text-2xl font-bold mb-4">Currencies API</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Dynamically query which tokens MoonPay supports instead of hardcoding. Cached for 1 hour.
+          </p>
+          <CodeBlock title="Fetch supported currencies">{`import { getMoonPayCurrencies } from "@aegis-ows/integrations";
+
+const currencies = await getMoonPayCurrencies();
+// With API key: fetches from MoonPay /v3/currencies
+// Without: returns hardcoded [SOL, USDC, ETH]
+
+// Each currency:
+// { code: "sol", name: "Solana", minBuyAmount: 0.1, maxBuyAmount: 30000,
+//   isSellSupported: true, ... }`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Geo Availability */}
+        <SectionAnchor id="geo-check">
+          <h2 className="text-2xl font-bold mb-4">Geo Availability</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Check if MoonPay is available in the operator&apos;s country before showing funding options.
+          </p>
+          <CodeBlock title="Check availability">{`import { checkMoonPayAvailability } from "@aegis-ows/integrations";
+
+const availability = await checkMoonPayAvailability();
+// { isAllowed: true, isBuyAllowed: true, isSellAllowed: true, alpha2: "US" }
+
+// Without API key: returns optimistic default (always allowed)
+// With API key: checks MoonPay /v4/ip_address endpoint`}</CodeBlock>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
         <SectionAnchor id="funding">
-          <h2 className="text-2xl font-bold mb-4">Funding Options</h2>
+          <h2 className="text-2xl font-bold mb-4">URL Generation</h2>
           <CodeBlock title="Generate funding options for an agent wallet">{`import { getMoonPayFundingOptions } from "@aegis-ows/integrations";
 
 const options = getMoonPayFundingOptions("0x1234...");
@@ -211,11 +385,18 @@ const fundingUrl = \`https://www.moonpay.com/buy/usdc?walletAddress=\${agentWall
 
         <SectionAnchor id="setup">
           <h2 className="text-2xl font-bold mb-4">Setup Guide</h2>
-          <CodeBlock title="Install MoonPay CLI (optional)">{`npm install -g @moonpay/cli`}</CodeBlock>
+          <CodeBlock title=".env (all optional)">{`# Publishable key — enables embedded widget + currencies API
+MOONPAY_API_KEY=pk_live_...
+
+# Secret key — enables URL signing + transaction status queries
+MOONPAY_SECRET_KEY=sk_live_...
+
+# Webhook key — enables real-time transaction notifications
+MOONPAY_WEBHOOK_KEY=whk_...`}</CodeBlock>
           <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
-            <p className="text-sm text-emerald-400 font-semibold mb-1">Minimal setup</p>
+            <p className="text-sm text-emerald-400 font-semibold mb-1">Graceful degradation</p>
             <p className="text-sm text-muted-foreground">
-              URL generation works with zero configuration. The CLI is optional &mdash; install it only if you want programmatic wallet management.
+              Everything works without API keys (external URLs). Each key unlocks more features. Same pattern as Zerion and Allium.
             </p>
           </div>
           <div className="mt-4 overflow-x-auto rounded-xl border border-white/[0.06]">
@@ -227,9 +408,13 @@ const fundingUrl = \`https://www.moonpay.com/buy/usdc?walletAddress=\${agentWall
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.06]">
-                <tr><td className="p-3 text-muted-foreground">URL generation</td><td className="p-3 text-xs text-emerald-400">Nothing (works out of the box)</td></tr>
-                <tr><td className="p-3 text-muted-foreground">CLI purchases</td><td className="p-3 text-xs text-muted-foreground">@moonpay/cli installed globally</td></tr>
-                <tr><td className="p-3 text-muted-foreground">Programmatic API</td><td className="p-3 text-xs text-muted-foreground">MoonPay API key</td></tr>
+                <tr><td className="p-3 text-muted-foreground">Buy/Sell/Swap URLs</td><td className="p-3 text-xs text-emerald-400">Nothing (works out of the box)</td></tr>
+                <tr><td className="p-3 text-muted-foreground">Embedded widget (iframe)</td><td className="p-3 text-xs text-muted-foreground">MOONPAY_SECRET_KEY</td></tr>
+                <tr><td className="p-3 text-muted-foreground">Currencies API</td><td className="p-3 text-xs text-muted-foreground">MOONPAY_API_KEY</td></tr>
+                <tr><td className="p-3 text-muted-foreground">Geo availability check</td><td className="p-3 text-xs text-muted-foreground">MOONPAY_API_KEY</td></tr>
+                <tr><td className="p-3 text-muted-foreground">Transaction status</td><td className="p-3 text-xs text-muted-foreground">MOONPAY_SECRET_KEY</td></tr>
+                <tr><td className="p-3 text-muted-foreground">Webhooks</td><td className="p-3 text-xs text-muted-foreground">MOONPAY_WEBHOOK_KEY</td></tr>
+                <tr><td className="p-3 text-muted-foreground">CLI purchases</td><td className="p-3 text-xs text-muted-foreground">@moonpay/cli</td></tr>
               </tbody>
             </table>
           </div>
@@ -268,9 +453,16 @@ const fundingUrl = \`https://www.moonpay.com/buy/usdc?walletAddress=\${agentWall
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.06]">
+                <tr><td className="p-3 font-mono text-xs text-emerald-400">getMoonPayBuyUrl</td><td className="p-3 text-muted-foreground text-xs">options</td><td className="p-3 text-muted-foreground text-xs">string (signed URL)</td></tr>
+                <tr><td className="p-3 font-mono text-xs text-emerald-400">getMoonPaySellUrl</td><td className="p-3 text-muted-foreground text-xs">options</td><td className="p-3 text-muted-foreground text-xs">string (signed URL)</td></tr>
+                <tr><td className="p-3 font-mono text-xs text-emerald-400">getMoonPaySwapUrl</td><td className="p-3 text-muted-foreground text-xs">options</td><td className="p-3 text-muted-foreground text-xs">string</td></tr>
+                <tr><td className="p-3 font-mono text-xs text-emerald-400">getMoonPayTransaction</td><td className="p-3 text-muted-foreground text-xs">externalId</td><td className="p-3 text-muted-foreground text-xs">MoonPayTransaction | null</td></tr>
+                <tr><td className="p-3 font-mono text-xs text-emerald-400">getMoonPayCurrencies</td><td className="p-3 text-muted-foreground text-xs">(none)</td><td className="p-3 text-muted-foreground text-xs">MoonPayCurrency[]</td></tr>
+                <tr><td className="p-3 font-mono text-xs text-emerald-400">checkMoonPayAvailability</td><td className="p-3 text-muted-foreground text-xs">ipAddress?</td><td className="p-3 text-muted-foreground text-xs">MoonPayAvailability</td></tr>
+                <tr><td className="p-3 font-mono text-xs text-emerald-400">validateMoonPayWebhook</td><td className="p-3 text-muted-foreground text-xs">rawBody, signature</td><td className="p-3 text-muted-foreground text-xs">payload | null</td></tr>
+                <tr><td className="p-3 font-mono text-xs text-emerald-400">signMoonPayUrl</td><td className="p-3 text-muted-foreground text-xs">url</td><td className="p-3 text-muted-foreground text-xs">string | null</td></tr>
+                <tr><td className="p-3 font-mono text-xs text-emerald-400">getMoonPayConfig</td><td className="p-3 text-muted-foreground text-xs">(none)</td><td className="p-3 text-muted-foreground text-xs">config object</td></tr>
                 <tr><td className="p-3 font-mono text-xs text-emerald-400">getMoonPayFundingOptions</td><td className="p-3 text-muted-foreground text-xs">walletAddress</td><td className="p-3 text-muted-foreground text-xs">FundingOption</td></tr>
-                <tr><td className="p-3 font-mono text-xs text-emerald-400">isMoonPayInstalled</td><td className="p-3 text-muted-foreground text-xs">(none)</td><td className="p-3 text-muted-foreground text-xs">boolean</td></tr>
-                <tr><td className="p-3 font-mono text-xs text-emerald-400">getMoonPayWallets</td><td className="p-3 text-muted-foreground text-xs">(none)</td><td className="p-3 text-muted-foreground text-xs">string[]</td></tr>
               </tbody>
             </table>
           </div>

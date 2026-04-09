@@ -3,8 +3,9 @@ import { StatCard } from "@/components/stat-card";
 import { BudgetBar } from "@/components/budget-bar";
 import { WalletBalance } from "@/components/wallet-balance";
 import { ReputationBadge } from "@/components/reputation-badge";
+import { MoonPayFundWidget } from "@/components/moonpay-fund-widget";
+import { MoonPaySellWidget } from "@/components/moonpay-sell-widget";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -91,44 +92,14 @@ export default async function AgentDetailPage({
         />
       </div>
 
-      {/* Wallet Balance */}
+      {/* Wallet Balance + MoonPay */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <WalletBalance agentId={id} />
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Fund Agent Wallet</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="rounded-lg bg-muted/50 border border-border/50 p-3">
-              <p className="text-xs text-muted-foreground mb-1.5">MoonPay CLI</p>
-              <code className="text-xs font-mono text-foreground break-all">
-                mp buy --currency usdc --wallet {id}
-              </code>
-            </div>
-            <div className="flex flex-col gap-2">
-              <a
-                href={`https://www.moonpay.com/buy/usdc?walletAddress=${id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button variant="outline" className="w-full">
-                  Open MoonPay On-Ramp
-                </Button>
-              </a>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {["USDC", "ETH", "SOL"].map((token) => (
-                <Badge key={token} variant="outline" className="text-[10px]">
-                  {token}
-                </Badge>
-              ))}
-            </div>
-            <p className="text-[10px] text-muted-foreground">
-              Fiat-to-crypto on-ramp powered by MoonPay. Supports Ethereum, Base, Solana, and Polygon.
-            </p>
-          </CardContent>
-        </Card>
+        <MoonPayFundWidget agentId={id} />
       </div>
+
+      {/* Off-Ramp: Withdraw Profits (only shows when profitable) */}
+      <MoonPaySellWidget agentId={id} profitLoss={profile.profitLoss} />
 
       {/* Revenue + Spending breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

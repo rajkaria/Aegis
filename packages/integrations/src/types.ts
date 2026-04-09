@@ -23,3 +23,37 @@ export interface FundingOption {
   supportedTokens: string[];
   supportedChains: string[];
 }
+
+export interface MoonPayTransaction {
+  id: string;
+  externalTransactionId?: string;
+  status: "waitingPayment" | "pending" | "waitingAuthorization" | "completed" | "failed";
+  cryptoTransactionId?: string;   // On-chain tx hash when completed
+  cryptoAmount?: string;
+  baseCurrencyAmount?: string;    // Fiat amount
+  baseCurrency?: string;          // "usd", "eur", etc.
+  currency?: string;              // "sol", "usdc", "eth"
+  walletAddress?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MoonPayCurrency {
+  id: string;
+  code: string;               // "sol", "usdc_sol", "eth"
+  name: string;               // "Solana", "USD Coin (SOL)"
+  type: "crypto";
+  minBuyAmount: number | null;
+  maxBuyAmount: number | null;
+  minSellAmount: number | null;
+  maxSellAmount: number | null;
+  isSellSupported: boolean;
+}
+
+export interface MoonPayAvailability {
+  isAllowed: boolean;
+  isBuyAllowed: boolean;
+  isSellAllowed: boolean;
+  alpha2: string;               // Country code: "US", "GB", etc.
+  state?: string;               // US state code if applicable
+}

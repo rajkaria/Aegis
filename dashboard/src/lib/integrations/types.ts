@@ -23,3 +23,37 @@ export interface FundingOption {
   supportedTokens: string[];
   supportedChains: string[];
 }
+
+export interface MoonPayTransaction {
+  id: string;
+  externalTransactionId?: string;
+  status: "waitingPayment" | "pending" | "waitingAuthorization" | "completed" | "failed";
+  cryptoTransactionId?: string;
+  cryptoAmount?: string;
+  baseCurrencyAmount?: string;
+  baseCurrency?: string;
+  currency?: string;
+  walletAddress?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MoonPayCurrency {
+  id: string;
+  code: string;
+  name: string;
+  type: "crypto";
+  minBuyAmount: number | null;
+  maxBuyAmount: number | null;
+  minSellAmount: number | null;
+  maxSellAmount: number | null;
+  isSellSupported: boolean;
+}
+
+export interface MoonPayAvailability {
+  isAllowed: boolean;
+  isBuyAllowed: boolean;
+  isSellAllowed: boolean;
+  alpha2: string;
+  state?: string;
+}

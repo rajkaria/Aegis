@@ -1,4 +1,5 @@
 import { getAgentDetail, getEconomyOverview } from "@/lib/aegis-data";
+import { getUserId } from "@/lib/auth-helpers";
 import { StatCard } from "@/components/stat-card";
 import { BudgetBar } from "@/components/budget-bar";
 import { WalletBalance } from "@/components/wallet-balance";
@@ -28,8 +29,11 @@ export default async function AgentDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { profile, policyLog, budgets } = getAgentDetail(id);
-  const { reputations } = getEconomyOverview();
+  const userId = await getUserId();
+  const [{ profile, policyLog, budgets }, { reputations }] = await Promise.all([
+    getAgentDetail(id, userId ?? undefined),
+    getEconomyOverview(userId ?? undefined),
+  ]);
   const reputation = reputations.find(r => r.agentId === id);
 
   const isProfit = profile.profitLoss >= 0;

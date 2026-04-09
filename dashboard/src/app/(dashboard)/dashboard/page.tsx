@@ -1,5 +1,6 @@
 import { getEconomyOverview } from "@/lib/aegis-data";
 import { readAllLiveMetrics, type LiveAgentMetrics } from "@/lib/data-provider";
+import { getUserId } from "@/lib/auth-helpers";
 import { StatCard } from "@/components/stat-card";
 import { MoneyFlow } from "@/components/sankey-chart";
 import { AgentPnlTable } from "@/components/agent-pnl-table";
@@ -11,6 +12,7 @@ import { Onboarding } from "@/components/onboarding";
 import { ReceiptList } from "@/components/receipt-list";
 import { EconomyInsights } from "@/components/economy-insights";
 import { FleetManager } from "@/components/fleet-manager";
+import { RealtimeIndicator } from "@/components/realtime-indicator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -110,8 +112,9 @@ function LiveAgentCard({ m }: { m: LiveAgentMetrics }) {
 }
 
 export default async function EconomyPage() {
+  const userId = await getUserId();
   const [data, liveAgents] = await Promise.all([
-    Promise.resolve(getEconomyOverview()),
+    getEconomyOverview(userId ?? undefined),
     readAllLiveMetrics(),
   ]);
 
@@ -139,8 +142,9 @@ export default async function EconomyPage() {
           Agent Economy Dashboard — Real-time commerce, governance, and
           transparency
         </p>
-        <div className="mt-3">
+        <div className="mt-3 flex items-center gap-3">
           <DashboardControls />
+          <RealtimeIndicator />
         </div>
       </div>
 

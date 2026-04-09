@@ -1,4 +1,5 @@
 import { getEconomyOverview } from "@/lib/aegis-data";
+import { getUserId } from "@/lib/auth-helpers";
 import { AgentPnlTable } from "@/components/agent-pnl-table";
 import { AddAgent } from "@/components/add-agent";
 import { AgentTemplates } from "@/components/agent-templates";
@@ -7,8 +8,9 @@ import { StatCard } from "@/components/stat-card";
 
 export const dynamic = "force-dynamic";
 
-export default function AgentsPage() {
-  const { profiles, reputations } = getEconomyOverview();
+export default async function AgentsPage() {
+  const userId = await getUserId();
+  const { profiles, reputations } = await getEconomyOverview(userId ?? undefined);
 
   const totalRevenue = profiles.reduce((s, p) => s + p.totalRevenue, 0);
   const totalSpending = profiles.reduce((s, p) => s + p.totalSpending, 0);

@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { getEconomyOverview } from "@/lib/aegis-data";
+import { getUserId } from "@/lib/auth-helpers";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
-    const data = getEconomyOverview();
+    const userId = await getUserId();
+    const data = await getEconomyOverview(userId ?? undefined);
 
     // Parse pagination params for the activity array
     const url = new URL(req.url);

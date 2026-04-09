@@ -30,69 +30,80 @@ When adding a new feature, component, API route, CLI command, or integration to 
 
 All data in `~/.ows/aegis/*.json`. On Vercel, bundled seed data from `dashboard/src/data/` is used.
 
-## Session Context (Last updated: 2026-04-09)
+## Session Context (Last updated: 2026-04-10)
 
 ### Current State
-- **9 dedicated partner docs pages** — Every partner now has its own docs page under `/docs/[partner]`
-- **MoonPay deep integration** — Full fiat bridge: on-ramp (embedded widget), off-ramp (cash out), swaps, transaction tracking, webhooks, currencies API, geo availability
-- **Docs hub revamped** — Main `/docs` integrations section has categorized card grid (Payments & Signing, Data & Analytics, Infrastructure) linking to each partner page
-- **Dashboard agent page updated** — Static MoonPay card replaced with interactive `MoonPayFundWidget` + `MoonPaySellWidget` components
-- **Zero TS errors, zero console errors** — All pages render correctly on dev server
-- **Vercel deployed** — Dashboard auto-deploys from `main` branch
-- **npm published** — `aegis-ows-gate@0.3.0` and `aegis-ows-shared@0.2.0` on npm
+- **Multi-tenant platform ALL PHASES COMPLETE** — Auth + Data Layer + Wallet Gen + Realtime
+- **Live Railway agents still running** — Data-miner + Analyst on Railway, live metrics wired into dashboard
+- **Dashboard live metrics FIXED** — `readAllLiveMetrics()` fetches from ANALYST_URL/METRICS_URL + DATA_MINER_URL, shows "Live Railway Agents" card on dashboard
+- **Auth flow working** — `/login` (email + Google + GitHub OAuth), `/signup`, `/auth/callback`, middleware protects `/dashboard`
+- **Demo mode preserved** — `/dashboard?demo=true` bypasses auth, shows seed data
+- **Vercel deployed** — Auto-deploys from main, Supabase env vars configured
+- **Zero TS errors** — Build passes clean
 
-### Recent Changes (this session)
+### Supabase Project
+- **Project ID:** `jmtzwjfzxjcxlgtdoumi`
+- **URL:** `https://jmtzwjfzxjcxlgtdoumi.supabase.co`
+- **Tables created:** profiles, agents, wallets, ledger_entries, earnings_entries, policy_log, budget_configs
+- **All tables have RLS** with `auth.uid() = user_id` policies
+- **Realtime enabled** on agents, ledger_entries, earnings_entries, policy_log
+- **Trigger:** `on_auth_user_created` → auto-creates `profiles` row
+- **Env vars on Vercel:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (configured)
 
-**Partner docs pages created (8 new + 1 existing XMTP):**
-- `dashboard/src/app/(landing)/docs/solana/page.tsx` — Payments, receipt anchoring, balance queries
-- `dashboard/src/app/(landing)/docs/stellar/page.tsx` — Horizon API, XLM payments, testnet funding
-- `dashboard/src/app/(landing)/docs/ripple/page.tsx` — XRPL, XRP balances, trust lines
-- `dashboard/src/app/(landing)/docs/zerion/page.tsx` — Multi-chain portfolio tracking
-- `dashboard/src/app/(landing)/docs/uniblock/page.tsx` — EVM token balance aggregation
-- `dashboard/src/app/(landing)/docs/allium/page.tsx` — On-chain tx verification, analytics
-- `dashboard/src/app/(landing)/docs/moonpay/page.tsx` — Updated with deep integration docs
-- `dashboard/src/app/(landing)/docs/ows/page.tsx` — Wallet signing, key management
+### Recent Changes (this session — Phases 2-4 implementation)
 
-**MoonPay deep integration:**
-- `packages/integrations/src/moonpay.ts` — Full rewrite: buy/sell/swap URLs, tx status, currencies API, geo check, webhook validation, URL signing, config discovery
-- `dashboard/src/lib/integrations/moonpay.ts` — Dashboard mirror of above
-- `packages/integrations/src/types.ts` + `dashboard/src/lib/integrations/types.ts` — Added MoonPayTransaction, MoonPayCurrency, MoonPayAvailability types
-- 8 API routes: `/api/moonpay/{sign,sell-url,swap-url,transactions,webhook,currencies,availability,config}`
-- 4 components: `moonpay-fund-widget.tsx`, `moonpay-sell-widget.tsx`, `moonpay-swap-button.tsx`, `moonpay-transaction-status.tsx`
-- `dashboard/src/app/(dashboard)/dashboard/agents/[id]/page.tsx` — Replaced static MoonPay card with interactive widgets
+**Phase 2: Data Layer:**
+- `dashboard/src/lib/supabase-data-provider.ts` — NEW: async Supabase queries for ledger, earnings, policy log, budget config, agents, wallets — all scoped by user_id via RLS
+- `dashboard/src/lib/data-provider.ts` — MODIFIED: added async facade functions (readLedgerAsync, readEarningsLedgerAsync, etc.) — userId → Supabase, no userId → seed data
+- `dashboard/src/lib/aegis-data.ts` — MODIFIED: getEconomyOverview, getAgentDetail, getPolicyData all async with optional userId. Added data-driven compute helpers (computeAgentProfileFromData, computeSankeyFromData, computeReputationsFromData)
+- `dashboard/src/lib/auth-helpers.ts` — NEW: getUserId() server-side helper
+- All dashboard pages + API routes updated to pass userId from session
 
-**Main docs page updated:**
-- `dashboard/src/app/(landing)/docs/page.tsx` — Integrations section revamped with partner card grid + links to dedicated pages
+**Phase 3: Wallet Generation:**
+- `dashboard/src/lib/encryption.ts` — NEW: AES-256-GCM encrypt/decrypt with WALLET_KEK env var
+- `dashboard/src/app/api/agents/route.ts` — MODIFIED: added POST handler — creates agent, generates Solana + EVM keypairs, encrypts private keys, stores in Supabase
+- `dashboard/src/app/(dashboard)/dashboard/wallets/page.tsx` — REWRITTEN: shows real wallets grouped by agent, explorer links
+- `dashboard/src/components/create-agent-form.tsx` — NEW: client-side form for agent creation with instant wallet feedback
 
-### Key Decisions
-- **MoonPay graceful degradation** — Everything works without API keys (external URLs). `MOONPAY_API_KEY` unlocks currencies+geo, `MOONPAY_SECRET_KEY` unlocks embedded widget+tx tracking, `MOONPAY_WEBHOOK_KEY` unlocks real-time notifications. Same pattern as Zerion/Allium.
-- **Stellar recommended as next deep integration** — Makes Aegis truly multi-chain for payments (not just Solana). Cross-border use case, near-zero fees, no API keys needed.
-- **Docs per partner, not monolithic** — Each partner has its own `/docs/[partner]` page following the XMTP template (use cases, architecture, implementation guide, setup, hackathon ideas, API reference)
-- **MoonPay off-ramp conditional** — `MoonPaySellWidget` only renders when agent has positive P&L (profitLoss > 0)
+**Phase 4: Real-Time:**
+- `dashboard/src/hooks/use-realtime-dashboard.ts` — NEW: subscribes to Supabase Realtime on ledger_entries, earnings_entries, policy_log, agents tables. Auto-refreshes page on changes
+- `dashboard/src/components/realtime-indicator.tsx` — NEW: green "Realtime" badge when connected
+- Dashboard page updated with RealtimeIndicator component
+
+### Implementation Plan
+All phases complete:
+- **Phase 1: Auth Shell** — COMPLETE (previous session)
+- **Phase 2: Data Layer** — COMPLETE
+- **Phase 3: Wallet Generation** — COMPLETE
+- **Phase 4: Real-Time** — COMPLETE
 
 ### Next Steps
-- **Stellar deep integration** — Add `sendStellarPayment()`, receipt anchoring via Memo program, Gate middleware support for `chain: "stellar"`, cross-chain demo
-- **Deploy + commit** — Git commit all changes from this session, push to main, verify Vercel deploy
-- **Republish to npm** — `aegis-ows-gate` with MoonPay deep integration functions
-- **Tweet announcement** — Tag @moonpay, showcase dashboard screenshot with Fund/Withdraw widgets
-- **Test MoonPay with real API keys** — Get MoonPay publishable + secret keys, test embedded widget mode
-- Deploy agents on cloud with real mainnet wallet and $50 budget for live demo
+- Set `WALLET_KEK` env var on Vercel (64-char hex string, `openssl rand -hex 32`)
+- Test agent creation flow end-to-end with a real user
+- Add wallet balance fetching (Solana RPC + Zerion for EVM) on wallets page
+- Add MoonPay funding integration on wallets page
 
-### Partner Integrations (9 total)
-Solana, Stellar, Ripple XRPL, Zerion, Uniblock, Allium, MoonPay (DEEP), XMTP (DEEP), OWS
+### Key Decisions
+- **Supabase over custom auth** — Auth + Postgres + RLS + Realtime in one service, already had project
+- **Facade pattern for data provider** — backward-compatible: userId → Supabase, no userId → seed data (demo mode)
+- **Server-side key encryption (AES-256-GCM)** — KEK as env var, pragmatic for MVP vs user-managed passphrase
+- **Middleware graceful fallback** — when Supabase env vars missing, everything passes through (local dev)
+- **Lazy Supabase client creation** — createClient() called inside event handlers, not at module level, to avoid SSR prerender failures
+- **Demo mode via ?demo=true** — preserves unauthenticated preview with seed data
+
+### Partner Integrations (10 total)
+Solana (DEEP), Stellar (DEEP), EVM Chains (DEEP), Ripple XRPL, Zerion, Uniblock, Allium, MoonPay (DEEP), XMTP (DEEP), OWS
+
+### Previous Session Notes (2026-04-09 late)
+- Mainnet live run complete, 3 agents on Railway, 17 real transactions
+- Live metrics wired into dashboard via readAllLiveMetrics()
+- Docs: /docs/live-run article, /docs/interop guide
+
+### Previous Session Notes (2026-04-09 early)
+- Multi-chain Payment Gateway, EVM deep integration, MoonPay deep integration, 9 partner docs pages
 
 ### Previous Session Notes (2026-04-08)
-- Mainnet-ready Solana payments via `SOLANA_RPC_URL` env var
-- XMTP standalone subpath export `aegis-ows-gate/xmtp-messaging`
-- Dedicated XMTP docs page with Agent Workflow Stack
-- Landing page improvements (counters, ticker, nav cleanup)
-- Key: `SOLANA_RPC_URL` has no default (forces explicit network choice)
-- Key: agent-identity decoupled, xmtp-directory uses dynamic require
+- Mainnet-ready Solana payments, XMTP standalone subpath export
 
 ### Previous Session Notes (2026-04-07)
-- Hackathon submission completed
-- npm published without `@aegis-ows/` scope — used `aegis-ows-gate` and `aegis-ows-shared`
-- Dashboard types inlined in `src/lib/types.ts` for standalone Vercel deploy
-- XMTP transport auto-selects: LiveXMTPTransport when env vars set, FileTransport otherwise
-- Solana payments use OWS SDK `signTransaction` in-process (avoids blockhash race)
-- 50/50 dashboard tests, 10/10 XMTP tests passing, 0 TS errors
+- Hackathon submission completed, npm published, dashboard types inlined

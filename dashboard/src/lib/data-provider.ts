@@ -94,6 +94,37 @@ export function readMessages(): MessageBus {
 }
 
 // ---------------------------------------------------------------------------
+// Async facade — userId → Supabase, no userId → seed/local data
+// ---------------------------------------------------------------------------
+
+import {
+  readLedgerForUser,
+  readEarningsForUser,
+  readPolicyLogForUser,
+  readBudgetConfigForUser,
+} from "@/lib/supabase-data-provider";
+
+export async function readLedgerAsync(userId?: string): Promise<BudgetLedger> {
+  if (userId) return readLedgerForUser(userId);
+  return readLedger();
+}
+
+export async function readEarningsLedgerAsync(userId?: string): Promise<EarningsLedger> {
+  if (userId) return readEarningsForUser(userId);
+  return readEarningsLedger();
+}
+
+export async function readPolicyLogAsync(userId?: string): Promise<PolicyLog> {
+  if (userId) return readPolicyLogForUser(userId);
+  return readPolicyLog();
+}
+
+export async function readBudgetConfigAsync(userId?: string): Promise<BudgetConfig | null> {
+  if (userId) return readBudgetConfigForUser(userId);
+  return readBudgetConfig();
+}
+
+// ---------------------------------------------------------------------------
 // Live metrics from Railway agents (optional)
 // ---------------------------------------------------------------------------
 

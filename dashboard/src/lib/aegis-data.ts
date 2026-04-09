@@ -7,6 +7,10 @@ import {
   readGuardConfig,
   readDeadswitchConfig,
   readMessages,
+  readLedgerAsync,
+  readEarningsLedgerAsync,
+  readPolicyLogAsync,
+  readBudgetConfigAsync,
 } from "@/lib/data-provider";
 import {
   getSpentInPeriod,
@@ -14,6 +18,7 @@ import {
 import type {
   AgentProfile,
   SankeyData,
+  PolicyLog,
   PolicyLogEntry,
   EarningsEntry,
   LedgerEntry,
@@ -289,6 +294,96 @@ function generateDashboardInsights(
   return insights;
 }
 
+// === Data-driven compute helpers (accept pre-fetched data) ===
+
+function computeAgentProfileFromData(agentId: string, earnings: EarningsLedger, spending: BudgetLedger): AgentProfile {
+  const revenueEntries = earnings.entries.filter(e => e.agentId === agentId);
+  const totalRevenue = revenueEntries.reduce((s, e) => s + parseFloat(e.amount), 0);
+
+  const spendingEntries = spending.entries.filter(e => e.apiKeyId === agentId);
+  const totalSpending = spendingEntries.reduce((s, e) => s + parseFloat(e.amount), 0);
+
+  const endpointMap = new Map<string, { revenue: number; calls: number }>();
+  for (const e of revenueEntries) {
+    const cur = endpointMap.get(e.endpoint) ?? { revenue: 0, calls: 0 };
+    cur.revenue += parseFloat(e.amount);
+    cur.calls += 1;
+    endpointMap.set(e.endpoint, cur);
+  }
+
+  const vendorMap = new Map<string, { spending: number; calls: number }>();
+  for (const e of spendingEntries) {
+    const vendor = e.description?.match(/to (\S+)/)?.[1] ?? e.tool ?? "unknown";
+    const cur = vendorMap.get(vendor) ?? { spending: 0, calls: 0 };
+    cur.spending += parseFloat(e.amount);
+    cur.calls += 1;
+    vendorMap.set(vendor, cur);
+  }
+
+  return {
+    agentId,
+    totalRevenue,
+    totalSpending,
+    profitLoss: totalRevenue - totalSpending,
+    endpoints: Array.from(endpointMap.entries()).map(([endpoint, data]) => ({ endpoint, ...data })),
+    vendors: Array.from(vendorMap.entries()).map(([vendor, data]) => ({ vendor, ...data })),
+  };
+}
+
+function computeSankeyFromData(earnings: EarningsLedger): SankeyData {
+  const flowMap = new Map<string, Map<string, number>>();
+  const allAgents = new Set<string>();
+
+  for (const e of earnings.entries) {
+    allAgents.add(e.fromAgent);
+    allAgents.add(e.agentId);
+    if (!flowMap.has(e.fromAgent)) flowMap.set(e.fromAgent, new Map());
+    const targets = flowMap.get(e.fromAgent)!;
+    targets.set(e.agentId, (targets.get(e.agentId) ?? 0) + parseFloat(e.amount));
+  }
+
+  const nodes = Array.from(allAgents).map(name => ({ name }));
+  const nodeIndex = new Map(nodes.map((n, i) => [n.name, i]));
+
+  const links: SankeyData["links"] = [];
+  for (const [source, targets] of flowMap) {
+    for (const [target, value] of targets) {
+      if (source === target) continue;
+      links.push({
+        source: nodeIndex.get(source)!,
+        target: nodeIndex.get(target)!,
+        value: parseFloat(value.toFixed(4)),
+      });
+    }
+  }
+
+  return { nodes, links };
+}
+
+function computeReputationsFromData(ledger: BudgetLedger, earnings: EarningsLedger, policyLog: PolicyLog): AgentReputation[] {
+  const agentIds = new Set<string>();
+  for (const e of ledger.entries) agentIds.add(e.apiKeyId);
+  for (const e of earnings.entries) agentIds.add(e.agentId);
+
+  return Array.from(agentIds).map(agentId => {
+    const asBuyer = ledger.entries.filter(e => e.apiKeyId === agentId).length;
+    const asSeller = earnings.entries.filter(e => e.agentId === agentId).length;
+    const successful = asBuyer + asSeller;
+    const blocked = policyLog.entries.filter(e => e.apiKeyId === agentId && !e.allowed).length;
+    const total = successful + blocked;
+
+    let score = 0;
+    if (total > 0) {
+      score = 50 + Math.round((successful / Math.max(total, 1)) * 20) + Math.min(Math.round((successful / 10) * 15), 15) - Math.min(blocked * 10, 30);
+      score = Math.max(0, Math.min(100, score));
+    }
+
+    const level = score >= 85 ? "elite" as const : score >= 65 ? "verified" as const : score >= 40 ? "trusted" as const : "new" as const;
+
+    return { agentId, score, level, successfulPayments: successful, blockedTransactions: blocked };
+  });
+}
+
 // === Public types ===
 
 export interface ActivityItem {
@@ -319,13 +414,40 @@ export interface BudgetStatus {
 
 // === Public functions ===
 
-export function getEconomyOverview() {
-  const profiles = computeAllProfiles();
-  const sankeyData = computeSankeyData();
-  const policyLog = readPolicyLog();
-  const earnings = readEarningsLedger();
-  const spending = readLedger();
-  const budgetConfig = readBudgetConfig();
+export async function getEconomyOverview(userId?: string) {
+  const [spending, earnings, policyLog, budgetConfig] = await Promise.all([
+    readLedgerAsync(userId),
+    readEarningsLedgerAsync(userId),
+    readPolicyLogAsync(userId),
+    readBudgetConfigAsync(userId),
+  ]);
+
+  // Compute profiles from the fetched data
+  const agentIds = new Set<string>();
+  for (const e of earnings.entries) agentIds.add(e.agentId);
+  for (const e of spending.entries) agentIds.add(e.apiKeyId);
+
+  // OWS wallet discovery only for local/demo mode (no userId)
+  if (!userId) {
+    try {
+      const { execSync } = require("node:child_process");
+      const owsPath = `${require("node:os").homedir()}/.ows/bin`;
+      const output = execSync("ows wallet list", {
+        encoding: "utf-8",
+        timeout: 5000,
+        env: { ...process.env, PATH: `${owsPath}:/opt/homebrew/bin:/usr/local/bin:${process.env.PATH}` },
+      });
+      const nameMatches = output.matchAll(/Name:\s+(\S+)/g);
+      for (const match of nameMatches) {
+        agentIds.add(match[1]);
+      }
+    } catch {
+      // OWS not available — skip
+    }
+  }
+
+  const profiles = Array.from(agentIds).map(agentId => computeAgentProfileFromData(agentId, earnings, spending));
+  const sankeyData = computeSankeyFromData(earnings);
 
   const totalFlow = earnings.entries.reduce(
     (s, e) => s + parseFloat(e.amount),
@@ -409,8 +531,8 @@ export function getEconomyOverview() {
     });
   }
 
-  // Add discovery events from XMTP message bus
-  const messages = readMessages();
+  // Add discovery events from XMTP message bus (demo mode only)
+  const messages: ReturnType<typeof readMessages> = userId ? { messages: [] } : readMessages();
   for (const msg of messages.messages) {
     if (msg.type === "service_announcement") {
       activity.push({
@@ -639,15 +761,19 @@ export function getEconomyOverview() {
     budgets,
     discoveryEvents,
     insights,
-    reputations: computeReputations(),
+    reputations: computeReputationsFromData(spending, earnings, policyLog),
   };
 }
 
-export function getAgentDetail(agentId: string) {
-  const profile = computeAgentProfile(agentId);
-  const policyLog = readPolicyLog();
-  const budgetConfig = readBudgetConfig();
-  const spending = readLedger();
+export async function getAgentDetail(agentId: string, userId?: string) {
+  const [spending, earnings, policyLog, budgetConfig] = await Promise.all([
+    readLedgerAsync(userId),
+    readEarningsLedgerAsync(userId),
+    readPolicyLogAsync(userId),
+    readBudgetConfigAsync(userId),
+  ]);
+
+  const profile = computeAgentProfileFromData(agentId, earnings, spending);
 
   const agentPolicyLog = policyLog.entries.filter(
     (e) => e.apiKeyId === agentId
@@ -685,9 +811,12 @@ export function getAgentDetail(agentId: string) {
   return { profile, policyLog: agentPolicyLog, budgets };
 }
 
-export function getPolicyData() {
-  const log = readPolicyLog();
-  const budgetConfig = readBudgetConfig();
+export async function getPolicyData(userId?: string) {
+  const [log, budgetConfig] = await Promise.all([
+    readPolicyLogAsync(userId),
+    readBudgetConfigAsync(userId),
+  ]);
+  // Guard and deadswitch configs are local-only (no Supabase table), so read sync
   const guardConfig = readGuardConfig();
   const deadswitchConfig = readDeadswitchConfig();
   return { log, budgetConfig, guardConfig, deadswitchConfig };

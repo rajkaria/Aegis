@@ -100,6 +100,11 @@ function TableOfContents() {
     { id: "agent-templates", label: "Agent Templates" },
     { id: "fleet-manager", label: "Fleet Manager" },
     { id: "xmtp-guide", label: "XMTP Agent Messaging" },
+    { id: "multi-tenant", label: "Multi-Tenant Platform" },
+    { id: "auth", label: "  Authentication" },
+    { id: "wallet-generation", label: "  Wallet Generation" },
+    { id: "realtime", label: "  Real-Time Updates" },
+    { id: "data-layer", label: "  Data Layer" },
     { id: "roadmap-link", label: "Roadmap" },
   ];
 
@@ -1887,6 +1892,102 @@ aegisGate({
           <Link href="/docs/xmtp" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-sm text-emerald-400 hover:bg-emerald-500/10 transition-colors">
             Read the XMTP Guide &rarr;
           </Link>
+        </SectionAnchor>
+
+        <hr className="border-white/[0.06] my-12" />
+
+        {/* Multi-Tenant Platform */}
+        <SectionAnchor id="multi-tenant">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Multi-Tenant Platform</h2>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            Aegis is a full multi-tenant platform. Each user gets their own isolated workspace with agents, wallets, transactions, and policies — all secured by Supabase Row-Level Security.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            <FeatureCard icon="&#128274;" title="Supabase Auth" description="Email, Google, and GitHub OAuth login. Sessions managed via secure HTTP-only cookies with middleware protection." />
+            <FeatureCard icon="&#128176;" title="Auto Wallets" description="Creating an agent auto-generates Solana + EVM keypairs. Private keys are AES-256-GCM encrypted server-side." />
+            <FeatureCard icon="&#9889;" title="Real-Time" description="Supabase Realtime subscriptions push live updates to the dashboard — transactions, policy events, and agent status." />
+            <FeatureCard icon="&#128736;" title="Demo Mode" description="Visit /dashboard?demo=true to explore with seed data, no login required. Perfect for evaluation." />
+          </div>
+        </SectionAnchor>
+
+        <SectionAnchor id="auth">
+          <h3 className="text-xl font-semibold mb-3">Authentication</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Aegis uses Supabase Auth with three sign-in methods. The middleware protects all <code className="bg-white/5 px-1 rounded">/dashboard</code> routes and gracefully falls back when Supabase is not configured (local dev).
+          </p>
+
+          <div className="overflow-x-auto mb-4">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b border-white/[0.06] text-left"><th className="py-2 pr-4 text-muted-foreground font-medium">Method</th><th className="py-2 pr-4 text-muted-foreground font-medium">Route</th><th className="py-2 text-muted-foreground font-medium">Details</th></tr></thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4">Email + Password</td><td className="py-2 pr-4 font-mono text-xs">/login, /signup</td><td className="py-2">Email confirmation required</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4">Google OAuth</td><td className="py-2 pr-4 font-mono text-xs">/auth/callback</td><td className="py-2">One-click sign-in</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4">GitHub OAuth</td><td className="py-2 pr-4 font-mono text-xs">/auth/callback</td><td className="py-2">Developer-friendly</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <CodeBlock title="Environment Variables">{`NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...`}</CodeBlock>
+        </SectionAnchor>
+
+        <SectionAnchor id="wallet-generation">
+          <h3 className="text-xl font-semibold mb-3 mt-8">Wallet Generation</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            When you create an agent via the dashboard or API, Aegis auto-generates a Solana and EVM keypair. Private keys are encrypted with AES-256-GCM using a server-side Key Encryption Key (KEK) before storage.
+          </p>
+
+          <CodeBlock title="POST /api/agents">{`// Request
+{ "name": "my-agent", "displayName": "My Agent" }
+
+// Response (201)
+{
+  "agent": { "id": "uuid", "name": "my-agent", "status": "created" },
+  "wallets": [
+    { "chain": "solana", "address": "7xK...abc" },
+    { "chain": "evm", "address": "0x1234...abcd" }
+  ]
+}`}</CodeBlock>
+
+          <div className="mt-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+            <p className="text-sm text-amber-300 font-medium mb-1">Required: WALLET_KEK</p>
+            <p className="text-xs text-muted-foreground">
+              Generate with <code className="bg-white/5 px-1 rounded">openssl rand -hex 32</code> and set as an environment variable. Without it, agent creation will fail.
+            </p>
+          </div>
+        </SectionAnchor>
+
+        <SectionAnchor id="realtime">
+          <h3 className="text-xl font-semibold mb-3 mt-8">Real-Time Updates</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            The dashboard subscribes to Supabase Realtime on four tables: <code className="bg-white/5 px-1 rounded">ledger_entries</code>, <code className="bg-white/5 px-1 rounded">earnings_entries</code>, <code className="bg-white/5 px-1 rounded">policy_log</code>, and <code className="bg-white/5 px-1 rounded">agents</code>. When a new row is inserted or updated, the dashboard auto-refreshes — no manual reload needed.
+          </p>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            A green <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] text-emerald-400 border border-emerald-500/20 bg-emerald-500/5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> Realtime</span> badge appears in the dashboard header when the connection is active.
+          </p>
+        </SectionAnchor>
+
+        <SectionAnchor id="data-layer">
+          <h3 className="text-xl font-semibold mb-3 mt-8">Data Layer</h3>
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            Aegis uses a facade pattern for data access. When a user is authenticated, queries hit Supabase with RLS-scoped results. Without authentication (demo mode), bundled seed data is used.
+          </p>
+
+          <div className="overflow-x-auto mb-4">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b border-white/[0.06] text-left"><th className="py-2 pr-4 text-muted-foreground font-medium">Table</th><th className="py-2 pr-4 text-muted-foreground font-medium">Purpose</th><th className="py-2 text-muted-foreground font-medium">RLS</th></tr></thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs">profiles</td><td className="py-2 pr-4">User profiles (auto-created on signup)</td><td className="py-2">user_id = auth.uid()</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs">agents</td><td className="py-2 pr-4">User&apos;s agents with status + config</td><td className="py-2">user_id = auth.uid()</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs">wallets</td><td className="py-2 pr-4">Encrypted keypairs per agent per chain</td><td className="py-2">user_id = auth.uid()</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs">ledger_entries</td><td className="py-2 pr-4">Agent spending transactions</td><td className="py-2">user_id = auth.uid()</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs">earnings_entries</td><td className="py-2 pr-4">Agent revenue transactions</td><td className="py-2">user_id = auth.uid()</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs">policy_log</td><td className="py-2 pr-4">Policy enforcement events</td><td className="py-2">user_id = auth.uid()</td></tr>
+                <tr className="border-b border-white/[0.04]"><td className="py-2 pr-4 font-mono text-xs">budget_configs</td><td className="py-2 pr-4">Per-agent budget limits</td><td className="py-2">user_id = auth.uid()</td></tr>
+              </tbody>
+            </table>
+          </div>
         </SectionAnchor>
 
         <hr className="border-white/[0.06] my-12" />

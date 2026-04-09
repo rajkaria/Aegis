@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { getPolicyData } from "@/lib/aegis-data";
+import { getUserId } from "@/lib/auth-helpers";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const data = getPolicyData();
+    const userId = await getUserId();
+    const data = await getPolicyData(userId ?? undefined);
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
